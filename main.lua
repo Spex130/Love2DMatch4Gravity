@@ -1,14 +1,23 @@
 debug = true
 
 
+--Playfield attributes
+gridXCount = 6
+gridYCount = 12
+
+gridOrigin = {0, 0}
+gridAspect = {6, 12}
+gridHeight = 600
+gridWidth = 480
+gridBlockWidth = 64
+
+--Block Attributes
 blocksPGBY = {}
+colorBlank = 0
 colorPurple = 1
 colorGreen = 2
 colorBlue = 3
 colorYellow = 4
-
-gridXCount = 6
-gridYCount = 12
 
 gameState = 1
 
@@ -24,20 +33,17 @@ function love.load(arg)
     for y = 1, gridYCount do
         inert[y] = {}
         for x = 1, gridXCount do
-            inert[y][x] = ' '
+            inert[y][x] = colorBlue
         end
     end
 end
 
 function love.update(dt)
-
-
+updateGameState()
 end
 
 function love.draw(dt)
-	
-	
-	love.graphics.draw(blocksPGBY[1], 100, 100)
+	drawInertBlocks()
 end
 
 function loadBlocks()
@@ -63,8 +69,23 @@ function drawGrid()
     end
 end
 
-function drawInertBlocks()
+function drawGridBlock(color, col, row)
+	if(color ~= 0) then
+		love.graphics.draw(blocksPGBY[1], 6* (col-1) , 0)
+	end
+end
 
+function drawInertBlocks()
+    for x = 1, gridXCount do
+
+        for y = 1, gridYCount do
+            --drawGridBlock(inert[y][x], x, y)
+			color = inert[y][x]
+			if(color ~= 0) then
+				love.graphics.draw(blocksPGBY[color], gridOrigin[1] + gridBlockWidth* (x-1) , gridOrigin[2] + gridBlockWidth*(y-1))
+			end
+        end
+    end
 end
 
 function updateGameState()
@@ -74,19 +95,19 @@ function updateGameState()
 	--Do Nothing
 
 	elseif(gameState == 1) then--Spawning
-		SpawnNewPair()
+		--SpawnNewPair()
 		gameState = 2 --Switch to Falling        
 
 	elseif(gameState == 2) then--Falling (In Control of Player)
-		HandleFall()
+		--HandleFall()
 
 	elseif(gameState == 3) then--CheckAndDestroy	(Look for and clear out combos)	
-		DestroyAllChains()
+		--DestroyAllChains()
 		--gameState = 0 --Set to Busy. DestroyAllChains will set gameState when complete;
 
 	elseif(gameState == 4) then--Repositioning (Reposition Blocks affected by gravity after placement)
 		
-		repositionBlocks()
+		--repositionBlocks()
 		--gameState = 0 --Set to Busy. RepositionBlocks will set gameState when complete;
 
 	elseif(gameState == 5) then--GameOver	
@@ -96,3 +117,4 @@ function updateGameState()
 
 	end
 end
+
