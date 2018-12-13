@@ -19,7 +19,12 @@ colorGreen = 2
 colorBlue = 3
 colorYellow = 4
 
+
+--Gamestate tracking
 gameState = 1
+
+--Controllable falling
+
 
 function love.load(arg)
 	love.graphics.setBackgroundColor(255, 255, 255)
@@ -71,7 +76,7 @@ end
 
 function drawGridBlock(color, col, row)
 	if(color ~= 0) then
-		love.graphics.draw(blocksPGBY[1], 6* (col-1) , 0)
+		love.graphics.draw(blocksPGBY[1], gridOrigin[1] + gridBlockWidth* (col-1) , gridOrigin[2] + gridBlockWidth * (row-1))
 	end
 end
 
