@@ -15,6 +15,10 @@ function reset()
         timer = 0
     end
 
+function canPieceMove(testX, testY, testRotation)
+	return false
+end
+	
 function love.load(arg)
 
 	--Playfield attributes
@@ -41,9 +45,7 @@ function love.load(arg)
 	colorGray = 5
 
 	--Timers
-	canDrop = true
-	canDropTimerMax = 0.5 
-	canDropTimer = canDropTimerMax
+	timerLimit = 0.5
 
 	--Gamestate tracking
 	gameState = 1
@@ -52,9 +54,11 @@ function love.load(arg)
 	inert = {} 
 
 	--Player location attributes
+	rotations = {right = {x = 1, y = 0}, down = {x = 0, y = 1}, left = {x = -1, y = 0}, up = {x = 0, y = -1}}
 	player1 = 
 	{
-		location = {x = 3, y = 0}
+		location = {x = 3, y = 1},
+		rotation = rotations.right
 	}
 	
 	loadBlocks()
@@ -62,7 +66,58 @@ function love.load(arg)
 end
 
 function love.update(dt)
+	timer = timer + dt
+	timerLimit = 0.5
+    if timer >= timerLimit then
+        timer = timer - timerLimit
+		player1.location.y = 1 + player1.location.y
+	--[[
+        local testY = pieceY + 1
+        if canPieceMove(pieceX, testY, pieceRotation) then
+            pieceY = testY
+        else
+			--If it's over, add the piece to the inert array
+			for y = 1, pieceYCount do
+				for x = 1, pieceXCount do
+					local block = pieceStructures[pieceType][pieceRotation][y][x]
+					if block ~= ' ' then
+						inert[pieceY + y][pieceX + x] = block
+					end
+				end
+			end
+		
+			-- Find complete rows
+			for y = 1, gridYCount do
+                local complete = true
+                for x = 1, gridXCount do
+                    if inert[y][x] == ' ' then
+                        complete = false
+                    end
+                end
 
+				--remove complete rows
+                if complete then
+                    for removeY = y, 2, -1 do
+                        for removeX = 1, gridXCount do
+                            inert[removeY][removeX] = inert[removeY - 1][removeX]
+                        end
+                    end
+                
+                    for removeX = 1, gridXCount do
+                        inert[1][removeX] = ' '
+                    end
+                end
+            end
+		
+			newPiece()
+			
+			if not canPieceMove(pieceX, pieceY, pieceRotation) then
+				--Normally, you would swap to GAME OVER state here.
+				love.load()
+			end
+		end
+    ]]--
+	end
 end
 
 function love.draw(dt)
@@ -80,7 +135,7 @@ function love.draw(dt)
         end
     end
 	
-	love.graphics.draw(blocksPGBY[colorBlue],player1.location.x * blockDrawSize,3 * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(blocksPGBY[colorBlue],(player1.location.x + offsetX) * blockDrawSize,(player1.location.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 end
 
 function loadBlocks()
