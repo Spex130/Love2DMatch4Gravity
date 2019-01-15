@@ -100,28 +100,18 @@ function love.update(dt)
 	end
 end
 
+menuTimer = 0
+
 function love.draw(dt)
 	if gameState == gameStates.MainMenu then
-		mainmenu:draw()
+		drawMenu(menuTimer)
+		menuTimer = menuTimer+1
 	elseif gameState == gameStates.SinglePlayer then
 		drawSinglePlayer()
 	end
 end
 
-function loadBlocks()
 
-	blocksPGBY = {
-	[colorBlank] = love.graphics.newImage('assets/blocksEmp.png'), 
-	[colorPurple] = love.graphics.newImage('assets/blocksPur.png'),
-	[colorGreen] = love.graphics.newImage('assets/blocksGre.png'), 
-	[colorBlue] = love.graphics.newImage('assets/blocksBlu.png'), 
-	[colorYellow] = love.graphics.newImage('assets/blocksYel.png'),
-	[colorGray] = love.graphics.newImage('assets/blocksEmp.png')
-	}
-
-
-end
-	
 
 function updateGameState()
 
@@ -225,18 +215,49 @@ function drawSinglePlayer()
 	love.graphics.draw(blocksPGBY[colorBlue],(player1.location.x + offsetX) * blockDrawSize,(player1.location.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 end
 
+function loadBlocks()
+
+	blocksPGBY = {
+	[colorBlank] = love.graphics.newImage('assets/blocksEmp.png'), 
+	[colorPurple] = love.graphics.newImage('assets/blocksPur.png'),
+	[colorGreen] = love.graphics.newImage('assets/blocksGre.png'), 
+	[colorBlue] = love.graphics.newImage('assets/blocksBlu.png'), 
+	[colorYellow] = love.graphics.newImage('assets/blocksYel.png'),
+	[colorGray] = love.graphics.newImage('assets/blocksEmp.png')
+	}
+
+
+end
+	
 
 --Menu Functions
 
 function loadMainMenu()
-    love.graphics.setFont(love.graphics.newFont(20))
+	font = love.graphics.newImageFont("assets/imagefont51.png",
+    " abcdefghijklmnopqrstuvwxyz" ..
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+    "123456789.,!?-+/():;%&`'*#=[]\"")
 
-    mainmenu = menuengine.new(200,100)
+	love.graphics.setFont(font, 40, "normal")
+	bg_image = love.graphics.newImage('assets/menubackground.png')
+    bg_image:setWrap("repeat", "repeat")
+
+    -- note how the Quad's width and height are larger than the image width and height.
+    bg_quad = love.graphics.newQuad(0, 0, 600, 600, bg_image:getWidth(), bg_image:getHeight())
+
+	logo = love.graphics.newImage('assets/Logo.png')
+
+    mainmenu = menuengine.new(50,400)
     mainmenu:addEntry("Start Game", start_game)
     mainmenu:addEntry("Options", options)
-    mainmenu:addSep()
     mainmenu:addEntry("Quit Game", quit_game)
 
+end
+
+function drawMenu(dt)
+	love.graphics.draw(bg_image, bg_quad, 0, 0)
+	love.graphics.draw(logo, 50, 60 + math.cos(dt*.05) * 15)
+	mainmenu:draw()
 end
 
 --input Functions
