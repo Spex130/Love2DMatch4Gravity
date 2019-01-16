@@ -98,6 +98,8 @@ function loadSinglePlayer()
 
 	--Player location attributes
 	rotations = {right = {x = 1, y = 0}, down = {x = 0, y = 1}, left = {x = -1, y = 0}, up = {x = 0, y = -1}}
+	playStates = {controlStep = 0, gravityStep = 1, checkStep = 2}
+	
 	player1 = 
 	{
 		originPoint = {x = 3, y = 1},
@@ -106,7 +108,8 @@ function loadSinglePlayer()
 		drawLocation = {x = 3, y = 1},
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
-		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)}
+		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
+		playState = playStates.controlStep
 		
 	}
 	
@@ -139,6 +142,7 @@ function drawSinglePlayer()
 end
 
 function updatePlayer(player)
+	
 		descendPlayerBlock(player)	
 end
 
@@ -255,8 +259,8 @@ function resetPlayerBlock(player)
 		drawLocation = {x = 3, y = 1},
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
-		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)}
-		
+		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
+		playState = playStates.controlStep
 	}
 
 end
@@ -333,12 +337,20 @@ function love.keypressed(key)
 		end
         
     elseif key == 'left' then
-        if (isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false) then
+        if (
+		isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
+		and
+		isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
+		) then
             player1.location.x = player1.location.x-1
         end
 
     elseif key == 'right' then
-        if (isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false) then
+        if (
+		isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
+		and
+		isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
+		) then
             player1.location.x = player1.location.x+1
         end
 	
@@ -346,11 +358,17 @@ function love.keypressed(key)
 		descendPlayerBlock(player1)
 	
     elseif key == 'c' then
-        --[[
-		while isSpotFilled(pieceX, pieceY + 1, pieceRotation) do
-            pieceY = pieceY + 1
-            timer = timerLimit
-        end]]--
+
+		local y = player1.location.y
+		local x2 = player1.location.x + player1.rotation.x
+		local y2 = player1.location.y + player1.rotation.y
+		
+		while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
+            y = y + 1
+			y2 = y2 + 1
+			timer = 0
+        end
+			player1.location.y = y
 	else
 	
     end
