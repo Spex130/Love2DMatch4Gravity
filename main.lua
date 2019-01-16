@@ -3,7 +3,7 @@ local menuengine = require "menuengine"
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
 gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
-gameState = gameStates.MainMenu
+gameState = gameStates.SinglePlayer
 local mainmenu
 
 --Main Menu functions
@@ -146,9 +146,6 @@ function loadSinglePlayer()
 	--Timers
 	timerLimit = 1.5
 
-	--Gamestate tracking
-	gameState = 1
-
 	--Grid of Inert Blocks
 	inert = {} 
 
@@ -248,6 +245,50 @@ end
 
 function love.mousemoved(x, y, dx, dy, istouch)
     menuengine.mousemoved(x, y)
+end
+
+function love.keypressed(key)
+	--[[
+	if key == 'x' then
+        local testRotation = pieceRotation + 1
+        if testRotation > #pieceStructures[pieceType] then
+            testRotation = 1
+        end
+
+        if canPieceMove(pieceX, pieceY, testRotation) then
+            pieceRotation = testRotation
+        end
+
+    elseif key == 'z' then
+        local testRotation = pieceRotation - 1
+        if testRotation < 1 then
+            testRotation = #pieceStructures[pieceType]
+        end
+
+        if canPieceMove(pieceX, pieceY, testRotation) then
+            pieceRotation = testRotation
+        end
+        
+    elseif key == 'left' then
+        local testX = pieceX - 1
+
+        if canPieceMove(testX, pieceY, pieceRotation) then
+            pieceX = testX
+        end
+
+    elseif key == 'right' then
+        local testX = pieceX + 1
+
+        if canPieceMove(testX, pieceY, pieceRotation) then
+            pieceX = testX
+        end
+
+    elseif key == 'c' then
+        while canPieceMove(pieceX, pieceY + 1, pieceRotation) do
+            pieceY = pieceY + 1
+            timer = timerLimit
+        end
+    end]]--
 end
 
 --Math functions
