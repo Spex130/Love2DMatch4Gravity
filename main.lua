@@ -25,7 +25,8 @@ function reset()
         --newSequence()
         --newPiece()
 
-        timer = 0
+		timer = 0
+
     end
 
 function canPieceMove(testX, testY, testRotation)
@@ -45,7 +46,7 @@ function love.update(dt)
 		
 	elseif gameState == gameStates.SinglePlayer then
 		timer = timer + dt
-		timerLimit = 0.5
+
 		if timer >= timerLimit then
 			timer = timer - timerLimit
 			player1.location.y = 1 + player1.location.y
@@ -96,7 +97,8 @@ function love.update(dt)
 			end
 		]]--
 		end
-	
+		player1.drawLocation.x = lerp(player1.drawLocation.x, player1.location.x, .2)
+		player1.drawLocation.y = lerp(player1.drawLocation.y, player1.location.y, .2)
 	end
 end
 
@@ -113,48 +115,12 @@ end
 
 
 
-function updateGameState()
-
-	if(gameState == 0) then--Busy
-
-	--Do Nothing
-
-	elseif(gameState == 1) then--Spawning
-		--SpawnNewPair()
-		gameState = 2 --Switch to Falling        
-
-	elseif(gameState == 2) then--Falling (In Control of Player)
-		handleFall()
-
-	elseif(gameState == 3) then--CheckAndDestroy	(Look for and clear out combos)	
-		--DestroyAllChains()
-		--gameState = 0 --Set to Busy. DestroyAllChains will set gameState when complete;
-
-	elseif(gameState == 4) then--Repositioning (Reposition Blocks affected by gravity after placement)
-		
-		--repositionBlocks()
-		--gameState = 0 --Set to Busy. RepositionBlocks will set gameState when complete;
-
-	elseif(gameState == 5) then--GameOver	
-
-		
-	else
-
-	end
-end
-
-function dropTimerUpdate(dt)
-	-- Should be based on GameSpeed.
-	canDropTimer = canDropTimer - (1 * dt)
-	if canDropTimer < 0 then
-	  canDrop = true
-	end
-end
 
 --Single Player Specific Functions
 
 function loadSinglePlayer()
-		--Playfield attributes
+	
+	--Playfield attributes
 	gridXCount = 6
 	gridYCount = 12
 
@@ -178,7 +144,7 @@ function loadSinglePlayer()
 	colorGray = 5
 
 	--Timers
-	timerLimit = 0.5
+	timerLimit = 1.5
 
 	--Gamestate tracking
 	gameState = 1
@@ -191,7 +157,10 @@ function loadSinglePlayer()
 	player1 = 
 	{
 		location = {x = 3, y = 1},
-		rotation = rotations.right
+		rotation = rotations.right,
+		drawLocation = {x = 3, y = 1},
+		canDrop = false,
+		blockColors = {color1 = colorBlue, color2 = colorBlue}
 	}
 	
 	loadBlocks()
@@ -203,8 +172,8 @@ function drawSinglePlayer()
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
     end
 	
-	local offsetX = 2
-    local offsetY = 3
+	local offsetX = (love.graphics.getWidth()/blockDrawSize)/2 - gridXCount/2  --Put X as DEAD CENTER
+    local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2
 	
 	for y = 1, gridYCount do
         for x = 1, gridXCount do
@@ -212,7 +181,22 @@ function drawSinglePlayer()
         end
     end
 	
-	love.graphics.draw(blocksPGBY[colorBlue],(player1.location.x + offsetX) * blockDrawSize,(player1.location.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	if(player1.canDrop == false) then
+		drawPlayerBlocks(player1, offsetX, offsetX)
+		
+	else
+		
+	end
+end
+
+function drawPlayerBlocks(player, offsetX, offsetY)
+	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.drawLocation.x + offsetX) * blockDrawSize,(player.drawLocation.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.drawLocation.x + player.rotation.x + offsetX) * blockDrawSize,(player.drawLocation.y + player.rotation.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+
+end
+
+function dropCheck(player)
+	
 end
 
 function loadBlocks()
@@ -228,7 +212,7 @@ function loadBlocks()
 
 
 end
-	
+
 
 --Menu Functions
 
@@ -260,8 +244,11 @@ function drawMenu(dt)
 	mainmenu:draw()
 end
 
---input Functions
+--Input Functions
 
 function love.mousemoved(x, y, dx, dy, istouch)
     menuengine.mousemoved(x, y)
 end
+
+--Math functions
+function lerp(a,b,t) return (1-t)*a + t*b end
