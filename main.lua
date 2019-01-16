@@ -15,21 +15,20 @@ end
 
 function reset()
         inert = {}
-        for y = 1, gridYCount do
+        for y = 0, gridYCount do
             inert[y] = {}
-            for x = 1, gridXCount do
+            for x = 0, gridXCount do
                 inert[y][x] = colorBlank
             end
         end
-
-        --newSequence()
-        --newPiece()
-
+			
+		resetPlayerBlock(player1)
 		timer = 0
 
     end
 	
 function love.load(arg)
+	math.randomseed(os.time())
 	loadSinglePlayer()
 	loadMainMenu()
 
@@ -92,7 +91,7 @@ function loadSinglePlayer()
 	colorGray = 5
 
 	--Timers
-	timerLimit = 0.1
+	timerLimit = 1.0
 
 	--Grid of Inert Blocks
 	inert = {} 
@@ -107,7 +106,7 @@ function loadSinglePlayer()
 		drawLocation = {x = 3, y = 1},
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
-		blockColors = {color1 = colorBlue, color2 = colorBlue}
+		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)}
 		
 	}
 	
@@ -125,8 +124,8 @@ function drawSinglePlayer()
 	local offsetX = (love.graphics.getWidth()/blockDrawSize)/2 - gridXCount/2  --Put X as DEAD CENTER
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2
 	
-	for y = 1, gridYCount do
-        for x = 1, gridXCount do
+	for y = 0, gridYCount do
+        for x = 0, gridXCount do
             drawBlock(inert[y][x], x + offsetX, y + offsetY)
         end
     end
@@ -140,15 +139,7 @@ function drawSinglePlayer()
 end
 
 function updatePlayer(player)
-			if(isSpotFilled(player.location.x, player.location.y + 1) == false and isSpotFilled(player.location.x + player.rotation.x, player.location.y + player.rotation.y + 1) == false) then
-				player.location.y = 1 + player.location.y
-			else
-				resetPlayerLerps(player)
-				inert[player.location.y][player.location.x] = player.blockColors.color1
-				inert[player.location.y + player.rotation.y][player.location.x + player.rotation.x] = player.blockColors.color2
-				resetPlayerBlock(player)
-			end
-		
+		descendPlayerBlock(player)	
 end
 
 function drawPlayerBlocks(player, offsetX, offsetY)
@@ -158,10 +149,12 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 
 end
 
-function isSpotFilled(testX, testY)
+function isSpotFilled(testX, y)
+
+	testY = y + 1
 
 	if(
-		testX < 1
+		testX < 0
 		or testX > gridXCount
 		or testY > gridYCount
 	) then
@@ -176,15 +169,33 @@ function isSpotFilled(testX, testY)
 	
 end
 
+function isPlayerBlockGrounded(player)
+	
+	local isGrounded = (isSpotFilled(player.location.x, player.location.y + 1) == true or isSpotFilled(player.location.x + player.rotation.x, player.location.y + player.rotation.y + 1) == true)
+
+	return isGrounded
+end
+
+function descendPlayerBlock(player)
+	if(isPlayerBlockGrounded(player) == false) then
+		player.location.y = 1 + player.location.y
+	else
+		resetPlayerLerps(player)
+		inert[player.location.y + 1][player.location.x] = player.blockColors.color1
+		inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
+		resetPlayerBlock(player)
+	end
+end
+
 function canPlayerRotate(player)
 	if(player.rotation == rotations.right) then
-		return getPlayerDown(player)
+		return isSpotFilled(player.location.x, getPlayerDown(player)) == false
 	elseif(player.rotation == rotations.down) then
-		return getPlayerLeft(player)
+		return isSpotFilled(getPlayerLeft(player), player.location.y) == false
 	elseif(player.rotation == rotations.left) then
-		return getPlayerUp(player)
+		return isSpotFilled(player.location.x, getPlayerUp(player)) == false
 	else
-		return getPlayerRight(player)
+		return isSpotFilled(getPlayerRight(player), player.location.x) == false
 	end
 end
 
@@ -244,7 +255,7 @@ function resetPlayerBlock(player)
 		drawLocation = {x = 3, y = 1},
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
-		blockColors = {color1 = colorBlue, color2 = colorBlue}
+		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)}
 		
 	}
 
@@ -271,7 +282,7 @@ function loadBlocks()
 	[colorGreen] = love.graphics.newImage('assets/blocksGre.png'), 
 	[colorBlue] = love.graphics.newImage('assets/blocksBlu.png'), 
 	[colorYellow] = love.graphics.newImage('assets/blocksYel.png'),
-	[colorGray] = love.graphics.newImage('assets/blocksEmp.png')
+	[colorGray] = love.graphics.newImage('assets/blocksGra.png')
 	}
 
 
@@ -330,7 +341,10 @@ function love.keypressed(key)
         if (isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false) then
             player1.location.x = player1.location.x+1
         end
-
+	
+	elseif key == 'down' then
+		descendPlayerBlock(player1)
+	
     elseif key == 'c' then
         --[[
 		while isSpotFilled(pieceX, pieceY + 1, pieceRotation) do
