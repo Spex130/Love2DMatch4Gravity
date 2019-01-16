@@ -45,59 +45,7 @@ function love.update(dt)
 
 		if timer >= timerLimit then
 			timer = timer - timerLimit
-			if(isSpotFilled(player1.location.x, player1.location.y+1) == false and isSpotFilled(player1.location.x + player1.rotation.x, player1.location.y + player1.rotation.y) == false) then
-				player1.location.y = 1 + player1.location.y
-			else
-				inert[player1.location.y][player1.location.x] = player1.blockColors.color1
-				inert[player1.location.y + player1.rotation.y][player1.location.x + player1.rotation.x] = player1.blockColors.color2
-				resetPlayerBlock(player1)
-			end
-		--[[
-			local testY = pieceY + 1
-			if isSpotFilled(pieceX, testY, pieceRotation) then
-				pieceY = testY
-			else
-				--If it's over, add the piece to the inert array
-				for y = 1, pieceYCount do
-					for x = 1, pieceXCount do
-						local block = pieceStructures[pieceType][pieceRotation][y][x]
-						if block ~= ' ' then
-							inert[pieceY + y][pieceX + x] = block
-						end
-					end
-				end
-			
-				-- Find complete rows
-				for y = 1, gridYCount do
-					local complete = true
-					for x = 1, gridXCount do
-						if inert[y][x] == ' ' then
-							complete = false
-						end
-					end
-
-					--remove complete rows
-					if complete then
-						for removeY = y, 2, -1 do
-							for removeX = 1, gridXCount do
-								inert[removeY][removeX] = inert[removeY - 1][removeX]
-							end
-						end
-					
-						for removeX = 1, gridXCount do
-							inert[1][removeX] = ' '
-						end
-					end
-				end
-			
-				newPiece()
-				
-				if not isSpotFilled(pieceX, pieceY, pieceRotation) then
-					--Normally, you would swap to GAME OVER state here.
-					love.load()
-				end
-			end
-		]]--
+			updatePlayer(player1)
 		end
 	end
 end
@@ -169,10 +117,6 @@ end
 
 function drawSinglePlayer()
 
-	player1.drawLocation.x = lerp(player1.drawLocation.x, player1.location.x, .2)
-	player1.drawLocation.y = lerp(player1.drawLocation.y, player1.location.y, .2)
-	player1.drawLocation2.x = lerp(player1.drawLocation2.x, player1.drawLocation.x  + player1.rotation.x, .2)
-	player1.drawLocation2.y = lerp(player1.drawLocation2.y, player1.drawLocation.y  + player1.rotation.y, .8)
 
 	local function drawBlock(block, x, y)
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -187,12 +131,24 @@ function drawSinglePlayer()
         end
     end
 	
+	updatePlayerLerps(player1)
 	if(player1.canDrop == false) then
 		drawPlayerBlocks(player1, offsetX, offsetX)
-		
 	else
 		
 	end
+end
+
+function updatePlayer(player)
+			if(isSpotFilled(player.location.x, player.location.y + 1) == false and isSpotFilled(player.location.x + player.rotation.x, player.location.y + player.rotation.y + 1) == false) then
+				player.location.y = 1 + player.location.y
+			else
+				resetPlayerLerps(player)
+				inert[player.location.y][player.location.x] = player.blockColors.color1
+				inert[player.location.y + player.rotation.y][player.location.x + player.rotation.x] = player.blockColors.color2
+				resetPlayerBlock(player)
+			end
+		
 end
 
 function drawPlayerBlocks(player, offsetX, offsetY)
@@ -208,13 +164,16 @@ function isSpotFilled(testX, testY)
 		testX < 1
 		or testX > gridXCount
 		or testY > gridYCount
-		or inert[testY][testX] ~= colorBlank
 	) then
 		return true
+	elseif(inert[testY][testX] ~= colorBlank) then
+		return true
+	
+	else
+		return false
 	end
-
         
-	return false
+	
 end
 
 function canPlayerRotate(player)
@@ -278,7 +237,7 @@ function getPlayerUp(player)
 end
 
 function resetPlayerBlock(player)
-	player = {
+	player1 = {
 		originPoint = {x = 3, y = 1},
 		location = {x = 3, y = 1},
 		rotation = rotations.right,
@@ -289,6 +248,19 @@ function resetPlayerBlock(player)
 		
 	}
 
+end
+
+function updatePlayerLerps(player)
+	player.drawLocation.x = lerp(player.drawLocation.x, player.location.x, .2)
+	player.drawLocation.y = lerp(player.drawLocation.y, player.location.y, .2)
+	player.drawLocation2.x = lerp(player.drawLocation2.x, player.drawLocation.x  + player.rotation.x, .8)
+	player.drawLocation2.y = lerp(player.drawLocation2.y, player.drawLocation.y  + player.rotation.y, .8)
+end
+
+function resetPlayerLerps(player)
+	player.drawLocation = player.location
+	player.drawLocation2.x = player.location.x
+	player.drawLocation2.y = player.location.y
 end
 
 function loadBlocks()
@@ -350,12 +322,12 @@ function love.keypressed(key)
 		end
         
     elseif key == 'left' then
-        if isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) then
+        if (isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false) then
             player1.location.x = player1.location.x-1
         end
 
     elseif key == 'right' then
-        if isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) then
+        if (isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false) then
             player1.location.x = player1.location.x+1
         end
 
