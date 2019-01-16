@@ -134,16 +134,20 @@ function drawSinglePlayer()
     end
 	
 	updatePlayerLerps(player1)
-	if(player1.canDrop == false) then
-		drawPlayerBlocks(player1, offsetX, offsetX)
-	else
-		
-	end
+	drawPlayerBlocks(player1, offsetX, offsetX)
+
 end
 
 function updatePlayer(player)
 	
+	if player.playState == playStates.controlStep then
 		descendPlayerBlock(player)	
+	elseif player.playState == playStates.gravityStep then
+		player.playState = playStates.checkStep
+	elseif player.playState == playStates.checkStep then
+		player.playState = playStates.controlStep
+	else
+	end
 end
 
 function drawPlayerBlocks(player, offsetX, offsetY)
@@ -187,6 +191,7 @@ function descendPlayerBlock(player)
 		resetPlayerLerps(player)
 		inert[player.location.y + 1][player.location.x] = player.blockColors.color1
 		inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
+		--player.playState = playStates.gravityStep
 		resetPlayerBlock(player)
 	end
 end
