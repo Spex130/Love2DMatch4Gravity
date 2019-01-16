@@ -28,10 +28,6 @@ function reset()
 		timer = 0
 
     end
-
-function canPieceMove(testX, testY, testRotation)
-	return false
-end
 	
 function love.load(arg)
 	loadSinglePlayer()
@@ -49,10 +45,16 @@ function love.update(dt)
 
 		if timer >= timerLimit then
 			timer = timer - timerLimit
-			player1.location.y = 1 + player1.location.y
+			if(isSpotFilled(player1.location.x, player1.location.y+1) == false and isSpotFilled(player1.location.x + player1.rotation.x, player1.location.y + player1.rotation.y) == false) then
+				player1.location.y = 1 + player1.location.y
+			else
+				inert[player1.location.y][player1.location.x] = player1.blockColors.color1
+				inert[player1.location.y + player1.rotation.y][player1.location.x + player1.rotation.x] = player1.blockColors.color2
+				resetPlayerBlock(player1)
+			end
 		--[[
 			local testY = pieceY + 1
-			if canPieceMove(pieceX, testY, pieceRotation) then
+			if isSpotFilled(pieceX, testY, pieceRotation) then
 				pieceY = testY
 			else
 				--If it's over, add the piece to the inert array
@@ -90,15 +92,13 @@ function love.update(dt)
 			
 				newPiece()
 				
-				if not canPieceMove(pieceX, pieceY, pieceRotation) then
+				if not isSpotFilled(pieceX, pieceY, pieceRotation) then
 					--Normally, you would swap to GAME OVER state here.
 					love.load()
 				end
 			end
 		]]--
 		end
-		player1.drawLocation.x = lerp(player1.drawLocation.x, player1.location.x, .2)
-		player1.drawLocation.y = lerp(player1.drawLocation.y, player1.location.y, .2)
 	end
 end
 
@@ -144,7 +144,7 @@ function loadSinglePlayer()
 	colorGray = 5
 
 	--Timers
-	timerLimit = 1.5
+	timerLimit = 0.1
 
 	--Grid of Inert Blocks
 	inert = {} 
@@ -153,11 +153,14 @@ function loadSinglePlayer()
 	rotations = {right = {x = 1, y = 0}, down = {x = 0, y = 1}, left = {x = -1, y = 0}, up = {x = 0, y = -1}}
 	player1 = 
 	{
+		originPoint = {x = 3, y = 1},
 		location = {x = 3, y = 1},
 		rotation = rotations.right,
 		drawLocation = {x = 3, y = 1},
+		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
 		blockColors = {color1 = colorBlue, color2 = colorBlue}
+		
 	}
 	
 	loadBlocks()
@@ -165,6 +168,12 @@ function loadSinglePlayer()
 end
 
 function drawSinglePlayer()
+
+	player1.drawLocation.x = lerp(player1.drawLocation.x, player1.location.x, .2)
+	player1.drawLocation.y = lerp(player1.drawLocation.y, player1.location.y, .2)
+	player1.drawLocation2.x = lerp(player1.drawLocation2.x, player1.drawLocation.x  + player1.rotation.x, .2)
+	player1.drawLocation2.y = lerp(player1.drawLocation2.y, player1.drawLocation.y  + player1.rotation.y, .8)
+
 	local function drawBlock(block, x, y)
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
     end
@@ -188,12 +197,98 @@ end
 
 function drawPlayerBlocks(player, offsetX, offsetY)
 	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.drawLocation.x + offsetX) * blockDrawSize,(player.drawLocation.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.drawLocation.x + player.rotation.x + offsetX) * blockDrawSize,(player.drawLocation.y + player.rotation.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.drawLocation2.x + offsetX) * blockDrawSize,(player.drawLocation2.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 
 end
 
-function dropCheck(player)
-	
+function isSpotFilled(testX, testY)
+
+	if(
+		testX < 1
+		or testX > gridXCount
+		or testY > gridYCount
+		or inert[testY][testX] ~= colorBlank
+	) then
+		return true
+	end
+
+        
+	return false
+end
+
+function canPlayerRotate(player)
+	if(player.rotation == rotations.right) then
+		return getPlayerDown(player)
+	elseif(player.rotation == rotations.down) then
+		return getPlayerLeft(player)
+	elseif(player.rotation == rotations.left) then
+		return getPlayerUp(player)
+	else
+		return getPlayerRight(player)
+	end
+end
+
+function playerRotate(player)
+	if(player.rotation == rotations.right) then
+		player.rotation = rotations.down
+		
+	elseif(player.rotation == rotations.down) then
+		player.rotation = rotations.left
+		
+	elseif(player.rotation == rotations.left) then
+		player.rotation = rotations.up
+		
+	else
+		player.rotation = rotations.right
+		
+	end
+end
+
+function getPlayerLeft(player)
+	if(player.rotation == rotations.left) then
+		return player.location.x-2
+	else
+		return player.location.x-1
+	end
+end
+
+function getPlayerRight(player)
+	if(player.rotation == rotations.right) then
+		return player.location.x+2
+	else
+		return player.location.x+1
+	end
+end
+
+function getPlayerDown(player)
+	if(player.rotation == rotations.down) then
+		return player.location.y+2
+	else
+		return player.location.y+1
+	end
+end
+
+function getPlayerUp(player)
+	if(player.rotation == rotations.up) then
+		return player.location.y-2
+	else
+		return player.location.y-1
+	end
+end
+
+function resetPlayerBlock(player)
+	player = {
+		originPoint = {x = 3, y = 1},
+		location = {x = 3, y = 1},
+		rotation = rotations.right,
+		drawLocation = {x = 3, y = 1},
+		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
+		canDrop = false,
+		blockColors = {color1 = colorBlue, color2 = colorBlue}
+		
+	}
+
 end
 
 function loadBlocks()
@@ -248,47 +343,31 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.keypressed(key)
-	--[[
+	
 	if key == 'x' then
-        local testRotation = pieceRotation + 1
-        if testRotation > #pieceStructures[pieceType] then
-            testRotation = 1
-        end
-
-        if canPieceMove(pieceX, pieceY, testRotation) then
-            pieceRotation = testRotation
-        end
-
-    elseif key == 'z' then
-        local testRotation = pieceRotation - 1
-        if testRotation < 1 then
-            testRotation = #pieceStructures[pieceType]
-        end
-
-        if canPieceMove(pieceX, pieceY, testRotation) then
-            pieceRotation = testRotation
-        end
+		if(canPlayerRotate(player1)) then
+			playerRotate(player1)
+		end
         
     elseif key == 'left' then
-        local testX = pieceX - 1
-
-        if canPieceMove(testX, pieceY, pieceRotation) then
-            pieceX = testX
+        if isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) then
+            player1.location.x = player1.location.x-1
         end
 
     elseif key == 'right' then
-        local testX = pieceX + 1
-
-        if canPieceMove(testX, pieceY, pieceRotation) then
-            pieceX = testX
+        if isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) then
+            player1.location.x = player1.location.x+1
         end
 
     elseif key == 'c' then
-        while canPieceMove(pieceX, pieceY + 1, pieceRotation) do
+        --[[
+		while isSpotFilled(pieceX, pieceY + 1, pieceRotation) do
             pieceY = pieceY + 1
             timer = timerLimit
-        end
-    end]]--
+        end]]--
+	else
+	
+    end
 end
 
 --Math functions
