@@ -154,6 +154,16 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.drawLocation.x + offsetX) * blockDrawSize,(player.drawLocation.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	
 	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.drawLocation2.x + offsetX) * blockDrawSize,(player.drawLocation2.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	love.graphics.setColor(255,255,255,0.5)
+
+	openSpots = {block1 = findOpenSpotInColumn(player.location.x) -1, block2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1}
+
+	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.location.x + offsetX) * blockDrawSize,(openSpots.block1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.location.x + player.rotation.x + offsetX) * blockDrawSize,(openSpots.block2 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+
+	love.graphics.setColor(255,255,255,255)
 
 end
 
@@ -194,6 +204,22 @@ function descendPlayerBlock(player)
 		--player.playState = playStates.gravityStep
 		resetPlayerBlock(player)
 	end
+end
+
+function findOpenSpotInColumn(column)
+	for y = 0, gridYCount-1 do
+		if(inert[y+1][column] ~= colorBlank) then
+			return y
+		end
+	end
+	
+	return gridYCount
+end
+
+function gravityStepLoop(player)
+
+
+
 end
 
 function canPlayerRotate(player)
