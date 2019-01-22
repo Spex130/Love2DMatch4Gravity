@@ -109,8 +109,8 @@ function loadSinglePlayer()
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
-		playState = playStates.controlStep
-		
+		playState = playStates.controlStep,
+		gravityLocation = {x1 = 0, y1 = 0, x2 = 1, y2 = 0}
 	}
 	
 	loadBlocks()
@@ -143,7 +143,7 @@ function updatePlayer(player)
 	if player.playState == playStates.controlStep then
 		descendPlayerBlock(player)	
 	elseif player.playState == playStates.gravityStep then
-		player.playState = playStates.checkStep
+		--player.playState = playStates.checkStep
 	elseif player.playState == playStates.checkStep then
 		player.playState = playStates.controlStep
 	else
@@ -167,6 +167,8 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 
 end
 
+
+--Get spot, give if it's empty. (Converts from BlockSpace to PlaySpace for you.)
 function isSpotFilled(testX, y)
 
 	testY = y + 1
@@ -194,14 +196,27 @@ function isPlayerBlockGrounded(player)
 	return isGrounded
 end
 
+--Takes player, moves their block down if possible.
 function descendPlayerBlock(player)
 	if(isPlayerBlockGrounded(player) == false) then
 		player.location.y = 1 + player.location.y
 	else
-		resetPlayerLerps(player)
-		inert[player.location.y + 1][player.location.x] = player.blockColors.color1
-		inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
-		--player.playState = playStates.gravityStep
+			
+		
+		if(player.rotation ~= rotations.up or player.rotation ~= rotations.down) then
+			--player.gravityLocation.x1 = player.location.x
+			--player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x)
+			--player.gravityLocation.x2 = player.location.x + player.rotation.x
+			--player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x)
+			--player.playState = playStates.gravityStep
+			inert[findOpenSpotInColumn(player.location.x)][player.location.x] = player.blockColors.color1
+			inert[findOpenSpotInColumn(player.location.x + player.rotation.x)][player.location.x + player.rotation.x] = player.blockColors.color2
+			
+		else
+			resetPlayerLerps(player)	
+			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
+			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
+		end	
 		resetPlayerBlock(player)
 	end
 end
@@ -217,7 +232,6 @@ function findOpenSpotInColumn(column)
 end
 
 function gravityStepLoop(player)
-
 
 
 end
@@ -297,10 +311,19 @@ function resetPlayerBlock(player)
 end
 
 function updatePlayerLerps(player)
-	player.drawLocation.x = lerp(player.drawLocation.x, player.location.x, .2)
-	player.drawLocation.y = lerp(player.drawLocation.y, player.location.y, .2)
-	player.drawLocation2.x = lerp(player.drawLocation2.x, player.drawLocation.x  + player.rotation.x, .8)
-	player.drawLocation2.y = lerp(player.drawLocation2.y, player.drawLocation.y  + player.rotation.y, .8)
+
+	if(player.playState == playStates.controlStep) then
+		player.drawLocation.x = lerp(player.drawLocation.x, player.location.x, .2)
+		player.drawLocation.y = lerp(player.drawLocation.y, player.location.y, .2)
+		player.drawLocation2.x = lerp(player.drawLocation2.x, player.drawLocation.x  + player.rotation.x, .8)
+		player.drawLocation2.y = lerp(player.drawLocation2.y, player.drawLocation.y  + player.rotation.y, .8)
+	elseif(player.playState == playStates.gravityStep) then
+		player.drawLocation.x = lerp(player.drawLocation.x, player.gravityLocation.x1, .2)
+		player.drawLocation.y = lerp(player.drawLocation.y, player.gravityLocation.y1, .2)
+		player.drawLocation2.x = lerp(player.drawLocation2.x, player.gravityLocation.x2, .8)
+		player.drawLocation2.y = lerp(player.drawLocation2.y, player.gravityLocation.y2, .8)
+	end
+
 end
 
 function resetPlayerLerps(player)
