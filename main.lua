@@ -110,7 +110,8 @@ function loadSinglePlayer()
 		canDrop = false,
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
 		playState = playStates.controlStep,
-		gravityLocation = {x1 = 0, y1 = 0, x2 = 1, y2 = 0}
+		gravityLocation = {x = 0, y1 = 0, x2 = 1, y2 = 0},
+		
 	}
 	
 	loadBlocks()
@@ -143,7 +144,7 @@ function updatePlayer(player)
 	if player.playState == playStates.controlStep then
 		descendPlayerBlock(player)	
 	elseif player.playState == playStates.gravityStep then
-		--player.playState = playStates.checkStep
+		gravityStepLoop(player)
 	elseif player.playState == playStates.checkStep then
 		player.playState = playStates.controlStep
 	else
@@ -201,23 +202,14 @@ function descendPlayerBlock(player)
 	if(isPlayerBlockGrounded(player) == false) then
 		player.location.y = 1 + player.location.y
 	else
-			
 		
-		if(player.rotation ~= rotations.up or player.rotation ~= rotations.down) then
-			--player.gravityLocation.x1 = player.location.x
-			--player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x)
-			--player.gravityLocation.x2 = player.location.x + player.rotation.x
-			--player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x)
-			--player.playState = playStates.gravityStep
-			inert[findOpenSpotInColumn(player.location.x)][player.location.x] = player.blockColors.color1
-			inert[findOpenSpotInColumn(player.location.x + player.rotation.x)][player.location.x + player.rotation.x] = player.blockColors.color2
-			
-		else
-			resetPlayerLerps(player)	
-			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
-			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
-		end	
-		resetPlayerBlock(player)
+		player.gravityLocation.x1 = player.location.x
+		player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x) - 1
+		player.gravityLocation.x2 = player.location.x + player.rotation.x
+		player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1
+		player.playState = playStates.gravityStep
+		
+
 	end
 end
 
@@ -233,6 +225,29 @@ end
 
 function gravityStepLoop(player)
 
+	distanceValue1 = distance (player.drawLocation.x, player.drawLocation.y,player.gravityLocation.x1, player.gravityLocation.y1)
+	distanceValue2 = distance (player.drawLocation2.x , player.drawLocation2.y,player.gravityLocation.x2, player.gravityLocation.y2)
+
+	if( distanceValue1 < .5 and distanceValue2 < .5) then
+		
+		player.drawLocation.x = player.gravityLocation.x1
+		player.drawLocation.y = player.gravityLocation.y1
+		player.drawLocation2.x = player.gravityLocation.x2
+		player.drawLocation2.y = player.gravityLocation.y2
+		
+		if(player.rotation ~= rotations.up or player.rotation ~= rotations.down) then
+
+			inert[findOpenSpotInColumn(player.location.x)][player.location.x] = player.blockColors.color1
+			inert[findOpenSpotInColumn(player.location.x + player.rotation.x)][player.location.x + player.rotation.x] = player.blockColors.color2
+			
+		else
+			resetPlayerLerps(player)	
+			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
+			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
+		end	
+		resetPlayerBlock(player)
+		player.playState = playStates.controlStep
+	end
 
 end
 
@@ -305,7 +320,8 @@ function resetPlayerBlock(player)
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
-		playState = playStates.controlStep
+		playState = playStates.controlStep,
+		gravityLocation = {x1=0,x2=0,y1=0,y2=0}
 	}
 
 end
@@ -430,3 +446,8 @@ end
 
 --Math functions
 function lerp(a,b,t) return (1-t)*a + t*b end
+function distance ( x1, y1, x2, y2 )
+  local dx = x1 - x2
+  local dy = y1 - y2
+  return math.sqrt ( dx * dx + dy * dy )
+end
