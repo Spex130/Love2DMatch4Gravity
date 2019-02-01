@@ -203,10 +203,23 @@ function descendPlayerBlock(player)
 		player.location.y = 1 + player.location.y
 	else
 		
-		player.gravityLocation.x1 = player.location.x
-		player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x) - 1
-		player.gravityLocation.x2 = player.location.x + player.rotation.x
-		player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1
+		if(player.rotation == rotations.up) then
+			player.gravityLocation.x1 = player.location.x
+			player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x) - 1
+			player.gravityLocation.x2 = player.location.x
+			player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x) - 2
+		elseif(player.rotation == rotations.down) then
+			player.gravityLocation.x1 = player.location.x
+			player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x) - 2
+			player.gravityLocation.x2 = player.location.x + player.rotation.x
+			player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1
+		else
+			player.gravityLocation.x1 = player.location.x
+			player.gravityLocation.y1 = findOpenSpotInColumn(player.location.x) - 1
+			player.gravityLocation.x2 = player.location.x + player.rotation.x
+			player.gravityLocation.y2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1
+		end	
+
 		player.playState = playStates.gravityStep
 		
 
