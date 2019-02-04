@@ -233,6 +233,8 @@ function descendPlayerBlock(player)
 
 		player.playState = playStates.gravityStep
 		
+		findBlocksToClear(inert)
+		
 
 	end
 end
@@ -383,6 +385,16 @@ function loadBlocks()
 	[colorGray] = love.graphics.newImage('assets/blocksGra.png')
 	}
 
+
+end
+
+findBlocksToClear(inertArray)
+
+	for y = 0, gridYCount do
+		for x = 0, gridXCount do
+			--inert[y][x] = colorBlank
+		end
+	end
 
 end
 
