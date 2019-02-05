@@ -390,14 +390,53 @@ end
 
 function findBlocksToClear(inertArray)
 
+	markedArray = {}
+
 	for y = 0, gridYCount do
 		for x = 0, gridXCount do
-			--inert[y][x] = colorBlank
+			recursiveBlockClearStep(inert, y, x, 0, markedArray)
 		end
 	end
 
 end
 
+function recursiveBlockClearStep(inertArray, locY, locX, chainNumber, markedArray)
+--Take in the array we're working with, the X and Y location to check in that array, and how many matching numbers we've found before this point.
+
+
+--Check all directions
+
+	--Check up
+	if(locY - 1 >= 0 ) then --If the block above us is within the array
+		if(inertArray[locY][locX] == inertArralocY[locY-1][locX] and inertArray[locY][locX] > 0) then
+			--chainNumber = chainNumber + 1
+		end
+	end
+
+	--Check right
+	if(locX + 1 < gridXCount) then
+		if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0) then
+			--chainNumber = chainNumber + 1
+		end
+	end
+
+	--Check down
+	if(locY + 1 < gridYCount ) then --If the block above us is within the array
+		if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0) then
+			--chainNumber = chainNumber + 1
+		end
+	end
+
+	--Check left
+	if(locX - 1 >= 0) then
+		if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0) then
+			--chainNumber = chainNumber + 1
+		end
+	end
+	
+	--Mark in the MarkedArray, return the number
+	
+end
 
 --Menu Functions
 
