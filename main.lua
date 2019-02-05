@@ -388,7 +388,7 @@ function loadBlocks()
 
 end
 
-findBlocksToClear(inertArray)
+function findBlocksToClear(inertArray)
 
 	for y = 0, gridYCount do
 		for x = 0, gridXCount do
