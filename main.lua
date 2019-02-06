@@ -111,7 +111,7 @@ function loadSinglePlayer()
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
 		playState = playStates.controlStep,
 		gravityLocation = {x = 0, y1 = 0, x2 = 1, y2 = 0},
-		
+		combo = 0,
 	}
 	
 	loadBlocks()
@@ -389,16 +389,84 @@ function loadBlocks()
 end
 
 function findBlocksToClear(inertArray)
-
+	
 	markedArray = {}
 
+	
+	for y = 0, gridYCount do
+            markedArray[y] = {}
+            for x = 0, gridXCount do
+                markedArray[y][x] = -1 --(-1 signifies unchecked and empty. 0 is Empty, 1 is matching.)
+            end
+        end
+	
+	
 	for y = 0, gridYCount do
 		for x = 0, gridXCount do
-			recursiveBlockClearStep(inert, y, x, 0, markedArray)
+			recursiveBlockClearStart(inert, y, x, 1, markedArray)
+			if(chainNumber >= 3) then
+				markedArray[y][x] = 1
+			end
 		end
 	end
 
 end
+
+function recursiveBlockClearStart(inertArray, locY, locX, chainNumber, markedArray)
+--Take in the array we're working with, the X and Y location to check in that array, and how many matching numbers we've found before this point.
+
+isMatch = false
+
+--First, note that we've checked the spot we're at.
+markedArray[y][x] = 0
+
+--Check all directions
+
+	--Check up
+	if(locY - 1 >= 0 ) then --If the block above us is within the array
+		if(inertArray[locY][locX] == inertArralocY[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] ~= 0) then
+			isMatch = true
+			recursiveBlockClearStep(inertArray, locY - 1, locX, chainNumber, markedArray)
+		end
+	end
+
+	--Check right
+	if(locX + 1 < gridXCount) then
+		if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
+			isMatch = true
+			recursiveBlockClearStep(inertArray, locY, locX + 1, chainNumber, markedArray)
+		end
+	end
+
+	--Check down
+	if(locY + 1 < gridYCount ) then --If the block above us is within the array
+		if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] ~= 0) then
+			isMatch = true
+			recursiveBlockClearStep(inertArray, locY + 1, locX, chainNumber, markedArray)
+		end
+	end
+
+	--Check left
+	if(locX - 1 >= 0) then
+		if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
+			isMatch = true
+			recursiveBlockClearStep(inertArray, locY, locX - 1, chainNumber, markedArray)
+		end
+	end
+	
+	if(isMatch == true) then
+		chainNumber = chainNumber + 1
+	end
+	
+	if(chainNumber > 2) then
+		markedArray[locY][locX] = 1 --Set as marked for match
+	end
+	
+	
+	--Mark in the MarkedArray, return the number
+	
+end
+
 
 function recursiveBlockClearStep(inertArray, locY, locX, chainNumber, markedArray)
 --Take in the array we're working with, the X and Y location to check in that array, and how many matching numbers we've found before this point.
