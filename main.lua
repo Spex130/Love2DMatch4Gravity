@@ -391,21 +391,89 @@ end
 function findBlocksToClear(inertArray)
 	
 	markedArray = {}
+	
+	chainNumber = 0
 
+	upIsMatch = false
+	rightIsMatch = false
+	downIsMatch = false
+	leftIsMatch = false
 	
 	for y = 0, gridYCount do
             markedArray[y] = {}
             for x = 0, gridXCount do
-                markedArray[y][x] = -1 --(-1 signifies unchecked and empty. 0 is Empty, 1 is matching.)
+                markedArray[y][x] = -1 --(-1 signifies unchecked. 0 is Empty, 1 is matching.)
             end
         end
 	
 	
-	for y = 0, gridYCount do
-		for x = 0, gridXCount do
-			recursiveBlockClearStart(inert, y, x, 1, markedArray)
-			if(chainNumber >= 3) then
-				markedArray[y][x] = 1
+	for locY = 0, gridYCount do
+		for locX = 0, gridXCount do
+
+			if(inertArray[locY][locX] ~= 1) then --If we haven't already looked here, then proceed.
+			
+				--Check up
+				if(locY - 1 >= 0 ) then --If the block above us is within the array
+					if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] ~= 0) then
+						upIsMatch = true
+						chainNumber = chainNumber + 1
+					end
+				end
+
+				--Check right
+				if(locX + 1 < gridXCount) then
+					if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
+						rightIsMatch = true
+						chainNumber = chainNumber + 1
+					end
+				end
+
+				--Check down
+				if(locY + 1 < gridYCount ) then --If the block above us is within the array
+					if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] ~= 0) then
+						downIsMatch = true
+						chainNumber = chainNumber + 1
+					end
+				end
+
+				--Check left
+				if(locX - 1 >= 0) then
+					if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
+						leftIsMatch = true
+						chainNumber = chainNumber + 1
+					end
+				end
+				
+
+				
+				if(chainNumber > 2) then --If we have a chain
+					
+					--Set Middle
+					markedArray[locY][locX] = 1
+					
+					--Set Up
+					if(upIsMatch) then
+						markedArray[locY-1][locX] = 1
+					end
+					
+					--Set Right
+					if(rightIsMatch) then
+						inertArray[locY][locX+1] = 1
+					end
+					
+					--Set Down
+					if(downIsMatch) then
+						markedArray[locY+1][locX] = 1
+					end
+					
+					--Set Left
+					if(leftIsMatch) then
+						inertArray[locY][locX-1] = 1
+					end
+					
+				end
+				
+				chainNumber = 0
 			end
 		end
 	end
@@ -424,7 +492,7 @@ markedArray[y][x] = 0
 
 	--Check up
 	if(locY - 1 >= 0 ) then --If the block above us is within the array
-		if(inertArray[locY][locX] == inertArralocY[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] ~= 0) then
+		if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] ~= 0) then
 			isMatch = true
 			recursiveBlockClearStep(inertArray, locY - 1, locX, chainNumber, markedArray)
 		end
@@ -467,44 +535,6 @@ markedArray[y][x] = 0
 	
 end
 
-
-function recursiveBlockClearStep(inertArray, locY, locX, chainNumber, markedArray)
---Take in the array we're working with, the X and Y location to check in that array, and how many matching numbers we've found before this point.
-
-
---Check all directions
-
-	--Check up
-	if(locY - 1 >= 0 ) then --If the block above us is within the array
-		if(inertArray[locY][locX] == inertArralocY[locY-1][locX] and inertArray[locY][locX] > 0) then
-			--chainNumber = chainNumber + 1
-		end
-	end
-
-	--Check right
-	if(locX + 1 < gridXCount) then
-		if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0) then
-			--chainNumber = chainNumber + 1
-		end
-	end
-
-	--Check down
-	if(locY + 1 < gridYCount ) then --If the block above us is within the array
-		if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0) then
-			--chainNumber = chainNumber + 1
-		end
-	end
-
-	--Check left
-	if(locX - 1 >= 0) then
-		if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0) then
-			--chainNumber = chainNumber + 1
-		end
-	end
-	
-	--Mark in the MarkedArray, return the number
-	
-end
 
 --Menu Functions
 
