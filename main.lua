@@ -1,11 +1,13 @@
 local menuengine = require "menuengine"
 local baton = require "baton"
---menuengine.settings.sndMove = love.audio.newSource("pick.wav", "static")
---menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
+local Object = require "classic"
+local BlockClass = require "classes/blockclasses"
 
 gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
 gameState = gameStates.MainMenu
 local mainmenu
+
+	
 	
 --Set Baton input controls!
 local inputMenu = baton.new {
@@ -22,7 +24,8 @@ local inputMenu = baton.new {
   },
   joystick = love.joystick.getJoysticks()[1],
 }
-	
+
+--Love Default Methods	
 
 local input1 = baton.new {
   controls = {
