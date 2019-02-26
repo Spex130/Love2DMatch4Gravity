@@ -233,8 +233,7 @@ function descendPlayerBlock(player)
 
 		player.playState = playStates.gravityStep
 		
-		findBlocksToClear(inert)
-		
+				
 
 	end
 end
@@ -271,6 +270,8 @@ function gravityStepLoop(player)
 			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
 			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
 		end	
+		findBlocksToClear(inert)
+		
 		resetPlayerBlock(player)
 		player.playState = playStates.controlStep
 	end
@@ -402,36 +403,48 @@ function findBlocksToClear(inertArray)
 	for y = 0, gridYCount do
             markedArray[y] = {}
             for x = 0, gridXCount do
-                markedArray[y][x] = -1 --(-1 signifies unchecked. 0 is Empty, 1 is matching.)
+				if(inertArray[y][x] == 0) then
+					markedArray[y][x] = 0
+				else
+					markedArray[y][x] = -1 --(-1 signifies unchecked. 0 is Empty, 1 is matching.)
+				end
             end
         end
 	
 	
 	for locY = 0, gridYCount do
+	--rowStr = ""
 		for locX = 0, gridXCount do
-
-			if(inertArray[locY][locX] ~= 1) then --If we haven't already looked here, then proceed.
 			
+			
+			
+			--Direction Checking Step
+			if(markedArray[locY][locX] < 0) then --If it isn't already matching and it's not empty empty, then...
+			print("Checking "..locX..", "..locY)
+
 				--Check up
 				if(locY - 1 >= 0 ) then --If the block above us is within the array
 					if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] ~= 0) then
 						upIsMatch = true
+						print("Match Up")
 						chainNumber = chainNumber + 1
 					end
 				end
 
 				--Check right
-				if(locX + 1 < gridXCount) then
+				if(locX + 1 <= gridXCount) then
 					if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
 						rightIsMatch = true
+						print("Match Right")
 						chainNumber = chainNumber + 1
 					end
 				end
 
 				--Check down
-				if(locY + 1 < gridYCount ) then --If the block above us is within the array
+				if(locY + 1 <= gridYCount ) then --If the block above us is within the array
 					if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] ~= 0) then
 						downIsMatch = true
+						print("Match Down")
 						chainNumber = chainNumber + 1
 					end
 				end
@@ -440,6 +453,7 @@ function findBlocksToClear(inertArray)
 				if(locX - 1 >= 0) then
 					if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
 						leftIsMatch = true
+						print("Match Left")
 						chainNumber = chainNumber + 1
 					end
 				end
@@ -447,7 +461,7 @@ function findBlocksToClear(inertArray)
 
 				
 				if(chainNumber > 2) then --If we have a chain
-					
+					print("Chain Found", chainNumber)
 					--Set Middle
 					markedArray[locY][locX] = 1
 					
@@ -458,7 +472,7 @@ function findBlocksToClear(inertArray)
 					
 					--Set Right
 					if(rightIsMatch) then
-						inertArray[locY][locX+1] = 1
+						markedArray[locY][locX+1] = 1
 					end
 					
 					--Set Down
@@ -468,16 +482,18 @@ function findBlocksToClear(inertArray)
 					
 					--Set Left
 					if(leftIsMatch) then
-						inertArray[locY][locX-1] = 1
+						markedArray[locY][locX-1] = 1
 					end
-					
 				end
 				
 				chainNumber = 0
 			end
+			--]]
+			--rowStr = rowStr..markedArray[locY][locX]
 		end
+		print(rowStr)
 	end
-
+	
 end
 
 function recursiveBlockClearStart(inertArray, locY, locX, chainNumber, markedArray)
