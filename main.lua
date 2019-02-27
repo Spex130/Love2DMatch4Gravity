@@ -98,7 +98,7 @@ function loadSinglePlayer()
 
 	--Player location attributes
 	rotations = {right = {x = 1, y = 0}, down = {x = 0, y = 1}, left = {x = -1, y = 0}, up = {x = 0, y = -1}}
-	playStates = {controlStep = 0, gravityStep = 1, checkStep = 2}
+	playStates = {controlStep = 0, gravityStep = 1, gridFixStep = 2}
 	
 	player1 = 
 	{
@@ -111,7 +111,7 @@ function loadSinglePlayer()
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
 		playState = playStates.controlStep,
 		gravityLocation = {x = 0, y1 = 0, x2 = 1, y2 = 0},
-		NumMatchesFound = 0,
+		gravityGrid = {},
 	}
 	
 	loadBlocks()
@@ -145,7 +145,7 @@ function updatePlayer(player)
 		descendPlayerBlock(player)	
 	elseif player.playState == playStates.gravityStep then
 		gravityStepLoop(player)
-	elseif player.playState == playStates.checkStep then
+	elseif player.playState == playStates.gridFixStep then
 		player.playState = playStates.controlStep
 	else
 	end
@@ -248,6 +248,16 @@ function findOpenSpotInColumn(column)
 	return gridYCount
 end
 
+function findLowestOpenSpotInColumn(column)
+	for y = gridYCount-1, 0, -1  do
+		if(inert[y][column] == colorBlank) then
+			return y
+		end
+	end
+	
+	return gridYCount
+end
+
 function gravityStepLoop(player)
 
 	distanceValue1 = distance (player.drawLocation.x, player.drawLocation.y,player.gravityLocation.x1, player.gravityLocation.y1)
@@ -276,6 +286,10 @@ function gravityStepLoop(player)
 		player.playState = playStates.controlStep
 	end
 
+end
+
+function gridFixLoop(player)
+	--TODO: FILL THIS
 end
 
 function canPlayerRotate(player)
@@ -394,11 +408,8 @@ function findBlocksToClear(inertArray, player)
 	markedArray = {}
 	
 	chainNumber = 0
-
-	upIsMatch = false
-	rightIsMatch = false
-	downIsMatch = false
-	leftIsMatch = false
+	
+	--Mark all the places we need to check
 	
 	for y = 0, gridYCount do
             markedArray[y] = {}
@@ -411,88 +422,38 @@ function findBlocksToClear(inertArray, player)
             end
         end
 	
+	--Check all the places, recursively.
 	
 	for locY = 0, gridYCount do
-	--rowStr = ""
 		for locX = 0, gridXCount do
-			
-			
 			recursiveBlockClearStart(inert, locY, locX, markedArray)
-			
-			--Direction Checking Step
-			--[[
-			if(markedArray[locY][locX] < 0) then --If it isn't already matching and it's not empty empty, then...
-
-				--Check up
-				if(locY - 1 >= 0 ) then --If the block above us is within the array
-					if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
-						upIsMatch = true
-						print("Match Up")
-						chainNumber = chainNumber + 1
-					end
-				end
-
-				--Check right
-				if(locX + 1 <= gridXCount) then
-					if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
-						rightIsMatch = true
-						print("Match Right")
-						chainNumber = chainNumber + 1
-					end
-				end
-
-				--Check down
-				if(locY + 1 <= gridYCount ) then --If the block above us is within the array
-					if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] == -1) then
-						downIsMatch = true
-						print("Match Down")
-						chainNumber = chainNumber + 1
-					end
-				end
-
-				--Check left
-				if(locX - 1 >= 0) then
-					if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
-						leftIsMatch = true
-						print("Match Left")
-						chainNumber = chainNumber + 1
-					end
-				end
-				
-
-				
-				if(chainNumber > 2) then --If we have a chain
-					--Set Middle
-					markedArray[locY][locX] = 1
-					
-					--Set Up
-					if(upIsMatch) then
-						markedArray[locY-1][locX] = 1
-					end
-					
-					--Set Right
-					if(rightIsMatch) then
-						markedArray[locY][locX+1] = 1
-					end
-					
-					--Set Down
-					if(downIsMatch) then
-						markedArray[locY+1][locX] = 1
-					end
-					
-					--Set Left
-					if(leftIsMatch) then
-						markedArray[locY][locX-1] = 1
-					end
-				end
-				
-				chainNumber = 0
-			end
-			--]]
-			--rowStr = rowStr..markedArray[locY][locX]
 		end
-		--print(rowStr)
 	end
+	
+	
+	player.gravityGrid = {} -- Clear out the Gravity Grid so we can use it.
+	--Set up the gravity lerps. Backwards, from bottom to top.
+	for locY = gridYCount, 0, -1  do
+		player.gravityGrid[locY] = {}
+		for locX = 0, gridXCount do
+		
+			currentcolor = inert[locY][locX] 				--Get the color of the spot we're currently at.
+			emptyY = findLowestOpenSpotInColumn(locX)		--Find the lowest empty spot in this column
+															
+			--[[TODO MAKE THIS section NOT CRASH									
+			if(emptyY < locY) then							--If this spot is lower than where we're currently at, then we record the new spot.
+				inertArray[locY][locX] = colorClear			--Clear out the current spot in the array
+				inertArray[emptyY][locX] = currentColor		--Move it to the lowest open spot in the array.
+				
+				--Record all of this information in the player's Gravity Grid so we can animate it in the next step.
+				--We don't need the X for drawing. It's all going to be in the same column.
+				table.insert(player.gravityGrid, {y = locY, x = locX, drawY = emptyY, color = currentColor})										
+			end
+		--]]	
+		end
+	end
+	
+	
 	
 end
 
@@ -516,7 +477,6 @@ if(markedArray[locY][locX] == -1) then
 					if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
 						--print("Match Up")
 						chainNumber = chainNumber + 1
-						duo = {locY -1, locX}
 						table.insert(foundPairLocations, {y = locY-1, x = locX})
 						chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
 					end
@@ -527,7 +487,6 @@ if(markedArray[locY][locX] == -1) then
 					if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
 						--print("Match Right")
 						chainNumber = chainNumber + 1
-						duo = {locY, locX+1}
 						table.insert(foundPairLocations, {y = locY, x = locX+1})
 						chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
 					end
@@ -538,7 +497,6 @@ if(markedArray[locY][locX] == -1) then
 					if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] == -1) then
 						--print("Match Down")
 						chainNumber = chainNumber + 1
-						duo = {locY+1, locX}
 						table.insert(foundPairLocations, {y = locY+1, x = locX})
 						chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
 					end
@@ -549,7 +507,6 @@ if(markedArray[locY][locX] == -1) then
 					if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
 						--print("Match Left")
 						chainNumber = chainNumber + 1
-						duo = {locY, locX-1}
 						table.insert(foundPairLocations, {y = locY, x = locX-1})
 						chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
 					end
@@ -558,12 +515,11 @@ if(markedArray[locY][locX] == -1) then
 
 				if(chainNumber > 3) then
 					markedArray[locY][locX] = 1
-					duo = {locY, locX}
 					table.insert(foundPairLocations, {y = locY, x = locX})
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
-						print(""..(v.x)..", "..(v.y).."\n")
+						--print(""..(v.x)..", "..(v.y).."\n")
 						inertArray[v.y][v.x] = 0
 					end
 				end
