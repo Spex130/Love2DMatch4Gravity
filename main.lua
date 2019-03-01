@@ -249,7 +249,7 @@ function findOpenSpotInColumn(column)
 end
 
 function findLowestOpenSpotInColumn(column)
-	for y = gridYCount-1, 0, -1  do
+	for y = gridYCount, 0, -1  do
 		if(inert[y][column] == colorBlank) then
 			return y
 		end
@@ -424,9 +424,14 @@ function findBlocksToClear(inertArray, player)
 	
 	--Check all the places, recursively.
 	
+	matchesFound = false
+	
 	for locY = 0, gridYCount do
 		for locX = 0, gridXCount do
-			recursiveBlockClearStart(inert, locY, locX, markedArray)
+			found = recursiveBlockClearStart(inertArray, locY, locX, markedArray)
+			if(found == true) then
+				matchesFound = true
+			end
 		end
 	end
 	
@@ -437,14 +442,18 @@ function findBlocksToClear(inertArray, player)
 		player.gravityGrid[locY] = {}
 		for locX = 0, gridXCount do
 		
-			currentcolor = inert[locY][locX] 				--Get the color of the spot we're currently at.
-			emptyY = findLowestOpenSpotInColumn(locX)		--Find the lowest empty spot in this column
-															
-			--[[TODO MAKE THIS section NOT CRASH									
-			if(emptyY < locY) then							--If this spot is lower than where we're currently at, then we record the new spot.
-				inertArray[locY][locX] = colorClear			--Clear out the current spot in the array
-				inertArray[emptyY][locX] = currentColor		--Move it to the lowest open spot in the array.
+			currentColor = inertArray[locY][locX] 				--Get the color of the spot we're currently at.
+			emptyY = findLowestOpenSpotInColumn(locX)	--Find the lowest empty spot in this column
+			
 				
+			--TODO MAKE THIS section NOT CRASH									
+			if(emptyY > locY and currentColor ~= colorBlank) then							--If this spot is lower than where we're currently at, then we record the new spot.
+				print("Empty Y Spot: "..emptyY)
+				inertArray[locY][locX] = colorBlank			--Clear out the current spot in the array
+				
+				inertArray[emptyY][locX] = currentColor		--Move it to the lowest open spot in the array.
+
+				--print(currentColor)
 				--Record all of this information in the player's Gravity Grid so we can animate it in the next step.
 				--We don't need the X for drawing. It's all going to be in the same column.
 				table.insert(player.gravityGrid, {y = locY, x = locX, drawY = emptyY, color = currentColor})										
@@ -467,6 +476,9 @@ if(markedArray[locY][locX] == -1) then
 
 	--Make it so we can mark down ALL of the spots found that count.
 	foundPairLocations = {}
+	
+	--Note if we've found ANY matches at all.
+	matchesFound = false
 	
 	--Since this is the beginning, start the chain at 1
 	chainNumber = 1
@@ -516,17 +528,20 @@ if(markedArray[locY][locX] == -1) then
 				if(chainNumber > 3) then
 					markedArray[locY][locX] = 1
 					table.insert(foundPairLocations, {y = locY, x = locX})
+					matchesFound = true
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
 						--print(""..(v.x)..", "..(v.y).."\n")
 						inertArray[v.y][v.x] = 0
+						print("Clear: "..v.x..", "..v.y)
 					end
 				end
 
 	
 
-	--Mark in the MarkedArray, return the number
+		--Return if we found and cleared anything
+		return matchesFound
 	end
 end
 
