@@ -292,14 +292,16 @@ function gravityStepLoop(player)
 		end	
 		shouldLoop = findBlocksToClear(inert, player)
 		
+		--[[
 		if(shouldLoop) then
 			player.playState = playStates.gridFixStep
 		else
 			resetPlayerBlock(player)
 			player.playState = playStates.controlStep
 		end
-		
-		
+		--]]
+		resetPlayerBlock(player)
+			player.playState = playStates.controlStep
 	end
 
 end
@@ -325,7 +327,7 @@ function gridFixStep(player)
 	for i,v in ipairs(player.gravityGrid) do
 		distanceValue = distance (v.x, v.y,v.x, v.drawY) -- figure out how far we are from where we should be.
 		if(distanceValue >.5) then
-			v.drawY = v.drawY - gravityDropSpeed
+			v.drawY = v.drawY - .5
 			allClear = false
 		else
 			v.drawY = v.y
