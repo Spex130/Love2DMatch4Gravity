@@ -111,19 +111,19 @@ function loadSinglePlayer()
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
 		playState = playStates.controlStep,
 		gravityLocation = {x = 0, y1 = 0, x2 = 1, y2 = 0},
-		gravityGrid = {},
+		gravityGrid = {}, --Holds a list of blocks that need to be dropped after a clear.
+		inertClone = {},
 	}
 	
 	loadBlocks()
 	reset()
 end
 
-function drawSinglePlayer()
-
-
-	local function drawBlock(block, x, y)
+function drawBlock(block, x, y)
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-    end
+end
+
+function drawSinglePlayer()
 	
 	local offsetX = (love.graphics.getWidth()/blockDrawSize)/2 - gridXCount/2  --Put X as DEAD CENTER
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2
@@ -136,6 +136,10 @@ function drawSinglePlayer()
 	
 	updatePlayerLerps(player1)
 	drawPlayerBlocks(player1, offsetX, offsetX)
+	
+	if(player1.playState == playStates.gridFixStep) then
+		drawGravityGrid(player)
+	end
 
 end
 
@@ -146,7 +150,7 @@ function updatePlayer(player)
 	elseif player.playState == playStates.gravityStep then
 		gravityStepLoop(player)
 	elseif player.playState == playStates.gridFixStep then
-		player.playState = playStates.controlStep
+		gridFixLoop(player)
 	else
 	end
 end
@@ -179,6 +183,12 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 
 end
 
+function drawGravityGrid(player)
+	-- Iterate through the Gravity Grid and draw everything
+	for i,v in ipairs(player.gravityGrid) do
+		drawBlock(v.color, v.x, v.drawY)
+	end
+end
 
 --Get spot, give if it's empty. (Converts from BlockSpace to PlaySpace for you.)
 function isSpotFilled(testX, y)
@@ -280,16 +290,49 @@ function gravityStepLoop(player)
 			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
 			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
 		end	
-		findBlocksToClear(inert, player)
+		shouldLoop = findBlocksToClear(inert, player)
 		
-		resetPlayerBlock(player)
-		player.playState = playStates.controlStep
+		if(shouldLoop) then
+			player.playState = playStates.gridFixStep
+		else
+			resetPlayerBlock(player)
+			player.playState = playStates.controlStep
+		end
+		
+		
 	end
 
 end
 
 function gridFixLoop(player)
-	--TODO: FILL THIS
+
+	allClear = gridFixStep(player)
+	
+	if(allClear == true) then
+		for y = 0, gridYCount do
+			for x = 0, gridXCount do
+			   inert[y][x] = player.inertClone[y][x]
+			end
+		end
+		player.playState = playStates.gravityStep
+	end
+
+end
+
+function gridFixStep(player)
+	allClear = true -- Tells us whether or not we have to loop any more
+	-- Iterate through the Gravity Grid and draw everything
+	for i,v in ipairs(player.gravityGrid) do
+		distanceValue = distance (v.x, v.y,v.x, v.drawY) -- figure out how far we are from where we should be.
+		if(distanceValue >.5) then
+			v.drawY = v.drawY - gravityDropSpeed
+			allClear = false
+		else
+			v.drawY = v.y
+		end
+	end
+	
+	return allClear
 end
 
 function canPlayerRotate(player)
@@ -406,19 +449,21 @@ end
 function findBlocksToClear(inertArray, player)
 	
 	markedArray = {}
-	
+	player.inertClone = {}	-- Clear out the Inert Clone Array so we can use it.
 	chainNumber = 0
 	
 	--Mark all the places we need to check
 	
 	for y = 0, gridYCount do
             markedArray[y] = {}
+			player.inertClone[y] = {}
             for x = 0, gridXCount do
 				if(inertArray[y][x] == 0) then
 					markedArray[y][x] = 0
 				else
 					markedArray[y][x] = -1 --(-1 signifies unchecked. 0 is Empty, 1 is matching.)
 				end
+				player.inertClone[y][x] = inertArray[y][x]
             end
         end
 	
@@ -442,16 +487,16 @@ function findBlocksToClear(inertArray, player)
 		player.gravityGrid[locY] = {}
 		for locX = 0, gridXCount do
 		
-			currentColor = inertArray[locY][locX] 				--Get the color of the spot we're currently at.
+			currentColor = player.inertClone[locY][locX] 				--Get the color of the spot we're currently at.
 			emptyY = findLowestOpenSpotInColumn(locX)	--Find the lowest empty spot in this column
 			
-				
-			--TODO MAKE THIS section NOT CRASH									
+											
 			if(emptyY > locY and currentColor ~= colorBlank) then							--If this spot is lower than where we're currently at, then we record the new spot.
 				print("Empty Y Spot: "..emptyY)
-				inertArray[locY][locX] = colorBlank			--Clear out the current spot in the array
+				player.inertClone[locY][locX] = colorBlank			--Clear out the current spot in the clone and real array
+				inertArray[locY][locX] = colorBlank
 				
-				inertArray[emptyY][locX] = currentColor		--Move it to the lowest open spot in the array.
+				player.inertClone[emptyY][locX] = currentColor		--Move it to the lowest open spot in the clone array.
 
 				--print(currentColor)
 				--Record all of this information in the player's Gravity Grid so we can animate it in the next step.
@@ -462,7 +507,7 @@ function findBlocksToClear(inertArray, player)
 		end
 	end
 	
-	
+	return matchesFound
 	
 end
 
