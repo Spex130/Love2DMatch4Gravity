@@ -150,6 +150,7 @@ function updatePlayer(player)
 	elseif player.playState == playStates.gravityStep then
 		gravityStepLoop(player)
 	elseif player.playState == playStates.gridFixStep then
+		print("gridFixStep")
 		gridFixLoop(player)
 	else
 	end
@@ -185,8 +186,10 @@ end
 
 function drawGravityGrid(player)
 	-- Iterate through the Gravity Grid and draw everything
-	for i,v in ipairs(player.gravityGrid) do
-		drawBlock(v.color, v.x, v.drawY)
+	if(gravityGrid  ~= null) then
+		for i,v in ipairs(player.gravityGrid) do
+			drawBlock(v.color, v.x, v.drawY)
+		end
 	end
 end
 
@@ -258,9 +261,9 @@ function findOpenSpotInColumn(column)
 	return gridYCount
 end
 
-function findLowestOpenSpotInColumn(column)
+function findLowestOpenSpotInColumn(column, inertArray)
 	for y = gridYCount, 0, -1  do
-		if(inert[y][column] == colorBlank) then
+		if(inertArray[y][column] == colorBlank) then
 			return y
 		end
 	end
@@ -291,25 +294,22 @@ function gravityStepLoop(player)
 			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
 		end	
 		shouldLoop = findBlocksToClear(inert, player)
-		
-		--[[
-		if(shouldLoop) then
-			player.playState = playStates.gridFixStep
-		else
+		--if(shouldLoop == true) then
+			--player.playState = playStates.gridFixStep
+		--else
 			resetPlayerBlock(player)
 			player.playState = playStates.controlStep
-		end
+		--end
 		--]]
-		resetPlayerBlock(player)
-			player.playState = playStates.controlStep
 	end
 
 end
 
 function gridFixLoop(player)
 
-	allClear = gridFixStep(player)
+	--allClear = gridFixStep(player)
 	
+	--[[
 	if(allClear == true) then
 		for y = 0, gridYCount do
 			for x = 0, gridXCount do
@@ -318,7 +318,15 @@ function gridFixLoop(player)
 		end
 		player.playState = playStates.gravityStep
 	end
-
+	--]]
+	
+	for i,v in ipairs(player.gravityGrid) do
+		if(v ~= null)then
+			print(v.drawY)
+			inert[v.drawY][v.x] = v.color
+			print(v.x..", "..v.y..": "..v.color)
+		end
+	end
 end
 
 function gridFixStep(player)
@@ -326,6 +334,7 @@ function gridFixStep(player)
 	-- Iterate through the Gravity Grid and draw everything
 	for i,v in ipairs(player.gravityGrid) do
 		distanceValue = distance (v.x, v.y,v.x, v.drawY) -- figure out how far we are from where we should be.
+		print("Distance Value: "..distanceValue)
 		if(distanceValue >.5) then
 			v.drawY = v.drawY - .5
 			allClear = false
@@ -471,7 +480,7 @@ function findBlocksToClear(inertArray, player)
 	
 	--Check all the places, recursively.
 	
-	matchesFound = false
+	local matchesFound = false
 	
 	for locY = 0, gridYCount do
 		for locX = 0, gridXCount do
@@ -482,28 +491,28 @@ function findBlocksToClear(inertArray, player)
 		end
 	end
 	
-	
 	player.gravityGrid = {} -- Clear out the Gravity Grid so we can use it.
 	--Set up the gravity lerps. Backwards, from bottom to top.
-	for locY = gridYCount, 0, -1  do
+	for locY = gridYCount -1, 0, -1  do
 		player.gravityGrid[locY] = {}
 		for locX = 0, gridXCount do
-		
-			currentColor = player.inertClone[locY][locX] 				--Get the color of the spot we're currently at.
-			emptyY = findLowestOpenSpotInColumn(locX)	--Find the lowest empty spot in this column
 			
-											
-			if(emptyY > locY and currentColor ~= colorBlank) then							--If this spot is lower than where we're currently at, then we record the new spot.
-				print("Empty Y Spot: "..emptyY)
-				player.inertClone[locY][locX] = colorBlank			--Clear out the current spot in the clone and real array
-				inertArray[locY][locX] = colorBlank
-				
-				player.inertClone[emptyY][locX] = currentColor		--Move it to the lowest open spot in the clone array.
 
-				--print(currentColor)
-				--Record all of this information in the player's Gravity Grid so we can animate it in the next step.
-				--We don't need the X for drawing. It's all going to be in the same column.
-				table.insert(player.gravityGrid, {y = locY, x = locX, drawY = emptyY, color = currentColor})										
+			currentColor = player.inertClone[locY][locX] 				--Get the color of the spot we're currently at.
+			if(currentColor ~= colorBlank) then
+				local emptyY = findLowestOpenSpotInColumn(locX, player.inertClone)	--Find the lowest empty spot in this column
+				if(emptyY > locY) then							--If this spot is lower than where we're currently at, then we record the new spot.
+					player.inertClone[locY][locX] = colorBlank			--Clear out the current spot in the clone and real array
+					inertArray[locY][locX] = colorBlank
+					
+					player.inertClone[emptyY][locX] = currentColor		--Move it to the lowest open spot in the clone array.
+
+					--print(currentColor)
+					--Record all of this information in the player's Gravity Grid so we can animate it in the next step.
+					--We don't need the X for drawing. It's all going to be in the same column.
+					table.insert(player.gravityGrid, {y = locY, x = locX, drawY = emptyY, color = currentColor})	
+					print("Player gravityGrid[1].emptyY: "..player.gravityGrid[1].drawY)				
+				end
 			end
 		--]]	
 		end
@@ -576,17 +585,16 @@ if(markedArray[locY][locX] == -1) then
 					markedArray[locY][locX] = 1
 					table.insert(foundPairLocations, {y = locY, x = locX})
 					matchesFound = true
-					
+
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
 						--print(""..(v.x)..", "..(v.y).."\n")
 						inertArray[v.y][v.x] = 0
-						print("Clear: "..v.x..", "..v.y)
+						--print("Clear: "..v.x..", "..v.y)
 					end
 				end
 
 	
-
 		--Return if we found and cleared anything
 		return matchesFound
 	end
