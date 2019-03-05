@@ -138,7 +138,7 @@ function drawSinglePlayer()
 	drawPlayerBlocks(player1, offsetX, offsetX)
 	
 	if(player1.playState == playStates.gridFixStep) then
-		drawGravityGrid(player)
+		drawGravityGrid(player1)
 	end
 
 end
@@ -186,7 +186,7 @@ end
 
 function drawGravityGrid(player)
 	-- Iterate through the Gravity Grid and draw everything
-	if(gravityGrid  ~= null) then
+	if(player.gravityGrid  ~= null) then
 		for i,v in ipairs(player.gravityGrid) do
 			drawBlock(v.color, v.x, v.drawY)
 		end
@@ -307,26 +307,19 @@ end
 
 function gridFixLoop(player)
 
-	--allClear = gridFixStep(player)
+	allClear = gridFixStep(player)
 	
-	--[[
+	--[
 	if(allClear == true) then
 		for y = 0, gridYCount do
 			for x = 0, gridXCount do
 			   inert[y][x] = player.inertClone[y][x]
 			end
 		end
-		player.playState = playStates.gravityStep
+		resetPlayerBlock(player)
+		player.playState = playStates.controlStep
 	end
 	--]]
-	
-	for i,v in ipairs(player.gravityGrid) do
-		if(v ~= null)then
-			print(v.drawY)
-			inert[v.drawY][v.x] = v.color
-			print(v.x..", "..v.y..": "..v.color)
-		end
-	end
 end
 
 function gridFixStep(player)
@@ -459,65 +452,66 @@ end
 
 function findBlocksToClear(inertArray, player)
 	
+	
+	local matchesFound = false -- This only ever gets set to true once, if any part of the loop finds a match.
+	local shouldLoop = true -- This is reset pre loop. If the loop makes it to the end as false, then we're all good.
+	
+	while(shouldLoop == true) do
+	
 	markedArray = {}
 	player.inertClone = {}	-- Clear out the Inert Clone Array so we can use it.
 	chainNumber = 0
-	
-	--Mark all the places we need to check
-	
-	for y = 0, gridYCount do
-            markedArray[y] = {}
-			player.inertClone[y] = {}
-            for x = 0, gridXCount do
-				if(inertArray[y][x] == 0) then
-					markedArray[y][x] = 0
-				else
-					markedArray[y][x] = -1 --(-1 signifies unchecked. 0 is Empty, 1 is matching.)
-				end
-				player.inertClone[y][x] = inertArray[y][x]
-            end
-        end
-	
-	--Check all the places, recursively.
-	
-	local matchesFound = false
-	
-	for locY = 0, gridYCount do
-		for locX = 0, gridXCount do
-			found = recursiveBlockClearStart(inertArray, locY, locX, markedArray)
-			if(found == true) then
-				matchesFound = true
-			end
-		end
-	end
-	
-	player.gravityGrid = {} -- Clear out the Gravity Grid so we can use it.
-	--Set up the gravity lerps. Backwards, from bottom to top.
-	for locY = gridYCount -1, 0, -1  do
-		player.gravityGrid[locY] = {}
-		for locX = 0, gridXCount do
-			
-
-			currentColor = player.inertClone[locY][locX] 				--Get the color of the spot we're currently at.
-			if(currentColor ~= colorBlank) then
-				local emptyY = findLowestOpenSpotInColumn(locX, player.inertClone)	--Find the lowest empty spot in this column
-				if(emptyY > locY) then							--If this spot is lower than where we're currently at, then we record the new spot.
-					player.inertClone[locY][locX] = colorBlank			--Clear out the current spot in the clone and real array
-					inertArray[locY][locX] = colorBlank
-					
-					player.inertClone[emptyY][locX] = currentColor		--Move it to the lowest open spot in the clone array.
-
-					--print(currentColor)
-					--Record all of this information in the player's Gravity Grid so we can animate it in the next step.
-					--We don't need the X for drawing. It's all going to be in the same column.
-					table.insert(player.gravityGrid, {y = locY, x = locX, drawY = emptyY, color = currentColor})	
-					print("Player gravityGrid[1].emptyY: "..player.gravityGrid[1].drawY)				
+		
+		shouldLoop = false -- Break the loop per loop. But only if nothing is found.
+		--Mark all the places we need to check
+		
+		for y = 0, gridYCount do
+				markedArray[y] = {}
+				player.inertClone[y] = {}
+				for x = 0, gridXCount do
+					if(inertArray[y][x] == 0) then
+						markedArray[y][x] = 0
+					else
+						markedArray[y][x] = -1 --(-1 signifies unchecked. 0 is Empty, 1 is matching.)
+					end
+					player.inertClone[y][x] = inertArray[y][x]
 				end
 			end
-		--]]	
+		
+		--Check all the places, recursively.
+		
+		
+		
+		for locY = 0, gridYCount do
+			for locX = 0, gridXCount do
+				found = recursiveBlockClearStart(inertArray, locY, locX, markedArray)
+				if(found == true) then
+					matchesFound = true
+					shouldLoop = true
+				end
+			end
 		end
+		
+		player.gravityGrid = {} -- Clear out the Gravity Grid so we can use it.
+		--Set up the gravity lerps. Backwards, from bottom to top.
+		for locY = gridYCount -1, 0, -1  do
+			for locX = 0, gridXCount do
+				currentColor = inertArray[locY][locX] 				--Get the color of the spot we're currently at.
+				if(currentColor ~= colorBlank) then
+					local emptyY = findLowestOpenSpotInColumn(locX, inertArray)	--Find the lowest empty spot in this column
+					if(emptyY > locY) then							--If this spot is lower than where we're currently at, then we record the new spot.
+						inertArray[locY][locX] = colorBlank			--Clear out the current spot in the clone and real array
+						inertArray[emptyY][locX] = currentColor		--Move it to the lowest open spot in the clone array.
+					end
+				end
+
+			end
+		end
+		
 	end
 	
+	resetPlayerBlock(player)
+	player.playState = playStates.controlStep
 	return matchesFound
 	
 end
