@@ -136,6 +136,7 @@ function drawSinglePlayer()
 	
 	updatePlayerLerps(player1)
 	drawPlayerBlocks(player1, offsetX, offsetX)
+	--TODO - THIS isn't taking in the offsetX and offsetY variables correctly.
 	
 	if(player1.playState == playStates.gridFixStep) then
 		drawGravityGrid(player1)
@@ -157,7 +158,8 @@ function updatePlayer(player)
 end
 
 function drawPlayerBlocks(player, offsetX, offsetY)
-	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.drawLocation.x + offsetX) * blockDrawSize,(player.drawLocation.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, player.drawLocation.y + offsetY)
 	
 	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.drawLocation2.x + offsetX) * blockDrawSize,(player.drawLocation2.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	
