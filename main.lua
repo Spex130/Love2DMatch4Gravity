@@ -135,7 +135,8 @@ function drawSinglePlayer()
     end
 	
 	updatePlayerLerps(player1)
-	drawPlayerBlocks(player1, offsetX, offsetX)
+	drawPlayerBlocks(player1, offsetX, offsetY + 1)
+	--drawBlock(player1.blockColors.color1, player1.drawLocation.x + offsetX, player1.drawLocation.y + offsetY + 1)
 	--TODO - THIS isn't taking in the offsetX and offsetY variables correctly.
 	
 	if(player1.playState == playStates.gridFixStep) then
@@ -159,9 +160,9 @@ end
 
 function drawPlayerBlocks(player, offsetX, offsetY)
 	
-	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, player.drawLocation.y + offsetY)
 	
-	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.drawLocation2.x + offsetX) * blockDrawSize,(player.drawLocation2.y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, player.drawLocation.y + offsetY)
+	drawBlock(player.blockColors.color2, player.drawLocation2.x + offsetX, player.drawLocation2.y + offsetY)
 	
 	
 	--DRAW GHOST BLOCKS STEP
@@ -177,7 +178,10 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 		openSpots = {block1 = findOpenSpotInColumn(player.location.x) -1, block2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1}
 	end	
 	
-
+	
+	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, openSpots.block1 + offsetY)
+	drawBlock(player.blockColors.color2, player.drawLocation.x + offsetX + player.rotation.x, openSpots.block2 + offsetY)
+	
 	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.location.x + offsetX) * blockDrawSize,(openSpots.block1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.location.x + player.rotation.x + offsetX) * blockDrawSize,(openSpots.block2 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	
