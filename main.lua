@@ -181,10 +181,6 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 	
 	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, openSpots.block1 + offsetY)
 	drawBlock(player.blockColors.color2, player.drawLocation.x + offsetX + player.rotation.x, openSpots.block2 + offsetY)
-	
-	love.graphics.draw(blocksPGBY[player.blockColors.color1],(player.location.x + offsetX) * blockDrawSize,(openSpots.block1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(blocksPGBY[player.blockColors.color2],(player.location.x + player.rotation.x + offsetX) * blockDrawSize,(openSpots.block2 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	
 
 	love.graphics.setColor(255,255,255,255)
 
