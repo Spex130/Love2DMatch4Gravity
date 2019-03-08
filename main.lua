@@ -125,8 +125,8 @@ end
 
 function drawSinglePlayer()
 	
-	local offsetX = (love.graphics.getWidth()/blockDrawSize)/2 - gridXCount/2  --Put X as DEAD CENTER
-    local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2
+	local offsetX = (love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
+    local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
