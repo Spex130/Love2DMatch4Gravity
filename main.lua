@@ -285,15 +285,18 @@ function gravityStepLoop(player)
 		player.drawLocation2.x = player.gravityLocation.x2
 		player.drawLocation2.y = player.gravityLocation.y2
 		
-		if(player.rotation ~= rotations.up or player.rotation ~= rotations.down) then
-
+		if(player.rotation ~= rotations.up and player.rotation ~= rotations.down) then
 			inert[findOpenSpotInColumn(player.location.x)][player.location.x] = player.blockColors.color1
 			inert[findOpenSpotInColumn(player.location.x + player.rotation.x)][player.location.x + player.rotation.x] = player.blockColors.color2
 			
-		else
+		elseif(player.rotation == rotations.up) then
 			resetPlayerLerps(player)	
 			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
 			inert[player.location.y + player.rotation.y + 1][player.location.x + player.rotation.x] = player.blockColors.color2
+		elseif(player.rotation == rotations.down) then
+			resetPlayerLerps(player)	
+			inert[player.location.y + 1][player.location.x] = player.blockColors.color1
+			inert[player.location.y + player.rotation.y + 1][player.location.x] = player.blockColors.color2
 		end	
 		shouldLoop = findBlocksToClear(inert, player)
 		--if(shouldLoop == true) then
