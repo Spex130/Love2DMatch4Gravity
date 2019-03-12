@@ -6,6 +6,9 @@ gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
 gameState = gameStates.SinglePlayer
 local mainmenu
 
+blockDrawSize = 30
+blockDrawRatio = 64/30
+
 --Main Menu functions
 
 local function start_game()
@@ -80,7 +83,7 @@ function loadSinglePlayer()
 	--Block Attributes
 
 	blockSize = 64
-	blockDrawSize = 30 
+	blockDrawSize = 30
 	blockDrawRatio = blockDrawSize/blockSize
 	blocksPGBY = {}
 	colorBlank = 0
@@ -125,6 +128,8 @@ end
 
 function drawSinglePlayer()
 	
+	updateDrawBlockSize()
+	
 	local offsetX = (love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
@@ -143,6 +148,11 @@ function drawSinglePlayer()
 		drawGravityGrid(player1)
 	end
 
+end
+
+function updateDrawBlockSize()
+	blockDrawSize = math.min(love.graphics.getWidth(), love.graphics.getHeight())/16
+	blockDrawRatio = blockDrawSize/blockSize
 end
 
 function updatePlayer(player)
