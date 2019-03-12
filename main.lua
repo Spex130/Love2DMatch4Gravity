@@ -6,8 +6,9 @@ gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
 gameState = gameStates.SinglePlayer
 local mainmenu
 
+blockSize = 64
 blockDrawSize = 30
-blockDrawRatio = 64/30
+blockDrawRatio = blockSize/30
 
 --Main Menu functions
 
