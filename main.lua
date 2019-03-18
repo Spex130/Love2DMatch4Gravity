@@ -94,6 +94,9 @@ function loadSinglePlayer()
 	colorYellow = 4
 	colorGray = 5
 
+	--Tile Attributes
+	tilesBG = {}
+	
 	--Timers
 	timerLimit = 1.0
 
@@ -120,11 +123,17 @@ function loadSinglePlayer()
 	}
 	
 	loadBlocks()
+	loadBGTiles()
 	reset()
 end
 
 function drawBlock(block, x, y)
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+end
+
+function drawPlayfieldTile(x, offsetX, y, offsetY)
+
+		love.graphics.draw(tilesBG[1],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 end
 
 function drawSinglePlayer()
@@ -137,8 +146,10 @@ function drawSinglePlayer()
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
 			
-			drawBlock(0, x + offsetX, y + offsetY)				--Draw clear tile first
-            drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
+			drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw BG
+			if(inert[y][x] ~=0) then
+				drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
+			end
         end
     end
 	
@@ -150,6 +161,7 @@ function drawSinglePlayer()
 	if(player1.playState == playStates.gridFixStep) then
 		drawGravityGrid(player1)
 	end
+
 
 end
 
@@ -203,7 +215,9 @@ function drawGravityGrid(player)
 	-- Iterate through the Gravity Grid and draw everything
 	if(player.gravityGrid  ~= null) then
 		for i,v in ipairs(player.gravityGrid) do
-			drawBlock(v.color, v.x, v.drawY)
+			if(v.color ~= 0) then
+				drawBlock(v.color, v.x, v.drawY)
+			end
 		end
 	end
 end
@@ -466,6 +480,16 @@ function loadBlocks()
 	}
 
 
+end
+
+function loadBGTiles()
+for i=1,256 do -- change 3 to the number of tile images minus 1.
+      if(i < 10) then
+		tilesBG[i] = love.graphics.newImage( "assets/grassland/Grassland_0"..i..".png" )
+	  else
+		tilesBG[i] = love.graphics.newImage( "assets/grassland/Grassland_"..i..".png" )
+	  end
+   end
 end
 
 function findBlocksToClear(inertArray, player)
