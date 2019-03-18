@@ -168,21 +168,21 @@ function drawPlayfieldTile(x, offsetX, y, offsetY)
 		
 		--Else If X is Greater than 0 and Less than Length (If we're horizontally in the middle)
 			--find mod = (X mod 3)
-			--if Y == 0 (if we are at the top right of the ledge)
+			--if Y == 0 (if we are at the top)
 				--case mod == 0
-					--set tile to tile ## (Random Top Middle Grass 1)
+					--set tile to tile 02 (Random Top Middle Grass 1)
 				--case mod == 1	
-					--set tile to tile ## (Random Top Middle Grass 2)
+					--set tile to tile 03 (Random Top Middle Grass 2)
 				--case mod == 2	
-					--set tile to tile ##  (Random Top Middle Grass 3)
-			--else if Y == height (if we are the bottom right)
+					--set tile to tile 04  (Random Top Middle Grass 3)
+			--else if Y == height (if we are at the bottom)
 				--case mod == 0
-					--set tile to tile ## (Random Bottom Middle Grass 1)
+					--set tile to tile 66 (Random Bottom Middle Grass 1)
 				--case mod == 1	
-					--set tile to tile ## (Random Bottom Middle Grass 2)
+					--set tile to tile 67 (Random Bottom Middle Grass 2)
 				--case mod == 2	
-					--set tile to tile ##  (Random Bottom Middle Grass 3)
-			--else
+					--set tile to tile 68  (Random Bottom Middle Grass 3)
+			--else	--We're really out in the middle of nowhere.
 				--find mod = ((X + Y) mod 6)
 				--case mod == 0
 					--set tile to tile 50 (Generic Center Grass)
@@ -192,8 +192,74 @@ function drawPlayfieldTile(x, offsetX, y, offsetY)
 					--set tile to tile 51 (Generic Center Grass)
 			
 		--]]
+		
+		if(x == 0) then
+			if(y == 0) then
+				love.graphics.draw(tilesBG[1],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top left)
+			elseif(y == gridYCount) then
+				love.graphics.draw(tilesBG[65],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom left)
+		
+			else	--(Middle left section)
+				mod = y % 3		--Used for randomization
+				
+				if(mod == 0) then
+					love.graphics.draw(tilesBG[17],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				elseif(mod == 1) then
+					love.graphics.draw(tilesBG[33],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				else
+					love.graphics.draw(tilesBG[49],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end	
 
-		love.graphics.draw(tilesBG[51],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			end
+		elseif(x == gridXCount) then
+			if(y == 0) then
+				love.graphics.draw(tilesBG[5],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top right)
+			elseif(y == gridYCount) then
+				love.graphics.draw(tilesBG[69],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom right)
+
+			else	--(Middle right section)
+				mod = y % 3		--Used for randomization
+				
+				if(mod == 0) then
+					love.graphics.draw(tilesBG[21],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				elseif(mod == 1) then
+					love.graphics.draw(tilesBG[37],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				else
+					love.graphics.draw(tilesBG[53],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end	
+
+			end
+		else
+			
+			mod = y % 3	
+			if(y == 0) then
+				if(mod == 0) then
+					love.graphics.draw(tilesBG[2],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				elseif(mod == 1) then
+					love.graphics.draw(tilesBG[3],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				else
+					love.graphics.draw(tilesBG[4],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end	
+			elseif(y == gridYCount) then
+				if(mod == 0) then
+					love.graphics.draw(tilesBG[66],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				elseif(mod == 1) then
+					love.graphics.draw(tilesBG[67],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				else
+					love.graphics.draw(tilesBG[68],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end	
+			else	--(Middlesection)
+				mod =((x + y) % 6)
+				
+				if(mod == 0) then
+					love.graphics.draw(tilesBG[50],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				elseif(mod == 4) then
+					love.graphics.draw(tilesBG[52],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				else
+					love.graphics.draw(tilesBG[51],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end	
+			end
+		end
 end
 
 function drawSinglePlayer()
