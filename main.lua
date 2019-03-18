@@ -269,6 +269,47 @@ function drawPlayfieldTile(x, offsetX, y, offsetY)
 		end
 end
 
+function drawPlayfieldBorder(offsetX, offsetY)
+	
+	--Above the Top and Below the Bottom: Left, Right, Middle
+	for i = -1, gridXCount + 1 do
+		if(i == -1) then
+			love.graphics.draw(tilesBG[127],(i + offsetX) * blockDrawSize, (-1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			love.graphics.draw(tilesBG[143],(i + offsetX) * blockDrawSize, (gridYCount+1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)				
+		elseif (i == gridXCount + 1) then
+			love.graphics.draw(tilesBG[128],(i + offsetX) * blockDrawSize, (-1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			love.graphics.draw(tilesBG[144],(i + offsetX) * blockDrawSize, (gridYCount+1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		else
+			love.graphics.draw(tilesBG[173],(i + offsetX) * blockDrawSize, (-1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			love.graphics.draw(tilesBG[124],(i + offsetX) * blockDrawSize, (gridYCount+1 + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		end
+	end
+	
+	--Line the sides
+	for i = 0, gridYCount do
+			love.graphics.draw(tilesBG[142],(-1 + offsetX) * blockDrawSize, (i + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			love.graphics.draw(tilesBG[139],(gridXCount + 1 + offsetX) * blockDrawSize, (i + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	end
+	
+end
+
+function drawOceanBG()
+	local rotator = 0
+	for x = 0, 20 do
+		for y = 0, 20 do
+		rotator = rotator + 1
+			if(rotator == 9 + (x % 5)) then
+				love.graphics.draw(tilesBG[140],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			elseif(rotator == 23) then
+				love.graphics.draw(tilesBG[156],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				rotator = 0
+			else
+				love.graphics.draw(tilesBG[141],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			end
+		end
+	end
+end
+
 function drawSinglePlayer()
 	
 	updateDrawBlockSize()
@@ -276,10 +317,13 @@ function drawSinglePlayer()
 	local offsetX = (love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
+	drawOceanBG()											--Draw Ocean	
+	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
 			
-			drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw BG
+			drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw Field
+			drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 			if(inert[y][x] ~=0) then
 				drawBlockShadow(x + offsetX, y + offsetY)
 				drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
@@ -335,7 +379,7 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 	end	
 	
 	drawBlockShadow(player.drawLocation.x + offsetX, openSpots.block1 + offsetY)
-	drawBlockShadow(player.drawLocation.x + offsetX, openSpots.block2 + offsetY)
+	drawBlockShadow(player.drawLocation.x + offsetX + player.rotation.x, openSpots.block2 + offsetY)
 	
 	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, openSpots.block1 + offsetY)
 	drawBlock(player.blockColors.color2, player.drawLocation.x + offsetX + player.rotation.x, openSpots.block2 + offsetY)
