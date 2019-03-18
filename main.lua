@@ -133,7 +133,61 @@ end
 
 function drawPlayfieldTile(x, offsetX, y, offsetY)
 
-		love.graphics.draw(tilesBG[1],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+
+
+	--[[ Pseudocode for tile calculation
+		--If X is 0 (If we are on the left edge of the field)
+			--if Y == 0 (if we are at the top left of the ledge)
+				-- Set tile to tile 1 (grass top left)
+			--else if Y == height (if we are the bottom left)
+				-- Set tile to tile 65 (grass bottom left)
+			--else
+				--find mod = (Y mod 3)
+				
+				--case mod = 0
+					--set tile to tile 17 (Random Left Grass 1)
+				--case mod = 1	
+					--set tile to tile 33 (Random Left Grass 2)
+				--case mod = 2	
+					--set tile to tile 49  (Random Left Grass 3)
+					
+		--Else If X is Length (If we are on the right edge of the field)
+			--if Y == 0 (if we are at the top right of the ledge)
+				-- Set tile to tile 5 (grass top right)
+			--else if Y == height (if we are the bottom right)
+				-- Set tile to tile 69 (grass bottom right)
+			--else
+				--find mod = (Y mod 3)
+				
+				--case mod = 0
+					--set tile to tile 21 (Random Right Grass 1)
+				--case mod = 1	
+					--set tile to tile 37 (Random Right Grass 2)
+				--case mod = 2	
+					--set tile to tile 53  (Random Right Grass 3)
+		
+		--Else If X is Greater than 0 and Less than Length (If we're horizontally in the middle)
+			--find mod = (X mod 3)
+			--if Y == 0 (if we are at the top right of the ledge)
+				--case mod = 0
+					--set tile to tile ## (Random Top Middle Grass 1)
+				--case mod = 1	
+					--set tile to tile ## (Random Top Middle Grass 2)
+				--case mod = 2	
+					--set tile to tile ##  (Random Top Middle Grass 3)
+			--else if Y == height (if we are the bottom right)
+				--case mod = 0
+					--set tile to tile ## (Random Bottom Middle Grass 1)
+				--case mod = 1	
+					--set tile to tile ## (Random Bottom Middle Grass 2)
+				--case mod = 2	
+					--set tile to tile ##  (Random Bottom Middle Grass 3)
+			--else
+				--set tile to tile 51 (Generic Center Grass)
+			
+		--]]
+
+		love.graphics.draw(tilesBG[51],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 end
 
 function drawSinglePlayer()
