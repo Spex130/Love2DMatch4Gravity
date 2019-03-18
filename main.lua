@@ -136,7 +136,9 @@ function drawSinglePlayer()
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
-            drawBlock(inert[y][x], x + offsetX, y + offsetY)
+			
+			drawBlock(0, x + offsetX, y + offsetY)				--Draw clear tile first
+            drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
         end
     end
 	
