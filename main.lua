@@ -144,11 +144,11 @@ function drawPlayfieldTile(x, offsetX, y, offsetY)
 			--else
 				--find mod = (Y mod 3)
 				
-				--case mod = 0
+				--case mod == 0
 					--set tile to tile 17 (Random Left Grass 1)
-				--case mod = 1	
+				--case mod == 1	
 					--set tile to tile 33 (Random Left Grass 2)
-				--case mod = 2	
+				--case mod == 2	
 					--set tile to tile 49  (Random Left Grass 3)
 					
 		--Else If X is Length (If we are on the right edge of the field)
@@ -159,31 +159,37 @@ function drawPlayfieldTile(x, offsetX, y, offsetY)
 			--else
 				--find mod = (Y mod 3)
 				
-				--case mod = 0
+				--case mod == 0
 					--set tile to tile 21 (Random Right Grass 1)
-				--case mod = 1	
+				--case mod == 1	
 					--set tile to tile 37 (Random Right Grass 2)
-				--case mod = 2	
+				--case mod == 2	
 					--set tile to tile 53  (Random Right Grass 3)
 		
 		--Else If X is Greater than 0 and Less than Length (If we're horizontally in the middle)
 			--find mod = (X mod 3)
 			--if Y == 0 (if we are at the top right of the ledge)
-				--case mod = 0
+				--case mod == 0
 					--set tile to tile ## (Random Top Middle Grass 1)
-				--case mod = 1	
+				--case mod == 1	
 					--set tile to tile ## (Random Top Middle Grass 2)
-				--case mod = 2	
+				--case mod == 2	
 					--set tile to tile ##  (Random Top Middle Grass 3)
 			--else if Y == height (if we are the bottom right)
-				--case mod = 0
+				--case mod == 0
 					--set tile to tile ## (Random Bottom Middle Grass 1)
-				--case mod = 1	
+				--case mod == 1	
 					--set tile to tile ## (Random Bottom Middle Grass 2)
-				--case mod = 2	
+				--case mod == 2	
 					--set tile to tile ##  (Random Bottom Middle Grass 3)
 			--else
-				--set tile to tile 51 (Generic Center Grass)
+				--find mod = ((X + Y) mod 6)
+				--case mod == 0
+					--set tile to tile 50 (Generic Center Grass)
+				--case mod == 4
+					--set tile to tile 52 (Generic Center Grass)				
+				--default
+					--set tile to tile 51 (Generic Center Grass)
 			
 		--]]
 
