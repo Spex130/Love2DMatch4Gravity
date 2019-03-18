@@ -97,6 +97,9 @@ function loadSinglePlayer()
 	--Tile Attributes
 	tilesBG = {}
 	
+	--Misc Sprites
+	shadowSprite = love.graphics.newImage('assets/shadow.png')
+	
 	--Timers
 	timerLimit = 1.0
 
@@ -129,6 +132,10 @@ end
 
 function drawBlock(block, x, y)
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+end
+
+function drawBlockShadow(x, y)
+		love.graphics.draw(shadowSprite,x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 end
 
 function drawPlayfieldTile(x, offsetX, y, offsetY)
@@ -274,6 +281,7 @@ function drawSinglePlayer()
 			
 			drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw BG
 			if(inert[y][x] ~=0) then
+				drawBlockShadow(x + offsetX, y + offsetY)
 				drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
 			end
         end
@@ -281,8 +289,6 @@ function drawSinglePlayer()
 	
 	updatePlayerLerps(player1)
 	drawPlayerBlocks(player1, offsetX, offsetY + 1)
-	--drawBlock(player1.blockColors.color1, player1.drawLocation.x + offsetX, player1.drawLocation.y + offsetY + 1)
-	--TODO - THIS isn't taking in the offsetX and offsetY variables correctly.
 	
 	if(player1.playState == playStates.gridFixStep) then
 		drawGravityGrid(player1)
@@ -312,11 +318,10 @@ end
 function drawPlayerBlocks(player, offsetX, offsetY)
 	
 	
-	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, player.drawLocation.y + offsetY)
-	drawBlock(player.blockColors.color2, player.drawLocation2.x + offsetX, player.drawLocation2.y + offsetY)
+	--DRAW TRANSPARENT STUFF FIRST
+	drawBlockShadow(player.drawLocation.x + offsetX, player.drawLocation.y + offsetY)
+	drawBlockShadow(player.drawLocation2.x + offsetX, player.drawLocation2.y + offsetY)
 	
-	
-	--DRAW GHOST BLOCKS STEP
 	love.graphics.setColor(255,255,255,0.5)
 	openSpots = {}
 	
@@ -329,11 +334,18 @@ function drawPlayerBlocks(player, offsetX, offsetY)
 		openSpots = {block1 = findOpenSpotInColumn(player.location.x) -1, block2 = findOpenSpotInColumn(player.location.x + player.rotation.x) -1}
 	end	
 	
+	drawBlockShadow(player.drawLocation.x + offsetX, openSpots.block1 + offsetY)
+	drawBlockShadow(player.drawLocation.x + offsetX, openSpots.block2 + offsetY)
 	
 	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, openSpots.block1 + offsetY)
 	drawBlock(player.blockColors.color2, player.drawLocation.x + offsetX + player.rotation.x, openSpots.block2 + offsetY)
+	
 
 	love.graphics.setColor(255,255,255,255)
+	
+	--DRAW ACTUAL BLOCKS
+	drawBlock(player.blockColors.color1, player.drawLocation.x + offsetX, player.drawLocation.y + offsetY)
+	drawBlock(player.blockColors.color2, player.drawLocation2.x + offsetX, player.drawLocation2.y + offsetY)
 
 end
 
