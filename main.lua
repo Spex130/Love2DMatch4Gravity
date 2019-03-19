@@ -353,7 +353,6 @@ function updatePlayer(player)
 	elseif player.playState == playStates.gravityStep then
 		gravityStepLoop(player)
 	elseif player.playState == playStates.gridFixStep then
-		print("gridFixStep")
 		gridFixLoop(player)
 	else
 	end
@@ -680,7 +679,7 @@ function findBlocksToClear(inertArray, player)
 	local matchesFound = false -- This only ever gets set to true once, if any part of the loop finds a match.
 	local shouldLoop = true -- This is reset pre loop. If the loop makes it to the end as false, then we're all good.
 	
-	while(shouldLoop == true) do
+	while(shouldLoop == true) do --TODO: Move this While Loop to the GridFixStep
 	
 	markedArray = {}
 	player.inertClone = {}	-- Clear out the Inert Clone Array so we can use it.
