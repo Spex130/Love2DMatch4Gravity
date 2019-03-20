@@ -293,6 +293,22 @@ function drawPlayfieldBorder(offsetX, offsetY)
 	
 end
 
+function drawCharacterPlatform(x, offsetX, y, offsetY)
+
+	xLoc = x + offsetX
+	yLoc = y + offsetY
+
+	--top Row
+	love.graphics.draw(tilesBG[56],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesBG[57],(xLoc + 1) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesBG[58],(xLoc + 2) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	--Bottom Row
+	love.graphics.draw(tilesBG[72],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesBG[73],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesBG[74],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+end
+
 function drawOceanBG()
 	local rotator = 0
 	for x = 0, 20 do
@@ -318,12 +334,13 @@ function drawSinglePlayer()
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
 	drawOceanBG()											--Draw Ocean	
+	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
+	drawCharacterPlatform(9, offsetX, 11, offsetY)			--Draw Character Platform
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
 			
 			drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw Field
-			drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 			if(inert[y][x] ~=0) then
 				drawBlockShadow(x + offsetX, y + offsetY)
 				drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
@@ -537,7 +554,7 @@ function gridFixLoop(player)
 		player.playState = playStates.controlStep
 	end
 	--]]
-	print("gridFix")
+
 	shouldLoop = findBlocksToClear(inert, player)
 	if(shouldLoop == true) then
 		player.playState = playStates.gridFixStep
