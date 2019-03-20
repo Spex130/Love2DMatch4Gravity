@@ -108,7 +108,7 @@ function loadSinglePlayer()
 
 	--Player location attributes
 	rotations = {right = {x = 1, y = 0}, down = {x = 0, y = 1}, left = {x = -1, y = 0}, up = {x = 0, y = -1}}
-	playStates = {controlStep = 0, gravityStep = 1, gridFixStep = 2}
+	playStates = {controlStep = 0, gravityStep = 1, gridFixStep = 2, gravityCheckStep = 3}
 	
 	player1 = 
 	{
@@ -331,11 +331,13 @@ function drawSinglePlayer()
         end
     end
 	
-	updatePlayerLerps(player1)
-	drawPlayerBlocks(player1, offsetX, offsetY + 1)
+	
 	
 	if(player1.playState == playStates.gridFixStep) then
 		drawGravityGrid(player1)
+	else
+		updatePlayerLerps(player1)
+		drawPlayerBlocks(player1, offsetX, offsetY + 1)
 	end
 
 
@@ -353,6 +355,8 @@ function updatePlayer(player)
 	elseif player.playState == playStates.gravityStep then
 		gravityStepLoop(player)
 	elseif player.playState == playStates.gridFixStep then
+		gridFixLoop(player)
+	elseif player.playState == playStates.gravityCheckStep then
 		gridFixLoop(player)
 	else
 	end
@@ -507,12 +511,12 @@ function gravityStepLoop(player)
 			inert[player.location.y + player.rotation.y + 1][player.location.x] = player.blockColors.color2
 		end	
 		shouldLoop = findBlocksToClear(inert, player)
-		--if(shouldLoop == true) then
-			--player.playState = playStates.gridFixStep
-		--else
+		if(shouldLoop == true) then
+			player.playState = playStates.gridFixStep
+		else
 			resetPlayerBlock(player)
 			player.playState = playStates.controlStep
-		--end
+		end
 		--]]
 	end
 
@@ -520,9 +524,9 @@ end
 
 function gridFixLoop(player)
 
-	allClear = gridFixStep(player)
+	--allClear = gridFixStep(player)
 	
-	--[
+	--[[]
 	if(allClear == true) then
 		for y = 0, gridYCount do
 			for x = 0, gridXCount do
@@ -533,6 +537,14 @@ function gridFixLoop(player)
 		player.playState = playStates.controlStep
 	end
 	--]]
+	print("gridFix")
+	shouldLoop = findBlocksToClear(inert, player)
+	if(shouldLoop == true) then
+		player.playState = playStates.gridFixStep
+	else
+		resetPlayerBlock(player)
+		player.playState = playStates.gravityStep
+	end
 end
 
 function gridFixStep(player)
@@ -679,7 +691,7 @@ function findBlocksToClear(inertArray, player)
 	local matchesFound = false -- This only ever gets set to true once, if any part of the loop finds a match.
 	local shouldLoop = true -- This is reset pre loop. If the loop makes it to the end as false, then we're all good.
 	
-	while(shouldLoop == true) do --TODO: Move this While Loop to the GridFixStep
+	--while(shouldLoop == true) do --TODO: Move this While Loop to the GridFixStep
 	
 	markedArray = {}
 	player.inertClone = {}	-- Clear out the Inert Clone Array so we can use it.
@@ -731,10 +743,10 @@ function findBlocksToClear(inertArray, player)
 			end
 		end
 		
-	end
+	--end
 	
-	resetPlayerBlock(player)
-	player.playState = playStates.controlStep
+	--resetPlayerBlock(player)
+	--player.playState = playStates.controlStep
 	return matchesFound
 	
 end
