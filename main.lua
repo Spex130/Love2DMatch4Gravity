@@ -340,6 +340,18 @@ function drawNextBlockUI(x, offsetX, y, offsetY)
 
 end
 
+function drawScoreTextCentered(x, offsetX, y, offsetY, size)
+	
+	xLoc = x + offsetX +(blockDrawRatio/2)
+	yLoc = y + offsetY +(blockDrawRatio/2)
+	
+	xLoc2 = x + offsetX +(blockDrawRatio/2) + 1
+	yLoc2 = y + offsetY +(blockDrawRatio/2) + 1
+
+	love.graphics.print("Score:", xLoc * blockDrawSize,yLoc * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+	love.graphics.print("5", xLoc2 * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+end
+
 function drawOceanBG()
 	local rotator = 0
 	for x = 0, 20 do
@@ -368,6 +380,7 @@ function drawSinglePlayer()
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(9, offsetX, 11, offsetY)			--Draw Character Platform
 	drawScoreUI(9, offsetX, 3, offsetY)						--Draw Score Box
+	drawScoreTextCentered(9, offsetX, 3, offsetY)			--Draw Score Text
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
