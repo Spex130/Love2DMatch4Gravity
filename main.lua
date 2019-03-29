@@ -422,7 +422,7 @@ function updatePlayer(player)
 	elseif player.playState == playStates.gridFixStep then
 		gridFixLoop(player)
 	elseif player.playState == playStates.gravityCheckStep then
-		gridFixLoop(player)
+		gravityCheckLoop(player)
 	else
 	end
 end
@@ -608,7 +608,7 @@ function gridFixLoop(player)
 		player.playState = playStates.gridFixStep
 	else
 		resetPlayerBlock(player)
-		player.playState = playStates.gravityStep
+		player.playState = playStates.controlStep
 	end
 end
 
