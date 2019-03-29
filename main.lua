@@ -95,7 +95,8 @@ function loadSinglePlayer()
 	colorGray = 5
 
 	--Tile Attributes
-	tilesBG = {}
+	tilesBG = {} -- Ocean and Geometry
+	tilesUI = {} -- Score and info windows
 	
 	--Misc Sprites
 	shadowSprite = love.graphics.newImage('assets/shadow.png')
@@ -127,6 +128,7 @@ function loadSinglePlayer()
 	
 	loadBlocks()
 	loadBGTiles()
+	loadUITiles()
 	reset()
 end
 
@@ -693,11 +695,21 @@ function loadBlocks()
 end
 
 function loadBGTiles()
-for i=1,256 do -- change 3 to the number of tile images minus 1.
+for i=1,256 do
       if(i < 10) then
 		tilesBG[i] = love.graphics.newImage( "assets/grassland/Grassland_0"..i..".png" )
 	  else
 		tilesBG[i] = love.graphics.newImage( "assets/grassland/Grassland_"..i..".png" )
+	  end
+   end
+end
+
+function loadUITiles()
+for i=1,16 do
+      if(i < 10) then
+		tilesUI[i] = love.graphics.newImage( "assets/menusprites/WindowUI_0"..i..".png" )
+	  else
+		tilesUI[i] = love.graphics.newImage( "assets/menusprites/WindowUI_"..i..".png" )
 	  end
    end
 end
