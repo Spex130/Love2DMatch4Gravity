@@ -300,7 +300,7 @@ function drawCharacterPlatform(x, offsetX, y, offsetY)
 	xLoc = x + offsetX
 	yLoc = y + offsetY
 
-	--top Row
+	--Top Row
 	love.graphics.draw(tilesBG[56],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[57],(xLoc + 1) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[58],(xLoc + 2) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -309,6 +309,35 @@ function drawCharacterPlatform(x, offsetX, y, offsetY)
 	love.graphics.draw(tilesBG[72],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[73],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[74],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+end
+
+function drawScoreUI(x, offsetX, y, offsetY)
+	xLoc = x + offsetX
+	yLoc = y + offsetY
+
+	--Top Row
+	love.graphics.draw(tilesUI[1],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[2],(xLoc + 1) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[3],(xLoc + 2) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	--Middle Row
+	love.graphics.draw(tilesUI[5],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[6],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[7],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+
+	--Second Middle Row
+	love.graphics.draw(tilesUI[5],(xLoc) * blockDrawSize, (yLoc + 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[6],(xLoc + 1) * blockDrawSize, (yLoc + 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[7],(xLoc + 2) * blockDrawSize, (yLoc+ 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	--Bottom Row
+	love.graphics.draw(tilesUI[9],(xLoc) * blockDrawSize, (yLoc + 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[10],(xLoc + 1) * blockDrawSize, (yLoc + 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[11],(xLoc + 2) * blockDrawSize, (yLoc+ 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+end
+
+function drawNextBlockUI(x, offsetX, y, offsetY)
+
 end
 
 function drawOceanBG()
@@ -338,6 +367,7 @@ function drawSinglePlayer()
 	drawOceanBG()											--Draw Ocean	
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(9, offsetX, 11, offsetY)			--Draw Character Platform
+	drawScoreUI(9, offsetX, 3, offsetY)						--Draw Score Box
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
@@ -705,7 +735,7 @@ for i=1,256 do
 end
 
 function loadUITiles()
-for i=1,16 do
+	for i=1,16 do
       if(i < 10) then
 		tilesUI[i] = love.graphics.newImage( "assets/menusprites/WindowUI_0"..i..".png" )
 	  else
