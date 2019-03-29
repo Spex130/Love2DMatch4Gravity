@@ -28,6 +28,7 @@ function reset()
 			
 		resetPlayerBlock(player1)
 		timer = 0
+		player1.score = 0
 
     end
 	
@@ -120,10 +121,13 @@ function loadSinglePlayer()
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
+		nextBlockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
 		playState = playStates.controlStep,
 		gravityLocation = {x = 0, y1 = 0, x2 = 1, y2 = 0},
 		gravityGrid = {}, --Holds a list of blocks that need to be dropped after a clear.
 		inertClone = {},
+		score = 0,
+		
 	}
 	
 	loadBlocks()
@@ -340,16 +344,15 @@ function drawNextBlockUI(x, offsetX, y, offsetY)
 
 end
 
-function drawScoreTextCentered(x, offsetX, y, offsetY, size)
+function drawScoreTextCentered(x, offsetX, y, offsetY, player)
 	
 	xLoc = x + offsetX +(blockDrawRatio/2)
 	yLoc = y + offsetY +(blockDrawRatio/2)
 	
-	xLoc2 = x + offsetX +(blockDrawRatio/2) + 1
 	yLoc2 = y + offsetY +(blockDrawRatio/2) + 1
-
+	
 	love.graphics.print("Score:", xLoc * blockDrawSize,yLoc * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
-	love.graphics.print("5", xLoc2 * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+	love.graphics.print(player.score, xLoc * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio/2, blockDrawRatio/2)
 end
 
 function drawOceanBG()
@@ -380,7 +383,7 @@ function drawSinglePlayer()
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(9, offsetX, 11, offsetY)			--Draw Character Platform
 	drawScoreUI(9, offsetX, 3, offsetY)						--Draw Score Box
-	drawScoreTextCentered(9, offsetX, 3, offsetY)			--Draw Score Text
+	drawScoreTextCentered(9, offsetX, 3, offsetY, player1)	--Draw Score Text
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
@@ -687,6 +690,21 @@ function getPlayerUp(player)
 end
 
 function resetPlayerBlock(player)
+	
+	player.originPoint = {x = 3, y = 1}
+	player.location = {x = 3, y = 1}
+	player.rotation = rotations.right
+	player.drawLocation = {x = 3, y = 1}
+	player.drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y}
+	player.canDrop = false
+	player.blockColors = {color1 = player.nextBlockColors.color1, color2 = player.nextBlockColors.color2}
+	player.nextBlockColors = {color1 = math.random(1,4), color2 = math.random(1,4)}
+	player.playState = playStates.controlStep
+	player.gravityLocation = {x1=0,x2=0,y1=0,y2=0}
+	player.gravityGrid = {}
+	player.inertClone = {}
+	
+	--[[
 	player1 = {
 		originPoint = {x = 3, y = 1},
 		location = {x = 3, y = 1},
@@ -695,9 +713,13 @@ function resetPlayerBlock(player)
 		drawLocation2 = {x = 3 + rotations.right.x, y = 1 + rotations.right.y},
 		canDrop = false,
 		blockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
+		nextBlockColors = {color1 = math.random(1,4), color2 = math.random(1,4)},
 		playState = playStates.controlStep,
-		gravityLocation = {x1=0,x2=0,y1=0,y2=0}
-	}
+		gravityLocation = {x = 0, y1 = 0, x2 = 1, y2 = 0},
+		gravityGrid = {}, --Holds a list of blocks that need to be dropped after a clear.
+		inertClone = {},
+		score = 0,
+	} --]]
 
 end
 
@@ -767,7 +789,6 @@ function findBlocksToClear(inertArray, player)
 	
 	markedArray = {}
 	player.inertClone = {}	-- Clear out the Inert Clone Array so we can use it.
-	chainNumber = 0
 		
 		shouldLoop = false -- Break the loop per loop. But only if nothing is found.
 		--Mark all the places we need to check
@@ -791,7 +812,7 @@ function findBlocksToClear(inertArray, player)
 		
 		for locY = 0, gridYCount do
 			for locX = 0, gridXCount do
-				found = recursiveBlockClearStart(inertArray, locY, locX, markedArray)
+				found = recursiveBlockClearStart(inertArray, locY, locX, markedArray, player)
 				if(found == true) then
 					matchesFound = true
 					shouldLoop = true
@@ -823,7 +844,7 @@ function findBlocksToClear(inertArray, player)
 	
 end
 
-function recursiveBlockClearStart(inertArray, locY, locX, markedArray)
+function recursiveBlockClearStart(inertArray, locY, locX, markedArray, player)
 --Take in the array we're working with, the X and Y location to check in that array, and how many matching numbers we've found before this point.
 
 	--If we've already been here, SKIP.
@@ -886,7 +907,8 @@ if(markedArray[locY][locX] == -1) then
 					markedArray[locY][locX] = 1
 					table.insert(foundPairLocations, {y = locY, x = locX})
 					matchesFound = true
-
+					player.score = player.score + (chainNumber * 10)
+					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
 						--print(""..(v.x)..", "..(v.y).."\n")
