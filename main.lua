@@ -340,16 +340,26 @@ function drawScoreUI(x, offsetX, y, offsetY)
 	love.graphics.draw(tilesUI[11],(xLoc + 2) * blockDrawSize, (yLoc+ 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 end
 
-function drawNextBlockUI(x, offsetX, y, offsetY)
-
+function drawNextBlockUI(x, offsetX, y, offsetY, player)
+	
+	local xLoc = x + offsetX
+	local yLoc = y + offsetY
+	
+	local xLoc2 = x + offsetX + 1
+	local yLoc2 = y + offsetY + 1
+	
+	love.graphics.print("Next:", (xLoc + (blockDrawRatio/2)) * blockDrawSize, (yLoc + (blockDrawRatio/2)) * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+	drawBlock(player.nextBlockColors.color1, xLoc, yLoc2)
+	drawBlock(player.nextBlockColors.color2, xLoc2, yLoc2)
 end
 
 function drawScoreTextCentered(x, offsetX, y, offsetY, player)
 	
-	xLoc = x + offsetX +(blockDrawRatio/2)
-	yLoc = y + offsetY +(blockDrawRatio/2)
+	local xLoc = x + offsetX +(blockDrawRatio/2)
+	local yLoc = y + offsetY +(blockDrawRatio/2)
 	
-	yLoc2 = y + offsetY +(blockDrawRatio/2) + 1
+	
+	local yLoc2 = y + offsetY +(blockDrawRatio/2) + 1
 	
 	love.graphics.print("Score:", xLoc * blockDrawSize,yLoc * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
 	love.graphics.print(player.score, xLoc * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio/2, blockDrawRatio/2)
@@ -384,6 +394,7 @@ function drawSinglePlayer()
 	drawCharacterPlatform(9, offsetX, 11, offsetY)			--Draw Character Platform
 	drawScoreUI(9, offsetX, 3, offsetY)						--Draw Score Box
 	drawScoreTextCentered(9, offsetX, 3, offsetY, player1)	--Draw Score Text
+	drawNextBlockUI(9, offsetX, 5, offsetY, player1)
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
