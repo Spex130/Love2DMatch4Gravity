@@ -367,13 +367,17 @@ end
 
 function drawOceanBG()
 	local rotator = 0
-	for x = 0, 20 do
-		for y = 0, 20 do
+	for x = 0, (math.floor(love.graphics.getWidth()/16)+1) do
+		for y = 0, (math.floor(love.graphics.getHeight()/16)+1) do
 		rotator = rotator + 1
-			if(rotator == 9 + (x % 5)) then
+			if(rotator == 9 + (x % 5) and x > (math.floor(love.graphics.getWidth()/16/4))) then
 				love.graphics.draw(tilesBG[140],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 			elseif(rotator == 23) then
-				love.graphics.draw(tilesBG[156],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				if(x > (math.floor(love.graphics.getWidth()/16/4))) then
+					love.graphics.draw(tilesBG[156],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				else
+					love.graphics.draw(tilesBG[141],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end
 				rotator = 0
 			else
 				love.graphics.draw(tilesBG[141],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -420,7 +424,7 @@ function drawSinglePlayer()
 end
 
 function updateDrawBlockSize()
-	blockDrawSize = math.min(love.graphics.getWidth(), love.graphics.getHeight())/16
+	blockDrawSize = math.floor(math.min(love.graphics.getWidth(), love.graphics.getHeight())/16)
 	blockDrawRatio = blockDrawSize/blockSize
 end
 
