@@ -82,6 +82,11 @@ function loadSinglePlayer()
 	gridWidth = 480
 	gridBlockWidth = 32
 
+	playfieldExtrasXOffset = gridXCount + 3
+	ScoreUILocY = 3
+	CharPlatLocY = ScoreUILocY + 8
+	
+	
 	--Block Attributes
 
 	blockSize = 64
@@ -96,8 +101,10 @@ function loadSinglePlayer()
 	colorGray = 5
 
 	--Tile Attributes
-	tilesBG = {} -- Ocean and Geometry
-	tilesUI = {} -- Score and info windows
+	tilesBG = {} 		-- Ocean and Geometry
+	tilesUI = {}		-- Score and info windows
+	tilesBigBag = {}	-- Score Bag tiles
+	tilesTinyBag = {}	-- Compressed Score Bag tiles
 	
 	--Misc Sprites
 	shadowSprite = love.graphics.newImage('assets/shadow.png')
@@ -128,11 +135,13 @@ function loadSinglePlayer()
 		inertClone = {},
 		score = 0,
 		
+		
 	}
 	
 	loadBlocks()
 	loadBGTiles()
 	loadUITiles()
+	loadMiscTiles()
 	reset()
 end
 
@@ -146,66 +155,6 @@ end
 
 function drawPlayfieldTile(x, offsetX, y, offsetY)
 
-
-
-	--[[ Pseudocode for tile calculation
-		--If X is 0 (If we are on the left edge of the field)
-			--if Y == 0 (if we are at the top left of the ledge)
-				-- Set tile to tile 1 (grass top left)
-			--else if Y == height (if we are the bottom left)
-				-- Set tile to tile 65 (grass bottom left)
-			--else
-				--find mod = (Y mod 3)
-				
-				--case mod == 0
-					--set tile to tile 17 (Random Left Grass 1)
-				--case mod == 1	
-					--set tile to tile 33 (Random Left Grass 2)
-				--case mod == 2	
-					--set tile to tile 49  (Random Left Grass 3)
-					
-		--Else If X is Length (If we are on the right edge of the field)
-			--if Y == 0 (if we are at the top right of the ledge)
-				-- Set tile to tile 5 (grass top right)
-			--else if Y == height (if we are the bottom right)
-				-- Set tile to tile 69 (grass bottom right)
-			--else
-				--find mod = (Y mod 3)
-				
-				--case mod == 0
-					--set tile to tile 21 (Random Right Grass 1)
-				--case mod == 1	
-					--set tile to tile 37 (Random Right Grass 2)
-				--case mod == 2	
-					--set tile to tile 53  (Random Right Grass 3)
-		
-		--Else If X is Greater than 0 and Less than Length (If we're horizontally in the middle)
-			--find mod = (X mod 3)
-			--if Y == 0 (if we are at the top)
-				--case mod == 0
-					--set tile to tile 02 (Random Top Middle Grass 1)
-				--case mod == 1	
-					--set tile to tile 03 (Random Top Middle Grass 2)
-				--case mod == 2	
-					--set tile to tile 04  (Random Top Middle Grass 3)
-			--else if Y == height (if we are at the bottom)
-				--case mod == 0
-					--set tile to tile 66 (Random Bottom Middle Grass 1)
-				--case mod == 1	
-					--set tile to tile 67 (Random Bottom Middle Grass 2)
-				--case mod == 2	
-					--set tile to tile 68  (Random Bottom Middle Grass 3)
-			--else	--We're really out in the middle of nowhere.
-				--find mod = ((X + Y) mod 6)
-				--case mod == 0
-					--set tile to tile 50 (Generic Center Grass)
-				--case mod == 4
-					--set tile to tile 52 (Generic Center Grass)				
-				--default
-					--set tile to tile 51 (Generic Center Grass)
-			
-		--]]
-		
 		if(x == 0) then
 			if(y == 0) then
 				love.graphics.draw(tilesBG[1],(x + offsetX) * blockDrawSize, (y + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top left)
@@ -303,6 +252,15 @@ function drawCharacterPlatform(x, offsetX, y, offsetY)
 
 	xLoc = x + offsetX
 	yLoc = y + offsetY
+	
+	tinyBagCount = 
+	{
+		BagL0 = 0,
+		BagL1 = 0,
+		BagL2 = 0,
+		BagL3 = 0,
+		BagL4 = 0,
+	}
 
 	--Top Row
 	love.graphics.draw(tilesBG[56],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -313,6 +271,74 @@ function drawCharacterPlatform(x, offsetX, y, offsetY)
 	love.graphics.draw(tilesBG[72],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[73],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[74],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	--Draw Gem Bag
+	love.graphics.draw(shadowSprite,(xLoc + .5) * blockDrawSize, (yLoc - .3) * blockDrawSize,0, blockDrawRatio * 2, blockDrawRatio * 2)
+	love.graphics.draw(tilesBigBag[0],(xLoc + .5) * blockDrawSize, (yLoc -.5) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	
+end
+
+
+function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
+	xLoc = gridXLoc + offsetX
+	yLoc = gridYLoc + offsetY
+
+	xCount = 1
+	yCount = 1
+	
+	for x = 0, xCount do
+		for y = 0, yCount do
+			if(x == 0) then
+				if(y == 0) then
+					love.graphics.draw(tilesUI[1],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top left)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[9],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom left)
+			
+				else	--(Middle left section)
+					love.graphics.draw(tilesUI[5],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end
+			elseif(x == xCount) then
+				if(y == 0) then
+					love.graphics.draw(tilesUI[3],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top right)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[11],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom right)
+				else	--(Middle right section)
+					love.graphics.draw(tilesUI[7],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end
+			else
+				if(y == 0) then
+					love.graphics.draw(tilesUI[2],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top Middle)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[10],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom Middle)
+				else
+					love.graphics.draw(tilesUI[6],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)	--(MIDDLE MIDDLE)
+				end
+			end
+		end
+	end
+
+	--[[
+	--Top Row
+	love.graphics.draw(tilesUI[1],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[2],(xLoc + 1) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[3],(xLoc + 2) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	--Middle Row
+	love.graphics.draw(tilesUI[5],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[6],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[7],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+
+	--Second Middle Row
+	love.graphics.draw(tilesUI[5],(xLoc) * blockDrawSize, (yLoc + 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[6],(xLoc + 1) * blockDrawSize, (yLoc + 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[7],(xLoc + 2) * blockDrawSize, (yLoc+ 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+	--Bottom Row
+	love.graphics.draw(tilesUI[9],(xLoc) * blockDrawSize, (yLoc + 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[10],(xLoc + 1) * blockDrawSize, (yLoc + 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	love.graphics.draw(tilesUI[11],(xLoc + 2) * blockDrawSize, (yLoc+ 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	--]]--
 end
 
 function drawScoreUI(x, offsetX, y, offsetY)
@@ -365,6 +391,10 @@ function drawScoreTextCentered(x, offsetX, y, offsetY, player)
 	love.graphics.print(player.score, xLoc * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio/2, blockDrawRatio/2)
 end
 
+function drawBagUI(x, offsetX, y, offsetY)
+	drawUIBox(x, offsetX, 1, y, offsetY, 2)
+end
+
 function drawOceanBG()
 	local rotator = 0
 	for x = 0, (math.floor(love.graphics.getWidth()/16)+1) do
@@ -395,10 +425,11 @@ function drawSinglePlayer()
 	
 	drawOceanBG()											--Draw Ocean	
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
-	drawCharacterPlatform(9, offsetX, 11, offsetY)			--Draw Character Platform
-	drawScoreUI(9, offsetX, 3, offsetY)						--Draw Score Box
-	drawScoreTextCentered(9, offsetX, 3, offsetY, player1)	--Draw Score Text
-	drawNextBlockUI(9, offsetX, 5, offsetY, player1)
+	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
+	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
+	drawBagUI(9, offsetX, 0, offsetY)
+	drawScoreTextCentered(9, offsetX, ScoreUILocY, offsetY, player1)	--Draw Score Text
+	drawNextBlockUI(playfieldExtrasXOffset, offsetX, ScoreUILocY+2, offsetY, player1)
 	
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
@@ -792,6 +823,19 @@ function loadUITiles()
 		tilesUI[i] = love.graphics.newImage( "assets/menusprites/WindowUI_"..i..".png" )
 	  end
    end
+end
+
+function loadMiscTiles()
+	--Load Big Bags
+	for i=0,4 do
+		tilesBigBag[i] = love.graphics.newImage( "assets/bigbags/bagL"..i..".png" )
+	end
+	
+	--load Tiny Bags
+	for i=0,4 do
+		tilesTinyBag[i] = love.graphics.newImage( "assets/tinybags/tinyBagL"..i..".png" )
+	end
+	
 end
 
 function findBlocksToClear(inertArray, player)
