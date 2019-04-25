@@ -1082,7 +1082,7 @@ if(markedArray[locY][locX] == -1) then
 					markedArray[locY][locX] = 1
 					table.insert(foundPairLocations, {y = locY, x = locX})
 					matchesFound = true
-					player.score = player.score + (chainNumber * 100)
+					player.score = player.score + (chainNumber * 10)
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
