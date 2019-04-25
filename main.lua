@@ -83,8 +83,8 @@ function loadSinglePlayer()
 	gridBlockWidth = 32
 
 	playfieldExtrasXOffset = gridXCount + 3
-	ScoreUILocY = 3
-	CharPlatLocY = ScoreUILocY + 8
+	ScoreUILocY = 2
+	CharPlatLocY = ScoreUILocY + 9
 	
 	
 	--Block Attributes
@@ -134,6 +134,14 @@ function loadSinglePlayer()
 		gravityGrid = {}, --Holds a list of blocks that need to be dropped after a clear.
 		inertClone = {},
 		score = 0,
+		tinyBagCount = 
+		{
+			BagL0 = 0,
+			BagL1 = 0,
+			BagL2 = 0,
+			BagL3 = 0,
+			BagL4 = 0,
+		},
 		
 		
 		
@@ -271,16 +279,7 @@ function drawBagSprites(x, offsetX, y, offsetY, player)
 	xLoc = x + offsetX
 	yLoc = y + offsetY
 
-	tinyBagCount = 
-	{
-		BagL0 = 0,
-		BagL1 = 0,
-		BagL2 = 0,
-		BagL3 = 0,
-		BagL4 = 0,
-	}
-
-	fill = calculateBagFill(player.score, tinyBagCount)
+	fill = calculateBagFill(player)
 
 	--Draw Gem Bag
 	love.graphics.draw(shadowSprite,(xLoc + .5) * blockDrawSize, (yLoc - .3) * blockDrawSize,0, blockDrawRatio * 2, blockDrawRatio * 2)
@@ -288,16 +287,55 @@ function drawBagSprites(x, offsetX, y, offsetY, player)
 	
 end
 
-function calculateBagFill(playerScore, tinyBagCount)
+function drawTinyBagSprites(x, offsetX, y, offsetY, player)
+
+	row = 0
+	
+	if(player.tinyBagCount.BagL4 > 0) then
+		love.graphics.draw(tilesTinyBag[4],(x + 1 + offsetX) * blockDrawSize, (y + offsetY + row) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		drawTextCentered(x + 2, offsetX, y + row, offsetY, "x")
+		drawTextCentered(x + 3, offsetX, y + row, offsetY, tostring(player.tinyBagCount.BagL4))
+		row = row + 1
+	end
+	if(player.tinyBagCount.BagL3 > 0) then
+		love.graphics.draw(tilesTinyBag[3],(x + 1 + offsetX) * blockDrawSize, (y + offsetY + row) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		drawTextCentered(x + 2, offsetX, y + row, offsetY, "x")
+		drawTextCentered(x + 3, offsetX, y + row, offsetY, tostring(player.tinyBagCount.BagL3))
+		row = row + 1
+	end
+	if(player.tinyBagCount.BagL2 > 0) then
+		love.graphics.draw(tilesTinyBag[2],(x + 1 + offsetX) * blockDrawSize, (y + offsetY + row) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		drawTextCentered(x + 2, offsetX, y + row, offsetY, "x")
+		drawTextCentered(x + 3, offsetX, y + row, offsetY, tostring(player.tinyBagCount.BagL2))
+		row = row + 1
+	end
+	if(player.tinyBagCount.BagL1 > 0) then
+		love.graphics.draw(tilesTinyBag[1],(x + 1 + offsetX) * blockDrawSize, (y + offsetY + row) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		drawTextCentered(x + 2, offsetX, y + row, offsetY, "x")
+		drawTextCentered(x + 3, offsetX, y + row, offsetY, tostring(player.tinyBagCount.BagL1))
+		row = row + 1
+	end
+	if(player.tinyBagCount.BagL0 > 0) then
+		love.graphics.draw(tilesTinyBag[0],(x + 1 + offsetX) * blockDrawSize, (y + offsetY + row) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+		drawTextCentered(x + 2, offsetX, y + row, offsetY, "x")
+		drawTextCentered(x + 3, offsetX, y + row, offsetY, tostring(player.tinyBagCount.BagL0))
+		row = row + 1
+	end
+
+
+
+end
+
+function calculateBagFill(player)
 	
 	fillLevel = 0	-- The number we should give the draw call to put into the array.
 	bagCount = 0	-- How many tiny bags our score has earned us.
 	
-	tempScore = playerScore + 0	--	The remainder of the score after extracting out the tiny bags
+	tempScore = player.score + 0	--	The remainder of the score after extracting out the tiny bags
 	
 	if(tempScore > 500) then	--First figure out how many times we need to reduce the score
-		bagCount = math.floor(playerScore/500)
-		tempScore = playerScore - (500 * bagCount)
+		bagCount = math.floor(player.score/500)
+		tempScore = player.score - (500 * bagCount)
 	end
 	if(tempScore >= 400) then
 		fillLevel = 4
@@ -307,6 +345,26 @@ function calculateBagFill(playerScore, tinyBagCount)
 		fillLevel = 2
 	elseif(tempScore >= 100) then
 		fillLevel = 1
+	end
+		
+	if(bagCount >= 625) then
+		player.tinyBagCount.BagL4 = math.floor(bagCount/625)
+		bagCount = bagCount - player.tinyBagCount.BagL4
+	end
+	if(bagCount >= 125) then
+		player.tinyBagCount.BagL3 = math.floor(bagCount/125)
+		bagCount = bagCount - player.tinyBagCount.BagL3
+	end
+	if(bagCount >=25) then
+		player.tinyBagCount.BagL2 = math.floor(bagCount/25)
+		bagCount = bagCount - player.tinyBagCount.BagL2
+	end
+	if(bagCount >=5) then
+		player.tinyBagCount.BagL1 = math.floor(bagCount/5)
+		bagCount = bagCount - player.tinyBagCount.BagL1
+	end
+	if(bagCount > 0 and bagCount < 5) then
+		player.tinyBagCount.BagL0 = bagCount
 	end
 		
 	return fillLevel
@@ -450,8 +508,19 @@ function drawScoreTextCentered(x, offsetX, y, offsetY, player)
 	love.graphics.print(player.score, xLoc * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio/2, blockDrawRatio/2)
 end
 
+function drawTextCentered(x, offsetX, y, offsetY, text)
+	
+	local xLoc = x + offsetX +(blockDrawRatio/2)
+	local yLoc = y + offsetY +(blockDrawRatio/2)
+	
+	love.graphics.print(text, xLoc * blockDrawSize,yLoc * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+end
+
 function drawBagUI(x, offsetX, y, offsetY)
-	drawUIBox(x, offsetX, 3, y, offsetY, 4)
+	drawUIBox(x, offsetX, 5, y, offsetY, 5)
+	
+	drawBagSprites(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY, player1)
+	drawTinyBagSprites(x, offsetX, y, offsetY, player1)
 end
 
 function drawOceanBG()
@@ -485,9 +554,8 @@ function drawSinglePlayer()
 	drawOceanBG()											--Draw Ocean	
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
-	drawBagSprites(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY, player1)
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
-	drawBagUI(9, offsetX, ScoreUILocY + 4, offsetY)
+	drawBagUI(8, offsetX, ScoreUILocY + 4, offsetY)
 	drawScoreTextCentered(9, offsetX, ScoreUILocY, offsetY, player1)	--Draw Score Text
 	drawNextBlockUI(playfieldExtrasXOffset, offsetX, ScoreUILocY+2, offsetY, player1)
 	
@@ -1014,7 +1082,7 @@ if(markedArray[locY][locX] == -1) then
 					markedArray[locY][locX] = 1
 					table.insert(foundPairLocations, {y = locY, x = locX})
 					matchesFound = true
-					player.score = player.score + (chainNumber * 10)
+					player.score = player.score + (chainNumber * 100)
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
