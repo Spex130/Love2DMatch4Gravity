@@ -283,41 +283,68 @@ end
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 	xLoc = gridXLoc + offsetX
 	yLoc = gridYLoc + offsetY
-
-	xCount = 1
-	yCount = 1
 	
+	xCount = math.max(0, xCount-1)
+	yCount = math.max(0, yCount-1)
+
+	if(xCount == 0 and yCount == 0) then			--Size 0,0
+		love.graphics.draw(tilesUI[16],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	elseif(xCount == 0 and yCount > 0) then			--Single width column
+		for y = 0, yCount do
+			if(y == 0) then
+					love.graphics.draw(tilesUI[4],(xLoc) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[12],(xLoc) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom )
+			
+				else	--(Middle sections)
+					love.graphics.draw(tilesUI[8],(xLoc) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			end
+		end
+	elseif(xCount > 0 and yCount == 0) then			--Single height row
+		for x = 0, xCount do
+			if(x == 0) then
+					love.graphics.draw(tilesUI[13],(xLoc + x) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Left)
+				elseif(x == xCount) then
+					love.graphics.draw(tilesUI[15],(xLoc+ x) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Right)
+			
+				else	--(Middle sections)
+					love.graphics.draw(tilesUI[14],(xLoc + x) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			end
+		end
+	else
 	for x = 0, xCount do
 		for y = 0, yCount do
 			if(x == 0) then
 				if(y == 0) then
-					love.graphics.draw(tilesUI[1],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top left)
+					love.graphics.draw(tilesUI[1],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top left)
 				elseif(y == yCount) then
-					love.graphics.draw(tilesUI[9],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom left)
+					love.graphics.draw(tilesUI[9],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom left)
 			
 				else	--(Middle left section)
-					love.graphics.draw(tilesUI[5],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+					love.graphics.draw(tilesUI[5],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 				end
 			elseif(x == xCount) then
 				if(y == 0) then
-					love.graphics.draw(tilesUI[3],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top right)
+					love.graphics.draw(tilesUI[3],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top right)
 				elseif(y == yCount) then
-					love.graphics.draw(tilesUI[11],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom right)
+					love.graphics.draw(tilesUI[11],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom right)
 				else	--(Middle right section)
-					love.graphics.draw(tilesUI[7],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+					love.graphics.draw(tilesUI[7],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 				end
 			else
 				if(y == 0) then
-					love.graphics.draw(tilesUI[2],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top Middle)
+					love.graphics.draw(tilesUI[2],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top Middle)
 				elseif(y == yCount) then
-					love.graphics.draw(tilesUI[10],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom Middle)
+					love.graphics.draw(tilesUI[10],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom Middle)
 				else
-					love.graphics.draw(tilesUI[6],(gridXLoc + offsetX + x) * blockDrawSize, (gridXLoc + offsetY + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)	--(MIDDLE MIDDLE)
+					love.graphics.draw(tilesUI[6],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)	--(MIDDLE MIDDLE)
 				end
 			end
 		end
 	end
 
+	end
+	
 	--[[
 	--Top Row
 	love.graphics.draw(tilesUI[1],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -392,7 +419,7 @@ function drawScoreTextCentered(x, offsetX, y, offsetY, player)
 end
 
 function drawBagUI(x, offsetX, y, offsetY)
-	drawUIBox(x, offsetX, 1, y, offsetY, 2)
+	drawUIBox(x, offsetX, 3, y, offsetY, 4)
 end
 
 function drawOceanBG()
@@ -427,7 +454,7 @@ function drawSinglePlayer()
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
-	drawBagUI(9, offsetX, 0, offsetY)
+	drawBagUI(9, offsetX, ScoreUILocY + 4, offsetY)
 	drawScoreTextCentered(9, offsetX, ScoreUILocY, offsetY, player1)	--Draw Score Text
 	drawNextBlockUI(playfieldExtrasXOffset, offsetX, ScoreUILocY+2, offsetY, player1)
 	
