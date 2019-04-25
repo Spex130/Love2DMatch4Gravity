@@ -136,6 +136,7 @@ function loadSinglePlayer()
 		score = 0,
 		
 		
+		
 	}
 	
 	loadBlocks()
@@ -252,15 +253,6 @@ function drawCharacterPlatform(x, offsetX, y, offsetY)
 
 	xLoc = x + offsetX
 	yLoc = y + offsetY
-	
-	tinyBagCount = 
-	{
-		BagL0 = 0,
-		BagL1 = 0,
-		BagL2 = 0,
-		BagL3 = 0,
-		BagL4 = 0,
-	}
 
 	--Top Row
 	love.graphics.draw(tilesBG[56],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -270,15 +262,55 @@ function drawCharacterPlatform(x, offsetX, y, offsetY)
 	--Bottom Row
 	love.graphics.draw(tilesBG[72],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	love.graphics.draw(tilesBG[73],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesBG[74],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	
-	--Draw Gem Bag
-	love.graphics.draw(shadowSprite,(xLoc + .5) * blockDrawSize, (yLoc - .3) * blockDrawSize,0, blockDrawRatio * 2, blockDrawRatio * 2)
-	love.graphics.draw(tilesBigBag[0],(xLoc + .5) * blockDrawSize, (yLoc -.5) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	
+	love.graphics.draw(tilesBG[74],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)	
 	
 end
 
+function drawBagSprites(x, offsetX, y, offsetY, player)
+
+	xLoc = x + offsetX
+	yLoc = y + offsetY
+
+	tinyBagCount = 
+	{
+		BagL0 = 0,
+		BagL1 = 0,
+		BagL2 = 0,
+		BagL3 = 0,
+		BagL4 = 0,
+	}
+
+	fill = calculateBagFill(player.score, tinyBagCount)
+
+	--Draw Gem Bag
+	love.graphics.draw(shadowSprite,(xLoc + .5) * blockDrawSize, (yLoc - .3) * blockDrawSize,0, blockDrawRatio * 2, blockDrawRatio * 2)
+	love.graphics.draw(tilesBigBag[fill],(xLoc + .5) * blockDrawSize, (yLoc -.5) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	
+end
+
+function calculateBagFill(playerScore, tinyBagCount)
+	
+	fillLevel = 0	-- The number we should give the draw call to put into the array.
+	bagCount = 0	-- How many tiny bags our score has earned us.
+	
+	tempScore = playerScore + 0	--	The remainder of the score after extracting out the tiny bags
+	
+	if(tempScore > 500) then	--First figure out how many times we need to reduce the score
+		bagCount = math.floor(playerScore/500)
+		tempScore = playerScore - (500 * bagCount)
+	end
+	if(tempScore >= 400) then
+		fillLevel = 4
+	elseif(tempScore >= 300) then
+		fillLevel = 3
+	elseif(tempScore >= 200) then
+		fillLevel = 2
+	elseif(tempScore >= 100) then
+		fillLevel = 1
+	end
+		
+	return fillLevel
+end
 
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 	xLoc = gridXLoc + offsetX
@@ -453,6 +485,7 @@ function drawSinglePlayer()
 	drawOceanBG()											--Draw Ocean	
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
+	drawBagSprites(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY, player1)
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
 	drawBagUI(9, offsetX, ScoreUILocY + 4, offsetY)
 	drawScoreTextCentered(9, offsetX, ScoreUILocY, offsetY, player1)	--Draw Score Text
@@ -662,19 +695,7 @@ end
 
 function gridFixLoop(player)
 
-	--allClear = gridFixStep(player)
-	
-	--[[]
-	if(allClear == true) then
-		for y = 0, gridYCount do
-			for x = 0, gridXCount do
-			   inert[y][x] = player.inertClone[y][x]
-			end
-		end
-		resetPlayerBlock(player)
-		player.playState = playStates.controlStep
-	end
-	--]]
+
 
 	shouldLoop = findBlocksToClear(inert, player)
 	if(shouldLoop == true) then
