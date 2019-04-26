@@ -142,7 +142,7 @@ function loadSinglePlayer()
 			BagL3 = 0,
 			BagL4 = 0,
 		},
-		
+		gemDeliveryArray={},	--Holds a list of gems to be delivered to the Gem Bag
 		
 		
 	}
@@ -156,6 +156,10 @@ end
 
 function drawBlock(block, x, y)
 		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+end
+
+function drawBlockResize(block, x, y, size)
+		love.graphics.draw(blocksPGBY[block],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio * size, blockDrawRatio * size)
 end
 
 function drawBlockShadow(x, y)
@@ -370,6 +374,43 @@ function calculateBagFill(player)
 	return fillLevel
 end
 
+function addToGemDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
+	gem = 
+	{
+		color = gemColor,
+		x = gemXLoc,
+		y = gemYLoc,
+		location = 0,
+	}
+	table.insert(player.gemDeliveryArray, gem)
+end
+
+location = 0
+
+function drawGemDelivery(player, offsetX, offsetY)
+
+bagX = playfieldExtrasXOffset + offsetX + 1.5
+bagY = CharPlatLocY + offsetY - .5
+
+	
+	for i,v in ipairs(player.gemDeliveryArray) do
+		if(v.location <= 1) then
+			xLoc = v.x + (bagX - v.x) * v.location	
+				--Find the horizontal difference between the two numbers
+				--Then take the percentage traveled by multiplying it by a number from 0 to 1
+				-- Then add it to the original number to get the horizontal location
+			vLoc = v.y + (bagY - v.y) * v.location	
+				--Do the same for Y
+			drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
+			v.location = v.location + .05
+		else
+			table.remove(player.gemDeliveryArray, i)
+		end
+	end
+	--]]--
+
+end
+
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 	xLoc = gridXLoc + offsetX
 	yLoc = gridYLoc + offsetY
@@ -435,27 +476,7 @@ function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 
 	end
 	
-	--[[
-	--Top Row
-	love.graphics.draw(tilesUI[1],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[2],(xLoc + 1) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[3],(xLoc + 2) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	
-	--Middle Row
-	love.graphics.draw(tilesUI[5],(xLoc) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[6],(xLoc + 1) * blockDrawSize, (yLoc + 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[7],(xLoc + 2) * blockDrawSize, (yLoc+ 1) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 
-	--Second Middle Row
-	love.graphics.draw(tilesUI[5],(xLoc) * blockDrawSize, (yLoc + 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[6],(xLoc + 1) * blockDrawSize, (yLoc + 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[7],(xLoc + 2) * blockDrawSize, (yLoc+ 2) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	
-	--Bottom Row
-	love.graphics.draw(tilesUI[9],(xLoc) * blockDrawSize, (yLoc + 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[10],(xLoc + 1) * blockDrawSize, (yLoc + 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	love.graphics.draw(tilesUI[11],(xLoc + 2) * blockDrawSize, (yLoc+ 3) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
-	--]]--
 end
 
 function drawScoreUI(x, offsetX, y, offsetY)
@@ -578,6 +599,8 @@ function drawSinglePlayer()
 		updatePlayerLerps(player1)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
 	end
+	
+		drawGemDelivery(player1, offsetX, offsetY)
 
 
 end
@@ -1087,6 +1110,7 @@ if(markedArray[locY][locX] == -1) then
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i,v in ipairs(foundPairLocations) do
 						--print(""..(v.x)..", "..(v.y).."\n")
+						addToGemDeliveryArray(player, inertArray[v.y][v.x], v.x, v.y)
 						inertArray[v.y][v.x] = 0
 						--print("Clear: "..v.x..", "..v.y)
 					end
