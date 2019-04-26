@@ -385,8 +385,6 @@ function addToGemDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
 	table.insert(player.gemDeliveryArray, gem)
 end
 
-location = 0
-
 function drawGemDelivery(player, offsetX, offsetY)
 
 bagX = playfieldExtrasXOffset + offsetX + 1.5
@@ -395,11 +393,11 @@ bagY = CharPlatLocY + offsetY - .5
 	
 	for i,v in ipairs(player.gemDeliveryArray) do
 		if(v.location <= 1) then
-			xLoc = v.x + (bagX - v.x) * v.location	
+			xLoc = v.x + offsetX + (bagX - v.x) * v.location	
 				--Find the horizontal difference between the two numbers
 				--Then take the percentage traveled by multiplying it by a number from 0 to 1
 				-- Then add it to the original number to get the horizontal location
-			vLoc = v.y + (bagY - v.y) * v.location	
+			vLoc = v.y + offsetY + (bagY - v.y) * v.location	
 				--Do the same for Y
 			drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
 			v.location = v.location + .05
