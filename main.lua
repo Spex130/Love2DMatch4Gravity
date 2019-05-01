@@ -134,6 +134,7 @@ function loadSinglePlayer()
 		gravityGrid = {}, --Holds a list of blocks that need to be dropped after a clear.
 		inertClone = {},
 		score = 0,
+		fill = 0,
 		tinyBagCount = 
 		{
 			BagL0 = 0,
