@@ -134,7 +134,6 @@ function loadSinglePlayer()
 		gravityGrid = {}, --Holds a list of blocks that need to be dropped after a clear.
 		inertClone = {},
 		score = 0,
-		fill = 0,
 		tinyBagCount = 
 		{
 			BagL0 = 0,
@@ -333,13 +332,15 @@ end
 
 function calculateBagFill(player)
 	
+	floor = math.floor
+	
 	fillLevel = 0	-- The number we should give the draw call to put into the array.
 	bagCount = 0	-- How many tiny bags our score has earned us.
 	
 	tempScore = player.score + 0	--	The remainder of the score after extracting out the tiny bags
 	
 	if(tempScore > 500) then	--First figure out how many times we need to reduce the score
-		bagCount = math.floor(player.score/500)
+		bagCount = floor(player.score/500)
 		tempScore = player.score - (500 * bagCount)
 	end
 	if(tempScore >= 400) then
@@ -353,19 +354,19 @@ function calculateBagFill(player)
 	end
 		
 	if(bagCount >= 625) then
-		player.tinyBagCount.BagL4 = math.floor(bagCount/625)
+		player.tinyBagCount.BagL4 = floor(bagCount/625)
 		bagCount = bagCount - player.tinyBagCount.BagL4
 	end
 	if(bagCount >= 125) then
-		player.tinyBagCount.BagL3 = math.floor(bagCount/125)
+		player.tinyBagCount.BagL3 = floor(bagCount/125)
 		bagCount = bagCount - player.tinyBagCount.BagL3
 	end
 	if(bagCount >=25) then
-		player.tinyBagCount.BagL2 = math.floor(bagCount/25)
+		player.tinyBagCount.BagL2 = floor(bagCount/25)
 		bagCount = bagCount - player.tinyBagCount.BagL2
 	end
 	if(bagCount >=5) then
-		player.tinyBagCount.BagL1 = math.floor(bagCount/5)
+		player.tinyBagCount.BagL1 = floor(bagCount/5)
 		bagCount = bagCount - player.tinyBagCount.BagL1
 	end
 	if(bagCount > 0 and bagCount < 5) then
@@ -411,11 +412,14 @@ function drawGemDelivery(player, offsetX, offsetY)
 end
 
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
+	
+	max = math.max
+	
 	xLoc = gridXLoc + offsetX
 	yLoc = gridYLoc + offsetY
 	
-	xCount = math.max(0, xCount-1)
-	yCount = math.max(0, yCount-1)
+	xCount = max(0, xCount-1)
+	yCount = max(0, yCount-1)
 
 	if(xCount == 0 and yCount == 0) then			--Size 0,0
 		love.graphics.draw(tilesUI[16],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
@@ -544,14 +548,16 @@ function drawBagUI(x, offsetX, y, offsetY)
 end
 
 function drawOceanBG()
+	floor = math.floor
+	
 	local rotator = 0
-	for x = 0, (math.floor(love.graphics.getWidth()/16)+1) do
-		for y = 0, (math.floor(love.graphics.getHeight()/16)+1) do
+	for x = 0, (floor(love.graphics.getWidth()/16)+1) do
+		for y = 0, (floor(love.graphics.getHeight()/16)+1) do
 		rotator = rotator + 1
-			if(rotator == 9 + (x % 5) and x > (math.floor(love.graphics.getWidth()/16/4))) then
+			if(rotator == 9 + (x % 5) and x > (floor(love.graphics.getWidth()/16/4))) then
 				love.graphics.draw(tilesBG[140],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 			elseif(rotator == 23) then
-				if(x > (math.floor(love.graphics.getWidth()/16/4))) then
+				if(x > (floor(love.graphics.getWidth()/16/4))) then
 					love.graphics.draw(tilesBG[156],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 				else
 					love.graphics.draw(tilesBG[141],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
