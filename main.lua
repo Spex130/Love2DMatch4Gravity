@@ -9,6 +9,8 @@ local mainmenu
 blockSize = 64
 blockDrawSize = 30
 blockDrawRatio = blockSize/30
+widthChecker = love.graphics.getWidth()
+heightChecker = love.graphics.getHeight()
 
 --Main Menu functions
 
@@ -33,13 +35,17 @@ function reset()
     end
 	
 function love.load(arg)
+	--profilerLoad()
+
 	math.randomseed(os.time())
 	loadSinglePlayer()
 	loadMainMenu()
 
 end
 
+love.frame = 0
 function love.update(dt)
+	--profilerUpdate()	
 
 	if gameState == gameStates.MainMenu then
 		mainmenu:update()	
@@ -56,17 +62,36 @@ end
 
 menuTimer = 0
 
-function love.draw(dt)
+function love.draw(dt)	
 	if gameState == gameStates.MainMenu then
 		drawMenu(menuTimer)
 		menuTimer = menuTimer+1
 	elseif gameState == gameStates.SinglePlayer then
 		drawSinglePlayer()
 	end
+	
+	--profilerDraw()
 end
 
+--Profiler Functions
 
+function profilerLoad()
+	love.profiler = require('profile') 
+	love.profiler.hookall("Lua")
+	love.profiler.start()
+end
 
+function profilerUpdate()
+	love.frame = love.frame + 1
+	if love.frame%100 == 0 then
+		love.report = love.profiler.report('time', 20)
+		love.profiler.reset()
+	end
+end
+
+function profilerDraw()
+	love.graphics.print(love.report or "Please wait...")
+end
 
 --Single Player Specific Functions
 
@@ -611,8 +636,12 @@ function drawSinglePlayer()
 end
 
 function updateDrawBlockSize()
-	blockDrawSize = math.floor(math.min(love.graphics.getWidth(), love.graphics.getHeight())/16)
-	blockDrawRatio = blockDrawSize/blockSize
+	if(widthChecker ~= love.graphics.getWidth() or heightChecker ~= love.graphics.getHeight()) then
+		blockDrawSize = math.floor(math.min(love.graphics.getWidth(), love.graphics.getHeight())/16)
+		blockDrawRatio = blockDrawSize/blockSize
+		widthChecker = love.graphics.getWidth() 
+		heightChecker = love.graphics.getHeight()
+	end
 end
 
 function updatePlayer(player)
