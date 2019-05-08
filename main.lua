@@ -666,9 +666,11 @@ end
 function drawGravityGrid(player)
 	-- Iterate through the Gravity Grid and draw everything
 	if(player.gravityGrid  ~= null) then
-		for i,v in ipairs(player.gravityGrid) do
-			if(v.color ~= 0) then
-				drawBlock(v.color, v.x, v.drawY)
+		for i = 0,#player.gravityGrid do
+			if(player.gravityGrid[i]  ~= null) then
+				if(player.gravityGrid[i].color ~= 0) then
+					drawBlock(player.gravityGrid[i].color, player.gravityGrid[i].x, player.gravityGrid[i].drawY)
+				end
 			end
 		end
 	end
