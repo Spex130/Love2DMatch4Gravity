@@ -1115,11 +1115,11 @@ if(markedArray[locY][locX] == -1) then
 					player.score = player.score + (chainNumber * 10)
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
-					for i,v in ipairs(foundPairLocations) do
-						--print(""..(v.x)..", "..(v.y).."\n")
-						addToGemDeliveryArray(player, inertArray[v.y][v.x], v.x, v.y)
-						inertArray[v.y][v.x] = 0
-						--print("Clear: "..v.x..", "..v.y)
+					for i = 0, #foundPairLocations do
+						if(foundPairLocations[i] ~= null) then
+							addToGemDeliveryArray(player, inertArray[foundPairLocations[i].y][foundPairLocations[i].x], foundPairLocations[i].x, foundPairLocations[i].y)
+							inertArray[foundPairLocations[i].y][foundPairLocations[i].x] = 0
+						end
 					end
 				end
 
