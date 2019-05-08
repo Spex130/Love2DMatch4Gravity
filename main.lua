@@ -574,15 +574,18 @@ end
 
 function drawOceanBG()
 	floor = math.floor
+	widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	localWidthCheck = (floor(love.graphics.getWidth()/16/4))
 	
 	local rotator = 0
-	for x = 0, (floor(love.graphics.getWidth()/16)+1) do
-		for y = 0, (floor(love.graphics.getHeight()/16)+1) do
+	for x = 0, widthCalc do
+		for y = 0, heightCalc do
 		rotator = rotator + 1
-			if(rotator == 9 + (x % 5) and x > (floor(love.graphics.getWidth()/16/4))) then
+			if(rotator == 9 + (x % 5) and x > localWidthCheck) then
 				love.graphics.draw(tilesBG[140],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 			elseif(rotator == 23) then
-				if(x > (floor(love.graphics.getWidth()/16/4))) then
+				if(x > localWidthCheck) then
 					love.graphics.draw(tilesBG[156],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 				else
 					love.graphics.draw(tilesBG[141],x * blockDrawSize,y * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
