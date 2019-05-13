@@ -127,6 +127,7 @@ function loadSinglePlayer()
 
 	--Tile Attributes
 	tilesBG = {} 		-- Ocean and Geometry
+	tileQuads = {}		-- Ocean and Geometry (Quads)
 	tilesUI = {}		-- Score and info windows
 	tilesBigBag = {}	-- Score Bag tiles
 	tilesTinyBag = {}	-- Compressed Score Bag tiles
@@ -174,6 +175,7 @@ function loadSinglePlayer()
 	
 	loadBlocks()
 	loadBGTiles()
+	loadBGQuads()
 	loadUITiles()
 	loadMiscTiles()
 	reset()
@@ -598,6 +600,18 @@ function drawOceanBG()
 	end
 end
 
+function convertIDtoBatch(ID)
+	floor = math.floor
+	
+	coords = {x=0,y=0}
+	
+	subt = ID/16.0
+	coords.y = floor(subt)
+	coords.x = 16 * (subt - coords.y)
+	
+	return coords
+end
+
 function drawSinglePlayer()
 	
 	updateDrawBlockSize()
@@ -991,6 +1005,23 @@ for i=1,256 do
 		tilesBG[i] = love.graphics.newImage( "assets/grassland/Grassland_"..i..".png" )
 	  end
    end
+end
+
+function loadBGQuads()
+	floor = math.floor
+	
+	tilesetImage = love.graphics.newImage( "assets/grassland/grassland.png" )
+	tilesetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
+
+	widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	
+	for i=1,256 do
+
+		coords = convertIDtoBatch(i)
+
+		tileQuads[i] = love.graphics.newQuad(coords.x * blockSize, coords.y * blockSize, blockSize, blockSize, tilesetImage:getWidth(), tilesetImage:getHeight())
+	end
 end
 
 function loadUITiles()
