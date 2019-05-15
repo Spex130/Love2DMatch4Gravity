@@ -588,7 +588,7 @@ function setOceanBGMap()
 	
 	local rotator = 0
 	
-	
+	 tilesetBatch:clear()
 	for x = 0, widthCalc do
 		bgOceanMap[x] = {}
 		for y = 0, heightCalc do
@@ -600,15 +600,17 @@ function setOceanBGMap()
 				if(x > localWidthCheck) then
 					bgOceanMap[x][y] = 156
 				else
-					bgOceanMap[x][y] = 141
+					bgOceanMap[x][y] = 139
 				end
 				rotator = 0
 			else
-				bgOceanMap[x][y] = 141
+				bgOceanMap[x][y] = 140
 			end
-
+			
+			tilesetBatch:add(tileQuads[bgOceanMap[x][y]], x*blockDrawSize, y*blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
 		end
 	end
+	tilesetBatch:flush()
 end
 
 function drawOceanBG()
@@ -661,7 +663,8 @@ function drawSinglePlayer()
 	local offsetX = (love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
-	drawOceanBG()											--Draw Ocean	
+	--drawOceanBG()											--Draw Ocean	
+	drawOceanBGQuad()
 	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
