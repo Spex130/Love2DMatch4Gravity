@@ -12,6 +12,8 @@ blockDrawRatio = blockSize/30
 widthChecker = love.graphics.getWidth()
 heightChecker = love.graphics.getHeight()
 
+windowChanged = true
+
 --Main Menu functions
 
 local function start_game()
@@ -128,15 +130,21 @@ function loadSinglePlayer()
 	colorGray = 5
 
 	--Tile Attributes
-	tilesBG = {} 		-- Ocean and Geometry
-	tileQuads = {}		-- Ocean and Geometry (Quads)
+	tilesBG = {} 		-- Ocean and Geometry	
 	tilesUI = {}		-- Score and info windows
+	
+	tileBGQuads = {}	-- Ocean and Geometry (Quads)
+	tileUIQuads = {}	-- Score and info windows (Quads)	
+	
 	tilesBigBag = {}	-- Score Bag tiles
 	tilesTinyBag = {}	-- Compressed Score Bag tiles
 	
 	--Quad related variables
 	bgOceanMap = {}
-	tilesetBatch = {}
+	tilesetOceanBatch = {}
+	
+	playfieldMap = {}
+	tilesetPlayfieldBatch = {}
 	
 	--Misc Sprites
 	shadowSprite = love.graphics.newImage('assets/shadow.png')
@@ -183,6 +191,7 @@ function loadSinglePlayer()
 	loadBGTiles()
 	loadBGQuads()
 	setOceanBGMap()
+	setPlayfieldMap((love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3 ,(love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2)
 	loadUITiles()
 	loadMiscTiles()
 	reset()
@@ -293,6 +302,135 @@ function drawPlayfieldBorder(offsetX, offsetY)
 			love.graphics.draw(tilesBG[139],(gridXCount + 1 + offsetX) * blockDrawSize, (i + offsetY) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
 	end
 	
+end
+
+function setPlayfieldMap(offsetX, offsetY)
+	floor = math.floor
+	local widthCalc = gridXCount
+	local heightCalc = gridYCount
+	local localWidthCheck = (floor(love.graphics.getWidth()/16/4))
+
+	
+	local rotator = 0
+	
+	 tilesetPlayfieldBatch:clear()
+	for x = 0, widthCalc + 2 do
+		playfieldMap[x] = {}
+		for y = 0, heightCalc + 2 do
+			
+			if(x == 0) then--we are on the far left column
+				if(y == 0) then--we are in the top left corner
+					playfieldMap[x][y] = 127
+				elseif(y > 0 and y < heightCalc + 2) then--we are in the middle left column
+					playfieldMap[x][y] = 142
+				else--We are in the bottom left corner
+					playfieldMap[x][y] = 143
+				end
+			elseif(x > 0 and x < widthCalc + 2) then--we are in the middle columns
+				if(y == 0) then--we are in the top row
+					playfieldMap[x][y] = 173
+				elseif(y == heightCalc + 2) then--We are in the bottom row
+					playfieldMap[x][y] = 124
+				else--We're in the middle and are a SPECIAL CASE!!!!
+					drawPlayfieldTileQuad(x, offsetX, y, offsetY)
+				end
+			elseif(x == widthCalc + 2) then--we are on the far left column
+				if(y == 0) then--we are in the top right corner
+					playfieldMap[x][y] = 128
+				elseif(y > 0 and y < heightCalc + 2) then--we are in the middle right column
+					playfieldMap[x][y] = 139
+				else--We are in the bottom right corner
+					playfieldMap[x][y] = 144
+				end
+			else--Catch all condition
+				playfieldMap[x][y] = 127
+			end
+
+			tilesetPlayfieldBatch:add(tileBGQuads[playfieldMap[x][y]], (x + offsetX - 1) *blockDrawSize, (y + offsetY -1) *blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+		end
+	end
+	tilesetPlayfieldBatch:flush()
+end
+
+function drawPlayfieldTileQuad(x, offsetX, y, offsetY)
+
+		if(x == 1) then
+			if(y == 1) then
+				playfieldMap[x][y] = 1		--(Top left)
+			elseif(y == gridYCount + 1) then
+				playfieldMap[x][y] = 65		--(Bottom left)
+		
+			else	--(Middle left section)
+				mod = y % 3		--Used for randomization
+				
+				if(mod == 0) then
+					playfieldMap[x][y] = 17
+				elseif(mod == 1) then
+					playfieldMap[x][y] = 33
+				else
+					playfieldMap[x][y] = 49
+				end	
+
+			end
+		elseif(x == gridXCount + 1) then
+			if(y == 1) then
+				playfieldMap[x][y] = 5		--(Top right)
+			elseif(y == gridYCount + 1) then
+				playfieldMap[x][y] = 69		--(Bottom right)
+
+			else	--(Middle right section)
+				mod = y % 3		--Used for randomization
+				
+				if(mod == 0) then
+					playfieldMap[x][y] = 21
+				elseif(mod == 1) then
+					playfieldMap[x][y] = 37
+				else
+					playfieldMap[x][y] = 53
+				end	
+
+			end
+		else
+			
+			mod = y % 3	
+			if(y == 1) then
+				if(mod == 0) then
+					playfieldMap[x][y] = 2
+				elseif(mod == 1) then
+					playfieldMap[x][y] = 3
+				else
+					playfieldMap[x][y] = 4
+				end	
+			elseif(y == gridYCount + 1) then
+				if(mod == 0) then
+					playfieldMap[x][y] = 66
+				elseif(mod == 1) then
+					playfieldMap[x][y] = 67
+				else
+					playfieldMap[x][y] = 68
+				end	
+			else	--(Middlesection)
+				mod =((x + y) % 6)
+				
+				if(mod == 0) then
+					playfieldMap[x][y] = 50
+				elseif(mod == 4) then
+					playfieldMap[x][y] = 52
+				else
+					playfieldMap[x][y] = 51
+				end	
+			end
+		end
+		tilesetPlayfieldBatch:add(tileBGQuads[playfieldMap[x][y]], (x + offsetX - 1) *blockDrawSize, (y + offsetY -1) *blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+end
+
+
+function drawPlayfieldQuad(offsetX, offsetY)
+	if(windowChanged) then
+		setPlayfieldMap(offsetX, offsetY)
+	end
+	
+	love.graphics.draw(tilesetPlayfieldBatch, 1, 1, 0, 1, 1)
 end
 
 function drawCharacterPlatform(x, offsetX, y, offsetY)
@@ -590,28 +728,28 @@ function setOceanBGMap()
 	
 	local rotator = 0
 	
-	 tilesetBatch:clear()
+	 tilesetOceanBatch:clear()
 	for x = 0, widthCalc do
 		bgOceanMap[x] = {}
 		for y = 0, heightCalc do
 			rotator = rotator + 1
 			if(rotator == (9 + (x % 5)) and x > localWidthCheck) then
-				bgOceanMap[x][y] = 140
+				bgOceanMap[x][y] = 141
 			elseif(rotator == 23) then
 				if(x > localWidthCheck) then
-					bgOceanMap[x][y] = 156
+					bgOceanMap[x][y] = 157
 				else
-					bgOceanMap[x][y] = 139
+					bgOceanMap[x][y] = 140
 				end
 				rotator = 0
 			else
-				bgOceanMap[x][y] = 140
+				bgOceanMap[x][y] = 141
 			end
 			
-			tilesetBatch:add(tileQuads[bgOceanMap[x][y]], x*blockDrawSize, y*blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+			tilesetOceanBatch:add(tileBGQuads[bgOceanMap[x][y]], x*blockDrawSize, y*blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
 		end
 	end
-	tilesetBatch:flush()
+	tilesetOceanBatch:flush()
 end
 
 function drawOceanBG()
@@ -641,13 +779,11 @@ function drawOceanBG()
 end
 
 function drawOceanBGQuad()
-	if(oldWidth ~= love.graphics.getWidth() or oldHeight ~= love.graphics.getHeight()) then
-		oldWidth = love.graphics.getWidth() 
-		oldHeight = love.graphics.getHeight()
+	if(windowChanged) then
 		setOceanBGMap()
 	end
 	
-	love.graphics.draw(tilesetBatch, 1, 1, 0, 1, 1)
+	love.graphics.draw(tilesetOceanBatch, 1, 1, 0, 1, 1)
 end
 
 
@@ -667,12 +803,17 @@ function drawSinglePlayer()
 	
 	updateDrawBlockSize()
 	
+	updateWindowSizeCheck()
+	updateBatches()
+	
 	local offsetX = (love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
 	--drawOceanBG()											--Draw Ocean	
 	drawOceanBGQuad()
-	drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
+	--drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
+	
+	drawPlayfieldQuad(offsetX, offsetY)
 	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
 	drawBagUI(8, offsetX, ScoreUILocY + 4, offsetY)
@@ -682,7 +823,7 @@ function drawSinglePlayer()
 	for y = 0, gridYCount do
         for x = 0, gridXCount do
 			
-			drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw Field
+			--drawPlayfieldTile(x, offsetX, y, offsetY)				--Draw Field
 			if(inert[y][x] ~=0) then
 				drawBlockShadow(x + offsetX, y + offsetY)
 				drawBlock(inert[y][x], x + offsetX, y + offsetY)	--Then draw overlay
@@ -710,6 +851,22 @@ function updateDrawBlockSize()
 		blockDrawRatio = blockDrawSize/blockSize
 		widthChecker = love.graphics.getWidth() 
 		heightChecker = love.graphics.getHeight()
+	end
+end
+
+function updateWindowSizeCheck()
+	if(oldWidth ~= love.graphics.getWidth() or oldHeight ~= love.graphics.getHeight()) then
+		oldWidth = love.graphics.getWidth() 
+		oldHeight = love.graphics.getHeight()
+		windowChanged = true
+	else
+		windowChanged = false
+	end
+end
+
+function updateBatches()
+	if(windowChanged == true) then
+		loadBGQuads()
 	end
 end
 
@@ -1064,30 +1221,29 @@ function loadBGQuads()
 	
 	tilesetImage = love.graphics.newImage( "assets/grassland/grassland.png" )
 	tilesetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
+	
+	uiSetImage = love.graphics.newImage( "assets/menusprites/orig/MenuUISprites.png" )
+	uiSetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
 
 	widthCalc = (floor(love.graphics.getWidth()/16)+1)
 	heightCalc = (floor(love.graphics.getHeight()/16)+1)
 	
 	
 	for i=1,256 do
-
-		coords = convertIDtoBatch(i)
-
-		tileQuads[i] = love.graphics.newQuad(coords.x * blockSize, coords.y * blockSize, blockSize, blockSize, tilesetImage:getWidth(), tilesetImage:getHeight())
+		
+		coords = convertIDtoBatch(i -1)
+		--[[
+		if(i < 17) then
+			tileUIQuads[i] = love.graphics.newQuad(coords.x * blockSize, coords.y * blockSize, blockSize, blockSize, uiSetImage:getWidth(), uiSetImage:getHeight())
+		end
+		--]]--
+		tileBGQuads[i] = love.graphics.newQuad(coords.x * blockSize, coords.y * blockSize, blockSize, blockSize, tilesetImage:getWidth(), tilesetImage:getHeight())
 	end
 	
-	tilesetBatch = love.graphics.newSpriteBatch(tilesetImage, gridXCount * gridYCount)
-end
-
-function updateTilesetBatch()
-  tilesetBatch:clear()
-  for x=0, tilesDisplayWidth-1 do
-    for y=0, tilesDisplayHeight-1 do
-      tilesetBatch:add(tileQuads[map[x+math.floor(mapX)][y+math.floor(mapY)]],
-        x*tileSize, y*tileSize)
-    end
-  end
-  tilesetBatch:flush()
+	tilesetOceanBatch = love.graphics.newSpriteBatch(tilesetImage, gridXCount * gridYCount)
+	tilesetPlayfieldBatch = love.graphics.newSpriteBatch(tilesetImage, gridXCount * gridYCount)
+	tilesetPlatformBatch = love.graphics.newSpriteBatch(tilesetImage, gridXCount * gridYCount)
+	--tilesetUIBatch = love.graphics.newSpritebatch(tilesetImage, --[[TODO FILL THIS THING]]--)
 end
 
 function loadUITiles()
