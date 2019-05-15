@@ -111,6 +111,8 @@ function loadSinglePlayer()
 	ScoreUILocY = 2
 	CharPlatLocY = ScoreUILocY + 9
 	
+	oldWidth = love.graphics.getWidth()
+	oldHeight = love.graphics.getWidth()
 	
 	--Block Attributes
 
@@ -592,7 +594,6 @@ function setOceanBGMap()
 	for x = 0, widthCalc do
 		bgOceanMap[x] = {}
 		for y = 0, heightCalc do
-			print(x..", "..y)
 			rotator = rotator + 1
 			if(rotator == (9 + (x % 5)) and x > localWidthCheck) then
 				bgOceanMap[x][y] = 140
@@ -640,7 +641,13 @@ function drawOceanBG()
 end
 
 function drawOceanBGQuad()
-  love.graphics.draw(tilesetBatch, 1, 1, 0, 1, 1)
+	if(oldWidth ~= love.graphics.getWidth() or oldHeight ~= love.graphics.getHeight()) then
+		oldWidth = love.graphics.getWidth() 
+		oldHeight = love.graphics.getHeight()
+		setOceanBGMap()
+	end
+	
+	love.graphics.draw(tilesetBatch, 1, 1, 0, 1, 1)
 end
 
 
