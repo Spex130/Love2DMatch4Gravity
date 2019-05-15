@@ -132,6 +132,10 @@ function loadSinglePlayer()
 	tilesBigBag = {}	-- Score Bag tiles
 	tilesTinyBag = {}	-- Compressed Score Bag tiles
 	
+	--Quad related variables
+	bgOceanMap = {}
+	tilesetBatch = {}
+	
 	--Misc Sprites
 	shadowSprite = love.graphics.newImage('assets/shadow.png')
 	
@@ -176,6 +180,7 @@ function loadSinglePlayer()
 	loadBlocks()
 	loadBGTiles()
 	loadBGQuads()
+	setOceanBGMap()
 	loadUITiles()
 	loadMiscTiles()
 	reset()
@@ -574,6 +579,38 @@ function drawBagUI(x, offsetX, y, offsetY)
 	drawTinyBagSprites(x, offsetX, y, offsetY, player1)
 end
 
+function setOceanBGMap()
+	floor = math.floor
+	local widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	local heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	local localWidthCheck = (floor(love.graphics.getWidth()/16/4))
+
+	
+	local rotator = 0
+	
+	
+	for x = 0, widthCalc do
+		bgOceanMap[x] = {}
+		for y = 0, heightCalc do
+			print(x..", "..y)
+			rotator = rotator + 1
+			if(rotator == (9 + (x % 5)) and x > localWidthCheck) then
+				bgOceanMap[x][y] = 140
+			elseif(rotator == 23) then
+				if(x > localWidthCheck) then
+					bgOceanMap[x][y] = 156
+				else
+					bgOceanMap[x][y] = 141
+				end
+				rotator = 0
+			else
+				bgOceanMap[x][y] = 141
+			end
+
+		end
+	end
+end
+
 function drawOceanBG()
 	floor = math.floor
 	widthCalc = (floor(love.graphics.getWidth()/16)+1)
@@ -599,6 +636,11 @@ function drawOceanBG()
 		end
 	end
 end
+
+function drawOceanBGQuad()
+  love.graphics.draw(tilesetBatch, 1, 1, 0, 1, 1)
+end
+
 
 function convertIDtoBatch(ID)
 	floor = math.floor
@@ -1016,12 +1058,26 @@ function loadBGQuads()
 	widthCalc = (floor(love.graphics.getWidth()/16)+1)
 	heightCalc = (floor(love.graphics.getHeight()/16)+1)
 	
+	
 	for i=1,256 do
 
 		coords = convertIDtoBatch(i)
 
 		tileQuads[i] = love.graphics.newQuad(coords.x * blockSize, coords.y * blockSize, blockSize, blockSize, tilesetImage:getWidth(), tilesetImage:getHeight())
 	end
+	
+	tilesetBatch = love.graphics.newSpriteBatch(tilesetImage, gridXCount * gridYCount)
+end
+
+function updateTilesetBatch()
+  tilesetBatch:clear()
+  for x=0, tilesDisplayWidth-1 do
+    for y=0, tilesDisplayHeight-1 do
+      tilesetBatch:add(tileQuads[map[x+math.floor(mapX)][y+math.floor(mapY)]],
+        x*tileSize, y*tileSize)
+    end
+  end
+  tilesetBatch:flush()
 end
 
 function loadUITiles()
