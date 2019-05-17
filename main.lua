@@ -5,6 +5,7 @@ local menuengine = require "menuengine"
 gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
 gameState = gameStates.SinglePlayer
 local mainmenu
+local pausemenu
 
 blockSize = 64
 blockDrawSize = 30
@@ -13,6 +14,8 @@ widthChecker = love.graphics.getWidth()
 heightChecker = love.graphics.getHeight()
 
 windowChanged = true
+isPaused = false
+gameOver = false
 
 --Main Menu functions
 
@@ -53,11 +56,17 @@ function love.update(dt)
 		mainmenu:update()	
 		
 	elseif gameState == gameStates.SinglePlayer then
-		timer = timer + dt
+		if(isPaused == false and gameOver == false ) then
+			timer = timer + dt
 
-		if timer >= timerLimit then
-			timer = timer - timerLimit
-			updatePlayer(player1)
+			if timer >= timerLimit then
+				timer = timer - timerLimit
+				updatePlayer(player1)
+			end
+		elseif(gameOver == true)then
+			
+		elseif(isPaused == true) then
+			pausemenu:update()
 		end
 	end
 end
@@ -98,6 +107,10 @@ end
 --Single Player Specific Functions
 
 function loadSinglePlayer()
+	
+	pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+    pausemenu:addEntry("Pause Game", start_game)
+    pausemenu:addEntry("Quit Game", quit_game)
 	
 	--Playfield attributes
 	gridXCount = 6
@@ -583,6 +596,14 @@ function drawGemDelivery(player, offsetX, offsetY)
 
 end
 
+function drawGemDeliveryPause(player, offsetX, offsetY)
+	for i,v in ipairs(player.gemDeliveryArray) do
+		if(v.location <= 1) then
+			drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
+		end
+	end
+end
+
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 	
 	max = math.max
@@ -832,15 +853,20 @@ function drawSinglePlayer()
     end
 	
 	
-	
-	if(player1.playState == playStates.gridFixStep) then
-		drawGravityGrid(player1)
-	else
-		updatePlayerLerps(player1)
-		drawPlayerBlocks(player1, offsetX, offsetY + 1)
-	end
-	
+	if(isPaused == false) then
+		if(player1.playState == playStates.gridFixStep) then
+			drawGravityGrid(player1)
+		else
+			updatePlayerLerps(player1)
+			drawPlayerBlocks(player1, offsetX, offsetY + 1)
+		end
+		
 		drawGemDelivery(player1, offsetX, offsetY)
+	else
+		drawGemDeliveryPause(player1, offsetX, offsetY)
+		drawPlayerBlocks(player1, offsetX, offsetY + 1)
+		pausemenu:draw()
+	end
 
 
 end
@@ -1508,47 +1534,53 @@ end
 
 function love.keypressed(key)
 	
-	if key == 'x' then
-		if(canPlayerRotate(player1)) then
-			playerRotate(player1)
-		end
-        
-    elseif key == 'left' then
-        if (
-		isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
-		and
-		isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
-		) then
-            player1.location.x = player1.location.x-1
-        end
+	if(isPaused == false) then
+		if key == 'x' then
+			if(canPlayerRotate(player1)) then
+				playerRotate(player1)
+			end
+			
+		elseif key == 'left' then
+			if (
+			isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
+			and
+			isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
+			) then
+				player1.location.x = player1.location.x-1
+			end
 
-    elseif key == 'right' then
-        if (
-		isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
-		and
-		isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
-		) then
-            player1.location.x = player1.location.x+1
-        end
-	
-	elseif key == 'down' then
-		descendPlayerBlock(player1)
-	
-    elseif key == 'c' then
-
-		local y = player1.location.y
-		local x2 = player1.location.x + player1.rotation.x
-		local y2 = player1.location.y + player1.rotation.y
+		elseif key == 'right' then
+			if (
+			isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
+			and
+			isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
+			) then
+				player1.location.x = player1.location.x+1
+			end
 		
-		while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
-            y = y + 1
-			y2 = y2 + 1
-			timer = 0
-        end
-			player1.location.y = y
-	else
+		elseif key == 'down' then
+			descendPlayerBlock(player1)
+		
+		elseif key == 'c' then
+
+			local y = player1.location.y
+			local x2 = player1.location.x + player1.rotation.x
+			local y2 = player1.location.y + player1.rotation.y
+			
+			while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
+				y = y + 1
+				y2 = y2 + 1
+				timer = 0
+			end
+				player1.location.y = y
+		else
+		
+		end
+	end
 	
-    end
+		if(key == 'return') then
+			isPaused = not isPaused
+		end
 end
 
 --Math functions
