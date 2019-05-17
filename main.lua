@@ -24,6 +24,17 @@ local function start_game()
 	gameState = gameStates.SinglePlayer
 end
 
+--Pause Menu Functions
+
+local function quit_to_menu()
+	gameState = gameStates.MainMenu
+	isPaused = false
+end
+
+local function unpause_game()
+	isPaused = false
+end
+
 function reset()
         inert = {}
         for y = 0, gridYCount do
@@ -109,8 +120,8 @@ end
 function loadSinglePlayer()
 	
 	pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
-    pausemenu:addEntry("Pause Game", start_game)
-    pausemenu:addEntry("Quit Game", quit_game)
+    pausemenu:addEntry("Resume", unpause_game)
+    pausemenu:addEntry("Quit Game", quit_to_menu)
 	
 	--Playfield attributes
 	gridXCount = 6
@@ -684,6 +695,73 @@ function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 
 end
 
+function drawUINongridBox(xLoc, xCount, yLoc, yCount)
+
+	max = math.max
+	
+	xCount = max(0, xCount-1)
+	yCount = max(0, yCount-1)
+
+	if(xCount == 0 and yCount == 0) then			--Size 0,0
+		love.graphics.draw(tilesUI[16],(xLoc) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+	elseif(xCount == 0 and yCount > 0) then			--Single width column
+		for y = 0, yCount do
+			if(y == 0) then
+					love.graphics.draw(tilesUI[4],(xLoc) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[12],(xLoc) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom )
+			
+				else	--(Middle sections)
+					love.graphics.draw(tilesUI[8],(xLoc) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			end
+		end
+	elseif(xCount > 0 and yCount == 0) then			--Single height row
+		for x = 0, xCount do
+			if(x == 0) then
+					love.graphics.draw(tilesUI[13],(xLoc + x) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Left)
+				elseif(x == xCount) then
+					love.graphics.draw(tilesUI[15],(xLoc+ x) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Right)
+			
+				else	--(Middle sections)
+					love.graphics.draw(tilesUI[14],(xLoc + x) * blockDrawSize, (yLoc) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+			end
+		end
+	else
+	for x = 0, xCount do
+		for y = 0, yCount do
+			if(x == 0) then
+				if(y == 0) then
+					love.graphics.draw(tilesUI[1],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top left)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[9],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom left)
+			
+				else	--(Middle left section)
+					love.graphics.draw(tilesUI[5],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end
+			elseif(x == xCount) then
+				if(y == 0) then
+					love.graphics.draw(tilesUI[3],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top right)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[11],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom right)
+				else	--(Middle right section)
+					love.graphics.draw(tilesUI[7],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)
+				end
+			else
+				if(y == 0) then
+					love.graphics.draw(tilesUI[2],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Top Middle)
+				elseif(y == yCount) then
+					love.graphics.draw(tilesUI[10],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)		--(Bottom Middle)
+				else
+					love.graphics.draw(tilesUI[6],(xLoc + x) * blockDrawSize, (yLoc + y) * blockDrawSize,0, blockDrawRatio, blockDrawRatio)	--(MIDDLE MIDDLE)
+				end
+			end
+		end
+	end
+
+	end
+
+end
+
 function drawScoreUI(x, offsetX, y, offsetY)
 	xLoc = x + offsetX
 	yLoc = y + offsetY
@@ -871,10 +949,13 @@ function drawSinglePlayer()
 		end
 		
 		drawGemDelivery(player1, offsetX, offsetY)
-	else
+	elseif(isPaused == true) then
 		drawGemDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
+		drawUIBox(0, 0, 3, 0, 0, 2)
+		drawUINongridBox(love.graphics.getWidth()/2, 3, love.graphics.getHeight()/2, 2)
 		pausemenu:draw()
+	else
 	end
 
 
