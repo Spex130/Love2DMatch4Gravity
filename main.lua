@@ -699,6 +699,9 @@ function drawUINongridBox(xLoc, xCount, yLoc, yCount)
 
 	max = math.max
 	
+	xLoc = xLoc - .25
+	yLoc = yLoc - .25
+	
 	xCount = max(0, xCount-1)
 	yCount = max(0, yCount-1)
 
@@ -952,8 +955,8 @@ function drawSinglePlayer()
 	elseif(isPaused == true) then
 		drawGemDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
-		drawUIBox(0, 0, 3, 0, 0, 2)
-		drawUINongridBox(love.graphics.getWidth()/2, 3, love.graphics.getHeight()/2, 2)
+		--drawUIBox(0, 0, 3, 0, 0, 2)
+		drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
 		pausemenu:draw()
 	else
 	end
