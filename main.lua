@@ -118,6 +118,7 @@ end
 --Single Player Specific Functions
 
 function loadSinglePlayer()
+	font = love.graphics.newFont(14)
 	
 	pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
     pausemenu:addEntry("Resume", unpause_game)
@@ -910,6 +911,14 @@ function convertIDtoBatch(ID)
 	return coords
 end
 
+function drawPauseMenu()
+	if(windowChanged) then
+		love.graphics.setFont(font, 600, "normal")
+	end
+	pausemenu:draw()
+
+end
+
 function drawSinglePlayer()
 	
 	updateDrawBlockSize()
@@ -957,7 +966,8 @@ function drawSinglePlayer()
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
 		--drawUIBox(0, 0, 3, 0, 0, 2)
 		drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
-		pausemenu:draw()
+		
+		drawPauseMenu()
 	else
 	end
 
