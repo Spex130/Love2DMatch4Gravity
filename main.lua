@@ -908,7 +908,7 @@ function convertIDtoBatch(ID)
 end
 
 function loadPauseMenu()
-		font = love.graphics.newFont((blockDrawSize/2) * blockDrawRatio)
+		font = love.graphics.newFont((30) * blockDrawRatio)
 		love.graphics.setFont(font, 40, "normal")
 		
 		pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
