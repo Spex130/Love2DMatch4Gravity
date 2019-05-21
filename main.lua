@@ -118,11 +118,7 @@ end
 --Single Player Specific Functions
 
 function loadSinglePlayer()
-	font = love.graphics.newFont(14)
-	
-	pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
-    pausemenu:addEntry("Resume", unpause_game)
-    pausemenu:addEntry("Quit Game", quit_to_menu)
+		loadPauseMenu()
 	
 	--Playfield attributes
 	gridXCount = 6
@@ -911,9 +907,18 @@ function convertIDtoBatch(ID)
 	return coords
 end
 
+function loadPauseMenu()
+		font = love.graphics.newFont((blockDrawSize/2) * blockDrawRatio)
+		love.graphics.setFont(font, 40, "normal")
+		
+		pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+		pausemenu:addEntry("Resume", unpause_game)
+		pausemenu:addEntry("Quit", quit_to_menu)
+end
+
 function drawPauseMenu()
 	if(windowChanged) then
-		love.graphics.setFont(font, 600, "normal")
+		loadPauseMenu()
 	end
 	pausemenu:draw()
 
@@ -1682,6 +1687,7 @@ function love.keypressed(key)
 	end
 	
 		if(key == 'return') then
+			loadPauseMenu()
 			isPaused = not isPaused
 		end
 end
