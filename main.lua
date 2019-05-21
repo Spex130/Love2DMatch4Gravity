@@ -7,6 +7,12 @@ gameState = gameStates.SinglePlayer
 local mainmenu
 local pausemenu
 
+font = love.graphics.newImageFont("assets/imagefont51.png",
+    " abcdefghijklmnopqrstuvwxyz" ..
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+    "123456789.,!?-+/():;%&`'*#=[]\"")
+pauseFont = love.graphics.newFont((30) * 64/30)
+
 blockSize = 64
 blockDrawSize = 30
 blockDrawRatio = blockSize/30
@@ -29,6 +35,10 @@ end
 local function quit_to_menu()
 	gameState = gameStates.MainMenu
 	isPaused = false
+end
+
+local function quit()
+	love.event.quit(0)
 end
 
 local function unpause_game()
@@ -74,8 +84,6 @@ function love.update(dt)
 				timer = timer - timerLimit
 				updatePlayer(player1)
 			end
-		elseif(gameOver == true)then
-			
 		elseif(isPaused == true) then
 			pausemenu:update()
 		end
@@ -118,7 +126,7 @@ end
 --Single Player Specific Functions
 
 function loadSinglePlayer()
-		loadPauseMenu()
+	loadPauseMenu()
 	
 	--Playfield attributes
 	gridXCount = 6
@@ -207,6 +215,9 @@ function loadSinglePlayer()
 		
 		
 	}
+	
+	isPaused = false
+	gameOver = false
 	
 	loadBlocks()
 	loadBGTiles()
@@ -810,6 +821,7 @@ function drawScoreTextCentered(x, offsetX, y, offsetY, player)
 	
 	love.graphics.print("Score:", xLoc * blockDrawSize,yLoc * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
 	love.graphics.print(player.score, xLoc * blockDrawSize,yLoc2 * blockDrawSize, 0, blockDrawRatio/2, blockDrawRatio/2)
+
 end
 
 function drawTextCentered(x, offsetX, y, offsetY, text)
@@ -818,6 +830,14 @@ function drawTextCentered(x, offsetX, y, offsetY, text)
 	local yLoc = y + offsetY +(blockDrawRatio/2)
 	
 	love.graphics.print(text, xLoc * blockDrawSize,yLoc * blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
+end
+
+function drawText(x, y, text, rotation)
+	love.graphics.print(text, x, y, rotation, blockDrawRatio, blockDrawRatio)
+end
+
+function drawText(x, y, text, rotation, rotationOffsetX)
+	love.graphics.print(text, x, y, rotation, blockDrawRatio, blockDrawRatio, rotationOffsetX)
 end
 
 function drawBagUI(x, offsetX, y, offsetY)
@@ -908,12 +928,20 @@ function convertIDtoBatch(ID)
 end
 
 function loadPauseMenu()
-		font = love.graphics.newFont((30) * blockDrawRatio)
-		love.graphics.setFont(font, 40, "normal")
+		pauseFont = love.graphics.newFont((30) * blockDrawRatio)
+		love.graphics.setFont(pauseFont, 40, "normal")
 		
 		pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 		pausemenu:addEntry("Resume", unpause_game)
 		pausemenu:addEntry("Quit", quit_to_menu)
+end
+
+function loadUIFont()
+	love.graphics.setFont(font, 40, "normal")
+end
+
+function drawGameOver()
+	drawText(love.graphics.getWidth()/4, love.graphics.getHeight()/2, "GAME OVER!", math.cos(love.timer.getTime()) * (20 * 0.0174533), love.graphics.getWidth()/16/8)
 end
 
 function drawPauseMenu()
@@ -940,6 +968,8 @@ function drawSinglePlayer()
 	
 	drawPlayfieldQuad(offsetX, offsetY)
 	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
+	
+	loadUIFont()
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
 	drawBagUI(8, offsetX, ScoreUILocY + 4, offsetY)
 	drawScoreTextCentered(9, offsetX, ScoreUILocY, offsetY, player1)	--Draw Score Text
@@ -956,8 +986,13 @@ function drawSinglePlayer()
         end
     end
 	
-	
-	if(isPaused == false) then
+	if( gameOver == true) then
+		drawGemDeliveryPause(player1, offsetX, offsetY)
+		drawPlayerBlocks(player1, offsetX, offsetY + 1)
+		--drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
+		
+		drawGameOver()
+	elseif(isPaused == false) then
 		if(player1.playState == playStates.gridFixStep) then
 			drawGravityGrid(player1)
 		else
@@ -969,11 +1004,10 @@ function drawSinglePlayer()
 	elseif(isPaused == true) then
 		drawGemDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
-		--drawUIBox(0, 0, 3, 0, 0, 2)
 		drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
 		
 		drawPauseMenu()
-	else
+
 	end
 
 
@@ -1624,7 +1658,7 @@ function loadMainMenu()
     mainmenu = menuengine.new(50,400)
     mainmenu:addEntry("Start Game", start_game)
     mainmenu:addEntry("Options", options)
-    mainmenu:addEntry("Quit Game", quit_game)
+    mainmenu:addEntry("Quit Game", quit)
 
 end
 
@@ -1684,12 +1718,20 @@ function love.keypressed(key)
 		else
 		
 		end
+	
+	elseif(gameOver == true) then
+		if(key == 'return' or key == 'c' or key == 'x') then
+			quit_to_menu()
+		end
 	end
 	
-		if(key == 'return') then
-			loadPauseMenu()
-			isPaused = not isPaused
-		end
+	if(key == 'return') then
+		loadPauseMenu()
+		isPaused = not isPaused
+	end
+	if(key == 'escape') then
+		quit()
+	end
 end
 
 --Math functions
