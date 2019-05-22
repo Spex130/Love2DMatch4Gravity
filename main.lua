@@ -72,6 +72,8 @@ end
 love.frame = 0
 function love.update(dt)
 	--profilerUpdate()	
+	
+	timerCalcu = calculateTimerLimit(player1.score)
 
 	if gameState == gameStates.MainMenu then
 		mainmenu:update()	
@@ -80,8 +82,8 @@ function love.update(dt)
 		if(isPaused == false and gameOver == false ) then
 			timer = timer + dt
 
-			if timer >= timerLimit then
-				timer = timer - timerLimit
+			if timer >= timerCalcu then
+				timer = timer - timerCalcu
 				updatePlayer(player1)
 			end
 		elseif(isPaused == true) then
@@ -456,7 +458,6 @@ function drawPlayfieldTileQuad(x, offsetX, y, offsetY)
 		tilesetPlayfieldBatch:add(tileBGQuads[playfieldMap[x][y]], (x + offsetX - 1) *blockDrawSize, (y + offsetY -1) *blockDrawSize, 0, blockDrawRatio, blockDrawRatio)
 end
 
-
 function drawPlayfieldQuad(offsetX, offsetY)
 	if(windowChanged) then
 		setPlayfieldMap(offsetX, offsetY)
@@ -578,6 +579,13 @@ function calculateBagFill(player)
 	end
 		
 	return fillLevel
+end
+
+function calculateTimerLimit(playerScore)
+	min = math.min
+	timerCalc = lerp(1.0, .3, min(1, playerScore/2500))
+	return timerCalc
+	
 end
 
 function addToGemDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
@@ -1319,6 +1327,10 @@ function resetPlayerBlock(player)
 	player.gravityGrid = {}
 	player.inertClone = {}
 	
+	
+	if(inert[player.originPoint.y + 1][player.originPoint.x] ~= 0)then
+		gameOver = true;
+	end
 	--[[
 	player1 = {
 		originPoint = {x = 3, y = 1},
