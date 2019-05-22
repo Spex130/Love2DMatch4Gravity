@@ -19,6 +19,8 @@ blockDrawRatio = blockSize/30
 widthChecker = love.graphics.getWidth()
 heightChecker = love.graphics.getHeight()
 
+maxSpeedScore = 2500
+
 windowChanged = true
 isPaused = false
 gameOver = false
@@ -583,7 +585,7 @@ end
 
 function calculateTimerLimit(playerScore)
 	min = math.min
-	timerCalc = lerp(1.0, .3, min(1, playerScore/2500))
+	timerCalc = lerp(1.0, .3, min(1, playerScore/maxSpeedScore))
 	return timerCalc
 	
 end
