@@ -607,23 +607,24 @@ end
 
 function drawGemDelivery(player, offsetX, offsetY)
 
-	
-	for i,v in ipairs(player.gemDeliveryArray) do
-		if(v.location <= 1) then
+	if(#player.gemDeliveryArray > 0) then
+		for i,v in ipairs(player.gemDeliveryArray) do
+			if(v.location <= 1) then
+				
+				bagX = playfieldExtrasXOffset + offsetX + (.5 * v.location) + 1--(v.location * 1.5)
+				bagY = CharPlatLocY + offsetY + (.5 * v.location) - .5--(v.location * 1.5)
 			
-			bagX = playfieldExtrasXOffset + offsetX + (.5 * v.location) + 1--(v.location * 1.5)
-			bagY = CharPlatLocY + offsetY + (.5 * v.location) - .5--(v.location * 1.5)
-		
-			xLoc = lerp(v.x + offsetX, bagX, v.location)
-				--Find the horizontal difference between the two numbers
-				--Then take the percentage traveled by multiplying it by a number from 0 to 1
-				-- Then add it to the original number to get the horizontal location
-			yLoc = lerp(v.y + offsetY,bagY, v.location)
-				--Do the same for Y
-			drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
-			v.location = v.location + .05
-		else
-			table.remove(player.gemDeliveryArray, i)
+				xLoc = lerp(v.x + offsetX, bagX, v.location)
+					--Find the horizontal difference between the two numbers
+					--Then take the percentage traveled by multiplying it by a number from 0 to 1
+					-- Then add it to the original number to get the horizontal location
+				yLoc = lerp(v.y + offsetY,bagY, v.location)
+					--Do the same for Y
+				drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
+				v.location = v.location + .05
+			else
+				table.remove(player.gemDeliveryArray, i)
+			end
 		end
 	end
 
