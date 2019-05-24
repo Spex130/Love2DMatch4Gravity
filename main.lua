@@ -56,7 +56,10 @@ function reset()
                 inert[y][x] = colorBlank
             end
         end
-			
+		
+		--DEBUG JUNK BLOCK
+		inert[12][3] = 5
+		
 		resetPlayerBlock(player1)
 		timer = 0
 		player1.score = 0
@@ -217,7 +220,7 @@ function loadSinglePlayer()
 			BagL4 = 0,
 		},
 		gemDeliveryArray={},	--Holds a list of gems to be delivered to the Gem Bag
-		
+		junkDeliveryArray={},	--Holds a list of junk gems to be delivered
 		
 	}
 	
@@ -1099,9 +1102,9 @@ end
 
 function drawGravityGrid(player)
 	-- Iterate through the Gravity Grid and draw everything
-	if(player.gravityGrid  ~= null) then
+	if(player.gravityGrid  ~= nil) then
 		for i = 0,#player.gravityGrid do
-			if(player.gravityGrid[i]  ~= null) then
+			if(player.gravityGrid[i]  ~= nil) then
 				if(player.gravityGrid[i].color ~= 0) then
 					drawBlock(player.gravityGrid[i].color, player.gravityGrid[i].x, player.gravityGrid[i].drawY)
 				end
@@ -1543,6 +1546,8 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY-1, x = locX})
 						chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
 					end
+					--if the block above us is a JUNK BLOCK and our chainNumber is > 3...
+					junkBlockClearCheck(inertArray, locX, locY -1, chainNumber, foundPairLocations)
 				end
 
 				--Check right
@@ -1553,6 +1558,7 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY, x = locX+1})
 						chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
 					end
+					junkBlockClearCheck(inertArray, locX +1, locY, chainNumber, foundPairLocations)
 				end
 
 				--Check down
@@ -1563,6 +1569,7 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY+1, x = locX})
 						chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
 					end
+					junkBlockClearCheck(inertArray, locX, locY+1, chainNumber, foundPairLocations)
 				end
 
 				--Check left
@@ -1573,6 +1580,7 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY, x = locX-1})
 						chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
 					end
+					junkBlockClearCheck(inertArray, locX -1, locY, chainNumber, foundPairLocations)
 				end
 				
 
@@ -1584,7 +1592,7 @@ if(markedArray[locY][locX] == -1) then
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i = 0, #foundPairLocations do
-						if(foundPairLocations[i] ~= null) then
+						if(foundPairLocations[i] ~= nil) then
 							addToGemDeliveryArray(player, inertArray[foundPairLocations[i].y][foundPairLocations[i].x], foundPairLocations[i].x, foundPairLocations[i].y)
 							inertArray[foundPairLocations[i].y][foundPairLocations[i].x] = 0
 						end
@@ -1653,6 +1661,16 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 	return chainNumber
 end
 	
+function junkBlockClearCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
+	if(inertArray[locY][locX] ~= nil) then
+		print(inertArray[locY][locX])
+		if(inertArray[locY][locX] == 5 and chainNumber >= 4) then
+			markedArray[locY][locX] = 1
+			table.insert(foundPairLocations, {y = locY, x = locX})
+		end
+	end
+end	
+
 --Menu Functions
 
 function loadMainMenu()
