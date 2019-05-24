@@ -1557,7 +1557,7 @@ function findBlocksToClear(inertArray, player)
 		for locY = gridYCount -1, 0, -1  do
 			for locX = 0, gridXCount do
 				currentColor = inertArray[locY][locX] 				--Get the color of the spot we're currently at.
-				if(currentColor ~= colorBlank) then
+				if(currentColor ~= colorBlank or currentColor ~= colorGray) then
 					local emptyY = findLowestOpenSpotInColumn(locX, inertArray)	--Find the lowest empty spot in this column
 					if(emptyY > locY) then							--If this spot is lower than where we're currently at, then we record the new spot.
 						inertArray[locY][locX] = colorBlank			--Clear out the current spot in the clone and real array
@@ -1593,7 +1593,7 @@ if(markedArray[locY][locX] == -1) then
 	--Since this is the beginning, start the chain at 1
 	chainNumber = 1
 
-
+if(inertArray[locY][locX] ~= 5) then
 				--Check up
 				if(locY - 1 >= 0 ) then --If the block above us is within the array
 					if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
@@ -1652,7 +1652,7 @@ if(markedArray[locY][locX] == -1) then
 					end
 				end
 
-	
+end
 		--Return if we found and cleared anything
 		return matchesFound
 	end
@@ -1664,53 +1664,55 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 		--First, note that we've checked the spot we're at.
 		markedArray[locY][locX] = 0
 		
-		--Check up
-		if(locY - 1 >= 0 ) then --If the block above us is within the array
-			if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
-				--print("Match Up")
-				chainNumber = chainNumber + 1
-				table.insert(foundPairLocations, {y = locY-1, x = locX})
-				chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
+	if(inertArray[locY][locX] ~= 5) then
+			--Check up
+			if(locY - 1 >= 0 ) then --If the block above us is within the array
+				if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
+					--print("Match Up")
+					chainNumber = chainNumber + 1
+					table.insert(foundPairLocations, {y = locY-1, x = locX})
+					chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
+				end
 			end
-		end
 
-		--Check right
-		if(locX + 1 <= gridXCount) then
-			if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
-				--print("Match Right")
-				chainNumber = chainNumber + 1
-				table.insert(foundPairLocations, {y = locY, x = locX+1})
-				chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
+			--Check right
+			if(locX + 1 <= gridXCount) then
+				if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
+					--print("Match Right")
+					chainNumber = chainNumber + 1
+					table.insert(foundPairLocations, {y = locY, x = locX+1})
+					chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
+				end
 			end
-		end
 
-		--Check down
-		if(locY + 1 <= gridYCount ) then --If the block above us is within the array
-			if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] == -1) then
-				--print("Match Down")
-				chainNumber = chainNumber + 1
-				table.insert(foundPairLocations, {y = locY+1, x = locX})
-				chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
+			--Check down
+			if(locY + 1 <= gridYCount ) then --If the block above us is within the array
+				if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] == -1) then
+					--print("Match Down")
+					chainNumber = chainNumber + 1
+					table.insert(foundPairLocations, {y = locY+1, x = locX})
+					chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
+				end
 			end
-		end
 
-		--Check left
-		if(locX - 1 >= 0) then
-			if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
-				--print("Match Left")
-				chainNumber = chainNumber + 1
-				table.insert(foundPairLocations, {y = locY, x = locX-1})
-				chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
+			--Check left
+			if(locX - 1 >= 0) then
+				if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
+					--print("Match Left")
+					chainNumber = chainNumber + 1
+					table.insert(foundPairLocations, {y = locY, x = locX-1})
+					chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
+				end
 			end
-		end
-		
-		--print("recursive Chain Number: "..chainNumber)
-		if(chainNumber > 3) then
-			markedArray[locY][locX] = 1
-			--table.insert(foundPairLocations, {y = locY, x = locX})
-			junkBlockGridCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
-		end
+			
+			--print("recursive Chain Number: "..chainNumber)
+			if(chainNumber > 3) then
+				markedArray[locY][locX] = 1
+				--table.insert(foundPairLocations, {y = locY, x = locX})
+				junkBlockGridCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
+			end
 
+		end
 	end
 	return chainNumber
 end
