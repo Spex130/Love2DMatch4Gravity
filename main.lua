@@ -1661,10 +1661,13 @@ end
 	
 function junkBlockGridCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
 
-	junkBlockClearCheck(inertArray, locX, locY+1, chainNumber, foundPairLocations)
-	junkBlockClearCheck(inertArray, locX, locY-1, chainNumber, foundPairLocations)
-	junkBlockClearCheck(inertArray, locX+1, locY, chainNumber, foundPairLocations)
-	junkBlockClearCheck(inertArray, locX-1, locY, chainNumber, foundPairLocations)
+	max = math.max
+	min = math.min
+
+	junkBlockClearCheck(inertArray, locX, min(locY+1, gridYCount), chainNumber, foundPairLocations)
+	junkBlockClearCheck(inertArray, locX, max(locY-1, 0), chainNumber, foundPairLocations)
+	junkBlockClearCheck(inertArray, min(locX+1, gridXCount), locY, chainNumber, foundPairLocations)
+	junkBlockClearCheck(inertArray, max(locX-1, 0), locY, chainNumber, foundPairLocations)
 end
 	
 function junkBlockClearCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
