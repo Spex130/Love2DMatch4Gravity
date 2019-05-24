@@ -1546,8 +1546,6 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY-1, x = locX})
 						chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
 					end
-					--if the block above us is a JUNK BLOCK and our chainNumber is > 3...
-					junkBlockClearCheck(inertArray, locX, locY -1, chainNumber, foundPairLocations)
 				end
 
 				--Check right
@@ -1558,7 +1556,6 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY, x = locX+1})
 						chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
 					end
-					junkBlockClearCheck(inertArray, locX +1, locY, chainNumber, foundPairLocations)
 				end
 
 				--Check down
@@ -1569,7 +1566,6 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY+1, x = locX})
 						chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
 					end
-					junkBlockClearCheck(inertArray, locX, locY+1, chainNumber, foundPairLocations)
 				end
 
 				--Check left
@@ -1580,7 +1576,6 @@ if(markedArray[locY][locX] == -1) then
 						table.insert(foundPairLocations, {y = locY, x = locX-1})
 						chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
 					end
-					junkBlockClearCheck(inertArray, locX -1, locY, chainNumber, foundPairLocations)
 				end
 				
 
@@ -1589,6 +1584,8 @@ if(markedArray[locY][locX] == -1) then
 					table.insert(foundPairLocations, {y = locY, x = locX})
 					matchesFound = true
 					player.score = player.score + (chainNumber * 10)
+					
+					junkBlockGridCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
 					
 					--Now that we've marked everything and have a list of spots to clear, go through the list and clear them.
 					for i = 0, #foundPairLocations do
@@ -1655,15 +1652,23 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 		if(chainNumber > 3) then
 			markedArray[locY][locX] = 1
 			--table.insert(foundPairLocations, {y = locY, x = locX})
+			junkBlockGridCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
 		end
 
 	end
 	return chainNumber
 end
 	
+function junkBlockGridCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
+
+	junkBlockClearCheck(inertArray, locX, locY+1, chainNumber, foundPairLocations)
+	junkBlockClearCheck(inertArray, locX, locY-1, chainNumber, foundPairLocations)
+	junkBlockClearCheck(inertArray, locX+1, locY, chainNumber, foundPairLocations)
+	junkBlockClearCheck(inertArray, locX-1, locY, chainNumber, foundPairLocations)
+end
+	
 function junkBlockClearCheck(inertArray, locX, locY, chainNumber, foundPairLocations)
 	if(inertArray[locY][locX] ~= nil) then
-		print(inertArray[locY][locX])
 		if(inertArray[locY][locX] == 5 and chainNumber >= 4) then
 			markedArray[locY][locX] = 1
 			table.insert(foundPairLocations, {y = locY, x = locX})
