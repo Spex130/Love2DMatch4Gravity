@@ -633,19 +633,70 @@ end
 function drawGemDeliveryPause(player, offsetX, offsetY)
 	for i,v in ipairs(player.gemDeliveryArray) do
 		if(v.location <= 1) then
-			bagX = playfieldExtrasXOffset + offsetX + (.5 * v.location) + 1--(v.location * 1.5)
-			bagY = CharPlatLocY + offsetY + (.5 * v.location) - .5--(v.location * 1.5)
+			local bagX = playfieldExtrasXOffset + offsetX + (.5 * v.location) + 1--(v.location * 1.5)
+			local bagY = CharPlatLocY + offsetY + (.5 * v.location) - .5--(v.location * 1.5)
 		
-			xLoc = lerp(v.x + offsetX, bagX, v.location)
+			local xLoc = lerp(v.x + offsetX, bagX, v.location)
 				--Find the horizontal difference between the two numbers
 				--Then take the percentage traveled by multiplying it by a number from 0 to 1
 				-- Then add it to the original number to get the horizontal location
-			yLoc = lerp(v.y + offsetY,bagY, v.location)
+			local yLoc = lerp(v.y + offsetY,bagY, v.location)
 				--Do the same for Y
 			drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
 		end
 	end
 end
+
+function addToJunkDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
+	junk = 
+	{
+		color = gemColor,
+		x = gemXLoc,
+		y = gemYLoc,
+		location = 0,
+	}
+	table.insert(player.junkDeliveryArray, junk)
+end
+
+function drawJunkDelivery(player, offsetX, offsetY)
+	if(#player.junkDeliveryArray > 0) then
+		for i,v in ipairs(player.junkDeliveryArray) do
+			if(v.location <= 1) then
+							
+				sizeLerp = lerp(1.5, 1, v.location)
+				
+				drawBlockResize(5, v.x + offsetX - (.5 * (1-v.location)), v.y + offsetY - (.5 * (1-v.location)), sizeLerp)
+				v.location = v.location + .05
+			else
+				table.remove(player.junkDeliveryArray, i)
+			end
+		end
+	end
+end
+
+function drawJunkDeliveryPause(player, offsetX, offsetY)
+	if(#player.junkDeliveryArray > 0) then
+		for i,v in ipairs(player.junkDeliveryArray) do
+			if(v.location <= 1) then
+			
+				sizeLerp = lerp(1.5, 1, v.location)
+				
+				drawBlockResize(5, v.x + offsetX, v.y + offsetY, sizeLerp)
+			end
+		end
+	end
+end
+
+function addJunkToInertArray(inertArray, column, player)
+	
+	colOpenSpot = findOpenSpotInColumn(column)
+	
+	inertArray[colOpenSpot][column] = 5
+	
+	addToJunkDeliveryArray(player, 5, column, colOpenSpot)
+	
+end
+
 
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 	
@@ -1003,6 +1054,7 @@ function drawSinglePlayer()
 	
 	if( gameOver == true) then
 		drawGemDeliveryPause(player1, offsetX, offsetY)
+		drawJunkDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
 		--drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
 		
@@ -1015,9 +1067,11 @@ function drawSinglePlayer()
 			drawPlayerBlocks(player1, offsetX, offsetY + 1)
 		end
 		
+		drawJunkDelivery(player1, offsetX, offsetY)
 		drawGemDelivery(player1, offsetX, offsetY)
 	elseif(isPaused == true) then
 		drawGemDeliveryPause(player1, offsetX, offsetY)
+		drawJunkDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
 		drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
 		
@@ -1223,6 +1277,7 @@ function gravityStepLoop(player)
 		else
 			resetPlayerBlock(player)
 			player.playState = playStates.controlStep
+			addJunkToInertArray(inert, 3, player)
 		end
 		--]]
 	end
