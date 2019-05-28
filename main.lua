@@ -20,7 +20,7 @@ widthChecker = love.graphics.getWidth()
 heightChecker = love.graphics.getHeight()
 
 maxSpeedScore = 3000
-minTimerSpeed = .25
+minTimerSpeed = .2
 
 windowChanged = true
 isPaused = false
@@ -57,8 +57,6 @@ function reset()
             end
         end
 		
-		--DEBUG JUNK BLOCK
-		inert[12][3] = 5
 		
 		resetPlayerBlock(player1)
 		timer = 0
@@ -221,6 +219,8 @@ function loadSinglePlayer()
 		},
 		gemDeliveryArray={},	--Holds a list of gems to be delivered to the Gem Bag
 		junkDeliveryArray={},	--Holds a list of junk gems to be delivered
+		junkCountdownStep = 0,	--The count for how many turns it's been since a Junk Block dropped
+		junkCountdownMax = 1,
 		
 	}
 	
@@ -697,6 +697,18 @@ function addJunkToInertArray(inertArray, column, player)
 	
 end
 
+function junkSpotStep(player)
+
+random = math.random
+
+
+	if(player.junkCountdownStep < player.junkCountdownMax) then
+		player.junkCountdownStep = player.junkCountdownStep + 1
+	else
+	addJunkToInertArray(inert, random(0, gridXCount), player)
+	player.junkCountdownStep = 0;
+	end
+end
 
 function drawUIBox(gridXLoc, offsetX, xCount, gridYLoc, offsetY, yCount)
 	
@@ -1277,7 +1289,7 @@ function gravityStepLoop(player)
 		else
 			resetPlayerBlock(player)
 			player.playState = playStates.controlStep
-			addJunkToInertArray(inert, 3, player)
+			junkSpotStep(player)
 		end
 		--]]
 	end
