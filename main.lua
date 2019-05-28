@@ -1,4 +1,5 @@
 local menuengine = require "menuengine"
+local animfile = require "animfile"
 --menuengine.settings.sndMove = love.audio.newSource("pick.wav", "static")
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
