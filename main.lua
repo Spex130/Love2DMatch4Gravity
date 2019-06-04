@@ -1,5 +1,5 @@
 local menuengine = require "menuengine"
-local animfile = require "animfile"
+local animator = require 'animator'
 --menuengine.settings.sndMove = love.audio.newSource("pick.wav", "static")
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
@@ -7,6 +7,8 @@ gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
 gameState = gameStates.SinglePlayer
 local mainmenu
 local pausemenu
+
+
 
 font = love.graphics.newImageFont("assets/imagefont51.png",
     " abcdefghijklmnopqrstuvwxyz" ..
@@ -71,6 +73,7 @@ function love.load(arg)
 	math.randomseed(os.time())
 	loadSinglePlayer()
 	loadMainMenu()
+	loadBirdQuads(blockDrawRatio)
 
 end
 
@@ -1013,6 +1016,7 @@ function loadPauseMenu()
 		pausemenu = menuengine.new(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 		pausemenu:addEntry("Resume", unpause_game)
 		pausemenu:addEntry("Quit", quit_to_menu)
+		pausemenu:mouseDisable()
 end
 
 function loadUIFont()
@@ -1830,10 +1834,19 @@ function love.keypressed(key)
 		else
 		
 		end
-	
+		
 	elseif(gameOver == true) then
 		if(key == 'return' or key == 'c' or key == 'x') then
 			quit_to_menu()
+		end
+	end
+	
+	if(isPaused == true) then
+		if key == 'down' then
+			pausemenu:moveCursor(-1)
+		elseif key == 'up' then
+			pausemenu:moveCursor(1)
+			
 		end
 	end
 	
@@ -1852,4 +1865,37 @@ function distance ( x1, y1, x2, y2 )
   local dx = x1 - x2
   local dy = y1 - y2
   return math.sqrt ( dx * dx + dy * dy )
+end
+
+--Animation section
+
+  birdQuads = {}
+  
+birdAnimSet = 
+{
+	flyLeft = {},
+}
+
+
+function loadBirdQuads(blockSize)
+
+	floor = math.floor
+	
+	tilesetImage = love.graphics.newImage( "assets/birds/birds2.png" )
+	tilesetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
+	
+	widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	
+	
+	for x=1,12 do
+		for y = 1,8 do
+			birdQuads[x*y] = love.graphics.newQuad(x * blockSize, y * blockSize, blockSize, blockSize, tilesetImage:getWidth(), tilesetImage:getHeight())
+		end
+	end
+	
+	birdAnimSet.flyLeft = animator.newAnimation( { birdQuads[4*6], birdQuads[5*6], birdQuads[6*6], birdQuads[5*6] }, { .1, .1, .1, .1 }, tilesetImage )
+	birdAnimSet.flyLeft:setLooping()
+	rotation = 0
+
 end
