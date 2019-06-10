@@ -216,6 +216,10 @@ function menuengine.new(x, y, font, space)
             self.entries[self.cursor].sndMove:play()
         end
     end
+	
+	function self:accept()
+		KEY.accept.pressed = true
+	end
 
     -- love.update
     function self:update()

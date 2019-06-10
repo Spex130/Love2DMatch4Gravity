@@ -1793,12 +1793,12 @@ end
 function love.keypressed(key)
 	
 	if(isPaused == false) then
-		if key == 'x' then
+	if key == 'x' then
 			if(canPlayerRotate(player1)) then
 				playerRotate(player1)
 			end
-			
-		elseif key == 'left' then
+		
+	elseif key == 'left' then
 			if (
 			isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
 			and
@@ -1807,7 +1807,7 @@ function love.keypressed(key)
 				player1.location.x = player1.location.x-1
 			end
 
-		elseif key == 'right' then
+	elseif key == 'right' then
 			if (
 			isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
 			and
@@ -1816,10 +1816,10 @@ function love.keypressed(key)
 				player1.location.x = player1.location.x+1
 			end
 		
-		elseif key == 'down' then
+	elseif key == 'down' then
 			descendPlayerBlock(player1)
 		
-		elseif key == 'c' then
+	elseif key == 'c' then
 
 			local y = player1.location.y
 			local x2 = player1.location.x + player1.rotation.x
@@ -1831,29 +1831,29 @@ function love.keypressed(key)
 				timer = 0
 			end
 				player1.location.y = y
-		else
+	elseif(key == 'return') then
+		loadPauseMenu()
+		isPaused = not isPaused
 		
-		end
+	end
 		
 	elseif(gameOver == true) then
 		if(key == 'return' or key == 'c' or key == 'x') then
 			quit_to_menu()
 		end
-	end
+
 	
-	if(isPaused == true) then
+	elseif(isPaused == true) then
 		if key == 'down' then
 			pausemenu:moveCursor(-1)
 		elseif key == 'up' then
-			pausemenu:moveCursor(1)
-			
+			pausemenu:moveCursor(1)		
+		elseif key == 'return' then
+			pausemenu:accept()
+			--isPaused = not isPaused
 		end
 	end
 	
-	if(key == 'return') then
-		loadPauseMenu()
-		isPaused = not isPaused
-	end
 	if(key == 'escape') then
 		quit()
 	end
