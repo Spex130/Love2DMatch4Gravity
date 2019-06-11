@@ -36,6 +36,7 @@ gameOver = false
 local function start_game()
     reset()
 	gameState = gameStates.SinglePlayer
+	loadSinglePlayer()
 end
 
 --Pause Menu Functions
@@ -66,6 +67,8 @@ function reset()
 		resetPlayerBlock(player1)
 		timer = 0
 		player1.score = 0
+		isPaused = false
+		gameOver = false
 
     end
 	
@@ -1795,7 +1798,7 @@ end
 function love.keypressed(key)
 	
 	
-if(isArcadeBuild == false)	
+if(isArcadeBuild == false) then	
 	if(isPaused == false) then
 	if key == 'x' then
 			if(canPlayerRotate(player1)) then
