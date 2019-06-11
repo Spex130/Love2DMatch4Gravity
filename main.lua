@@ -8,6 +8,8 @@ gameState = gameStates.SinglePlayer
 local mainmenu
 local pausemenu
 
+--Flip this to true if being used with an Ultimark iPac2 or iPac4 with default config layout.
+isArcadeBuild = true
 
 
 font = love.graphics.newImageFont("assets/imagefont51.png",
@@ -1792,6 +1794,8 @@ end
 
 function love.keypressed(key)
 	
+	
+if(isArcadeBuild == false)	
 	if(isPaused == false) then
 	if key == 'x' then
 			if(canPlayerRotate(player1)) then
@@ -1857,6 +1861,75 @@ function love.keypressed(key)
 	if(key == 'escape') then
 		quit()
 	end
+
+elseif (isArcadeBuild == true) then
+	if(isPaused == false) then
+		if key == 'lctrl' then
+				if(canPlayerRotate(player1)) then
+					playerRotate(player1)
+				end
+			
+		elseif key == 'left' then
+				if (
+				isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
+				and
+				isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
+				) then
+					player1.location.x = player1.location.x-1
+				end
+
+		elseif key == 'right' then
+				if (
+				isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
+				and
+				isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
+				) then
+					player1.location.x = player1.location.x+1
+				end
+			
+		elseif key == 'down' then
+				descendPlayerBlock(player1)
+			
+		elseif key == 'lalt' then
+
+				local y = player1.location.y
+				local x2 = player1.location.x + player1.rotation.x
+				local y2 = player1.location.y + player1.rotation.y
+				
+				while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
+					y = y + 1
+					y2 = y2 + 1
+					timer = 0
+				end
+					player1.location.y = y
+		elseif(key == '1') then
+			loadPauseMenu()
+			isPaused = not isPaused
+			
+		end
+			
+		elseif(gameOver == true) then
+			if(key == '1' or key == 'lctrl' or key == 'lalt') then
+				quit_to_menu()
+			end
+
+		
+		elseif(isPaused == true) then
+			if key == 'down' then
+				pausemenu:moveCursor(-1)
+			elseif key == 'up' then
+				pausemenu:moveCursor(1)		
+			elseif key == '1' then
+				pausemenu:accept()
+				--isPaused = not isPaused
+			end
+		end
+		
+		if(key == '2') then
+			quit()
+		end
+	end
+
 end
 
 --Math functions
