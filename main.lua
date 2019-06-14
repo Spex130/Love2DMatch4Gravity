@@ -611,7 +611,8 @@ function addToGemDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
 		y = gemYLoc,
 		location = 0,
 	}
-	table.insert(player.gemDeliveryArray, gem)
+	--table.insert(player.gemDeliveryArray, gem)
+	player.gemDeliveryArray[#player.gemDeliveryArray+1] = gem
 end
 
 function drawGemDelivery(player, offsetX, offsetY)
@@ -664,7 +665,8 @@ function addToJunkDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
 		y = gemYLoc,
 		location = 0,
 	}
-	table.insert(player.junkDeliveryArray, junk)
+	--table.insert(player.junkDeliveryArray, junk)
+	player.junkDeliveryArray[#player.junkDeliveryArray+1] = junk
 end
 
 function drawJunkDelivery(player, offsetX, offsetY)
@@ -1621,7 +1623,8 @@ if(inertArray[locY][locX] ~= 5) then
 					if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
 						--print("Match Up")
 						chainNumber = chainNumber + 1
-						table.insert(foundPairLocations, {y = locY-1, x = locX})
+						--table.insert(foundPairLocations, {y = locY-1, x = locX})
+						foundPairLocations[#foundPairLocations+1] = {y = locY-1, x = locX}
 						chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
 					end
 				end
@@ -1631,7 +1634,8 @@ if(inertArray[locY][locX] ~= 5) then
 					if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
 						--print("Match Right")
 						chainNumber = chainNumber + 1
-						table.insert(foundPairLocations, {y = locY, x = locX+1})
+						--table.insert(foundPairLocations, {y = locY, x = locX+1})
+						foundPairLocations[#foundPairLocations+1] = {y = locY, x = locX+1}
 						chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
 					end
 				end
@@ -1641,7 +1645,8 @@ if(inertArray[locY][locX] ~= 5) then
 					if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] == -1) then
 						--print("Match Down")
 						chainNumber = chainNumber + 1
-						table.insert(foundPairLocations, {y = locY+1, x = locX})
+						--table.insert(foundPairLocations, {y = locY+1, x = locX})
+						foundPairLocations[#foundPairLocations+1] = {y = locY+1, x = locX}
 						chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
 					end
 				end
@@ -1651,7 +1656,8 @@ if(inertArray[locY][locX] ~= 5) then
 					if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
 						--print("Match Left")
 						chainNumber = chainNumber + 1
-						table.insert(foundPairLocations, {y = locY, x = locX-1})
+						--table.insert(foundPairLocations, {y = locY, x = locX-1})
+						foundPairLocations[#foundPairLocations+1] = {y = locY, x = locX-1}
 						chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
 					end
 				end
@@ -1659,7 +1665,8 @@ if(inertArray[locY][locX] ~= 5) then
 
 				if(chainNumber > 3) then
 					markedArray[locY][locX] = 1
-					table.insert(foundPairLocations, {y = locY, x = locX})
+					--table.insert(foundPairLocations, {y = locY, x = locX})
+					foundPairLocations[#foundPairLocations+1] = {y = locY, x = locX}
 					matchesFound = true
 					player.score = player.score + (chainNumber * 10)
 					
@@ -1692,7 +1699,8 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 				if(inertArray[locY][locX] == inertArray[locY-1][locX] and inertArray[locY][locX] > 0 and markedArray[locY-1][locX] == -1) then
 					--print("Match Up")
 					chainNumber = chainNumber + 1
-					table.insert(foundPairLocations, {y = locY-1, x = locX})
+					--table.insert(foundPairLocations, {y = locY-1, x = locX})
+					foundPairLocations[#foundPairLocations+1] = {y = locY-1, x = locX}
 					chainNumber = recursiveBlockClear(inertArray, locY -1, locX, markedArray, chainNumber)
 				end
 			end
@@ -1702,7 +1710,8 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 				if(inertArray[locY][locX] == inertArray[locY][locX+1] and inertArray[locY][locX] > 0 and markedArray[locY][locX + 1] ~= 0) then
 					--print("Match Right")
 					chainNumber = chainNumber + 1
-					table.insert(foundPairLocations, {y = locY, x = locX+1})
+					--table.insert(foundPairLocations, {y = locY, x = locX+1})
+					foundPairLocations[#foundPairLocations+1] = {y = locY, x = locX+1}
 					chainNumber = recursiveBlockClear(inertArray, locY, locX + 1, markedArray, chainNumber)
 				end
 			end
@@ -1712,7 +1721,8 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 				if(inertArray[locY][locX] == inertArray[locY+1][locX] and inertArray[locY][locX] > 0 and markedArray[locY + 1][locX] == -1) then
 					--print("Match Down")
 					chainNumber = chainNumber + 1
-					table.insert(foundPairLocations, {y = locY+1, x = locX})
+					--table.insert(foundPairLocations, {y = locY+1, x = locX})
+					foundPairLocations[#foundPairLocations+1] = {y = locY+1, x = locX}
 					chainNumber = recursiveBlockClear(inertArray, locY + 1, locX, markedArray, chainNumber)
 				end
 			end
@@ -1722,7 +1732,8 @@ function recursiveBlockClear(inertArray, locY, locX, markedArray, chainNumber)
 				if(inertArray[locY][locX] == inertArray[locY][locX-1] and inertArray[locY][locX] > 0 and markedArray[locY][locX - 1] ~= 0) then
 					--print("Match Left")
 					chainNumber = chainNumber + 1
-					table.insert(foundPairLocations, {y = locY, x = locX-1})
+					--table.insert(foundPairLocations, {y = locY, x = locX-1})
+					foundPairLocations[#foundPairLocations+1] = {y = locY, x = locX-1}
 					chainNumber = recursiveBlockClear(inertArray, locY, locX - 1, markedArray, chainNumber)
 				end
 			end
@@ -1754,7 +1765,8 @@ function junkBlockClearCheck(inertArray, locX, locY, chainNumber, foundPairLocat
 	if(inertArray[locY][locX] ~= nil) then
 		if(inertArray[locY][locX] == 5 and chainNumber >= 4) then
 			markedArray[locY][locX] = 1
-			table.insert(foundPairLocations, {y = locY, x = locX})
+			--table.insert(foundPairLocations, {y = locY, x = locX})
+			foundPairLocations[#foundPairLocations+1] = {y = locY, x = locX}
 		end
 	end
 end	
