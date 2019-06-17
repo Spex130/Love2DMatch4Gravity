@@ -240,7 +240,7 @@ function loadSinglePlayer()
 	loadBGTiles()
 	loadBGQuads()
 	setOceanBGMap()
-	setPlayfieldMap((widthChecker/blockDrawSize)/4 - gridXCount/3 ,(love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2)
+	setPlayfieldMap((widthChecker/blockDrawSize)/4 - gridXCount/3 ,(heightChecker/blockDrawSize)/2 - gridYCount/2)
 	loadUITiles()
 	loadMiscTiles()
 	reset()
@@ -941,7 +941,7 @@ end
 function setOceanBGMap()
 	floor = math.floor
 	local widthCalc = (floor(widthChecker/16)+1)
-	local heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	local heightCalc = (floor(heightChecker/16)+1)
 	local localWidthCheck = (floor(widthChecker/16/4))
 
 	
@@ -974,7 +974,7 @@ end
 function drawOceanBG()
 	floor = math.floor
 	widthCalc = (floor(widthChecker/16)+1)
-	heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	heightCalc = (floor(heightChecker/16)+1)
 	localWidthCheck = (floor(widthChecker/16/4))
 	
 	local rotator = 0
@@ -1033,7 +1033,7 @@ function loadUIFont()
 end
 
 function drawGameOver()
-	drawText(widthChecker/4, love.graphics.getHeight()/2, "GAME OVER!", math.cos(love.timer.getTime()) * (20 * 0.0174533), widthChecker/16/8)
+	drawText(widthChecker/4, heightChecker/2, "GAME OVER!", math.cos(love.timer.getTime()) * (20 * 0.0174533), widthChecker/16/8)
 end
 
 function drawPauseMenu()
@@ -1052,7 +1052,7 @@ function drawSinglePlayer()
 	updateBatches()
 	
 	local offsetX = (widthChecker/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
-    local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
+    local offsetY = (heightChecker/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
 	--drawOceanBG()											--Draw Ocean	
 	drawOceanBGQuad()
@@ -1099,7 +1099,7 @@ function drawSinglePlayer()
 		drawGemDeliveryPause(player1, offsetX, offsetY)
 		drawJunkDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
-		drawUINongridBox(widthChecker/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
+		drawUINongridBox(widthChecker/blockDrawSize/2, 3, heightChecker/blockDrawSize/2, 2)
 		
 		drawPauseMenu()
 
@@ -1118,9 +1118,9 @@ function updateDrawBlockSize()
 end
 
 function updateWindowSizeCheck()
-	if(oldWidth ~= widthChecker or oldHeight ~= love.graphics.getHeight()) then
+	if(oldWidth ~= widthChecker or oldHeight ~= heightChecker) then
 		oldWidth = widthChecker 
-		oldHeight = love.graphics.getHeight()
+		oldHeight = heightChecker
 		windowChanged = true
 	else
 		windowChanged = false
@@ -1494,7 +1494,7 @@ function loadBGQuads()
 	uiSetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
 
 	widthCalc = (floor(widthChecker/16)+1)
-	heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	heightCalc = (floor(heightChecker/16)+1)
 	
 	
 	for i=1,256 do
@@ -1975,7 +1975,7 @@ function loadBirdQuads(blockSize)
 	tilesetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
 	
 	widthCalc = (floor(widthChecker/16)+1)
-	heightCalc = (floor(love.graphics.getHeight()/16)+1)
+	heightCalc = (floor(heightChecker/16)+1)
 	
 	
 	for x=1,12 do
