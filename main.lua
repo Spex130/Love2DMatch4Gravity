@@ -243,6 +243,7 @@ function loadSinglePlayer()
 	setPlayfieldMap((widthChecker/blockDrawSize)/4 - gridXCount/3 ,(heightChecker/blockDrawSize)/2 - gridYCount/2)
 	loadUITiles()
 	loadMiscTiles()
+	loadUIFont()
 	reset()
 end
 
