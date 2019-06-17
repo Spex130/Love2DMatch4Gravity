@@ -240,7 +240,7 @@ function loadSinglePlayer()
 	loadBGTiles()
 	loadBGQuads()
 	setOceanBGMap()
-	setPlayfieldMap((love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3 ,(love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2)
+	setPlayfieldMap((widthChecker/blockDrawSize)/4 - gridXCount/3 ,(love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2)
 	loadUITiles()
 	loadMiscTiles()
 	reset()
@@ -357,7 +357,7 @@ function setPlayfieldMap(offsetX, offsetY)
 	floor = math.floor
 	local widthCalc = gridXCount
 	local heightCalc = gridYCount
-	local localWidthCheck = (floor(love.graphics.getWidth()/16/4))
+	local localWidthCheck = (floor(widthChecker/16/4))
 
 	
 	local rotator = 0
@@ -641,18 +641,20 @@ function drawGemDelivery(player, offsetX, offsetY)
 end
 
 function drawGemDeliveryPause(player, offsetX, offsetY)
-	for i,v in ipairs(player.gemDeliveryArray) do
-		if(v.location <= 1) then
-			local bagX = playfieldExtrasXOffset + offsetX + (.5 * v.location) + 1--(v.location * 1.5)
-			local bagY = CharPlatLocY + offsetY + (.5 * v.location) - .5--(v.location * 1.5)
-		
-			local xLoc = lerp(v.x + offsetX, bagX, v.location)
-				--Find the horizontal difference between the two numbers
-				--Then take the percentage traveled by multiplying it by a number from 0 to 1
-				-- Then add it to the original number to get the horizontal location
-			local yLoc = lerp(v.y + offsetY,bagY, v.location)
-				--Do the same for Y
-			drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
+	if(#player.gemDeliveryArray > 0) then
+		for i,v in ipairs(player.gemDeliveryArray) do
+			if(v.location <= 1) then
+				local bagX = playfieldExtrasXOffset + offsetX + (.5 * v.location) + 1--(v.location * 1.5)
+				local bagY = CharPlatLocY + offsetY + (.5 * v.location) - .5--(v.location * 1.5)
+			
+				local xLoc = lerp(v.x + offsetX, bagX, v.location)
+					--Find the horizontal difference between the two numbers
+					--Then take the percentage traveled by multiplying it by a number from 0 to 1
+					-- Then add it to the original number to get the horizontal location
+				local yLoc = lerp(v.y + offsetY,bagY, v.location)
+					--Do the same for Y
+				drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
+			end
 		end
 	end
 end
@@ -938,9 +940,9 @@ end
 
 function setOceanBGMap()
 	floor = math.floor
-	local widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	local widthCalc = (floor(widthChecker/16)+1)
 	local heightCalc = (floor(love.graphics.getHeight()/16)+1)
-	local localWidthCheck = (floor(love.graphics.getWidth()/16/4))
+	local localWidthCheck = (floor(widthChecker/16/4))
 
 	
 	local rotator = 0
@@ -971,9 +973,9 @@ end
 
 function drawOceanBG()
 	floor = math.floor
-	widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	widthCalc = (floor(widthChecker/16)+1)
 	heightCalc = (floor(love.graphics.getHeight()/16)+1)
-	localWidthCheck = (floor(love.graphics.getWidth()/16/4))
+	localWidthCheck = (floor(widthChecker/16/4))
 	
 	local rotator = 0
 	for x = 0, widthCalc do
@@ -1031,7 +1033,7 @@ function loadUIFont()
 end
 
 function drawGameOver()
-	drawText(love.graphics.getWidth()/4, love.graphics.getHeight()/2, "GAME OVER!", math.cos(love.timer.getTime()) * (20 * 0.0174533), love.graphics.getWidth()/16/8)
+	drawText(widthChecker/4, love.graphics.getHeight()/2, "GAME OVER!", math.cos(love.timer.getTime()) * (20 * 0.0174533), widthChecker/16/8)
 end
 
 function drawPauseMenu()
@@ -1049,7 +1051,7 @@ function drawSinglePlayer()
 	updateWindowSizeCheck()
 	updateBatches()
 	
-	local offsetX = (love.graphics.getWidth()/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
+	local offsetX = (widthChecker/blockDrawSize)/4 - gridXCount/3  	--Put X as middle left
     local offsetY = (love.graphics.getHeight()/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
 	--drawOceanBG()											--Draw Ocean	
@@ -1097,7 +1099,7 @@ function drawSinglePlayer()
 		drawGemDeliveryPause(player1, offsetX, offsetY)
 		drawJunkDeliveryPause(player1, offsetX, offsetY)
 		drawPlayerBlocks(player1, offsetX, offsetY + 1)
-		drawUINongridBox(love.graphics.getWidth()/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
+		drawUINongridBox(widthChecker/blockDrawSize/2, 3, love.graphics.getHeight()/blockDrawSize/2, 2)
 		
 		drawPauseMenu()
 
@@ -1116,8 +1118,8 @@ function updateDrawBlockSize()
 end
 
 function updateWindowSizeCheck()
-	if(oldWidth ~= love.graphics.getWidth() or oldHeight ~= love.graphics.getHeight()) then
-		oldWidth = love.graphics.getWidth() 
+	if(oldWidth ~= widthChecker or oldHeight ~= love.graphics.getHeight()) then
+		oldWidth = widthChecker 
 		oldHeight = love.graphics.getHeight()
 		windowChanged = true
 	else
@@ -1491,7 +1493,7 @@ function loadBGQuads()
 	uiSetImage = love.graphics.newImage( "assets/menusprites/orig/MenuUISprites.png" )
 	uiSetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
 
-	widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	widthCalc = (floor(widthChecker/16)+1)
 	heightCalc = (floor(love.graphics.getHeight()/16)+1)
 	
 	
@@ -1972,7 +1974,7 @@ function loadBirdQuads(blockSize)
 	tilesetImage = love.graphics.newImage( "assets/birds/birds2.png" )
 	tilesetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
 	
-	widthCalc = (floor(love.graphics.getWidth()/16)+1)
+	widthCalc = (floor(widthChecker/16)+1)
 	heightCalc = (floor(love.graphics.getHeight()/16)+1)
 	
 	
