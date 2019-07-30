@@ -30,6 +30,7 @@ minTimerSpeed = .2
 windowChanged = true
 isPaused = false
 gameOver = false
+hiSpeedMode = true
 
 --Main Menu functions
 
@@ -1056,7 +1057,9 @@ function drawSinglePlayer()
     local offsetY = (heightChecker/blockDrawSize)/2 - gridYCount/2	--Put Y as dead center
 	
 	--drawOceanBG()											--Draw Ocean	
-	drawOceanBGQuad()
+	if(not hiSpeedMode) then
+		drawOceanBGQuad()
+	end
 	--drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	
 	drawPlayfieldQuad(offsetX, offsetY)
