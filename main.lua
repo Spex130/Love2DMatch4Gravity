@@ -191,6 +191,8 @@ function loadSinglePlayer()
 	playfieldMap = {}
 	tilesetPlayfieldBatch = {}
 	
+	basicBG = love.graphics.newImage('assets/gamebackground.png')
+	
 	--Misc Sprites
 	shadowSprite = love.graphics.newImage('assets/shadow.png')
 	
@@ -1020,6 +1022,20 @@ function convertIDtoBatch(ID)
 	return coords
 end
 
+function drawBasicBG()
+	if(windowChanged) then
+		
+	end
+	
+	max = math.max
+
+	local checker = max(widthChecker, heightChecker)
+
+	local bgRatio = (basicBG:getWidth() / checker)
+	
+	love.graphics.draw(basicBG, 0, 0, 0, 1/bgRatio, 1/bgRatio)
+end
+
 function loadPauseMenu()
 		pauseFont = love.graphics.newFont((30) * blockDrawRatio)
 		love.graphics.setFont(pauseFont, 40, "normal")
@@ -1059,13 +1075,16 @@ function drawSinglePlayer()
 	--drawOceanBG()											--Draw Ocean	
 	if(not hiSpeedMode) then
 		drawOceanBGQuad()
+	else
+		drawBasicBG()
 	end
 	--drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
 	if(not hiSpeedMode) then
 		drawPlayfieldQuad(offsetX, offsetY)
 		drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
 	else
-		drawUIBox(0, offsetX, gridXCount + 1, 1, offsetY, gridYCount)
+		drawUIBox(0, offsetX, gridXCount + 1, 1, offsetY, gridYCount) --Playerfield Box
+		drawUIBox(playfieldExtrasXOffset, offsetX, 3, CharPlatLocY, offsetY, 2)
 	end
 	
 	
