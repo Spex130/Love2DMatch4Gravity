@@ -1061,9 +1061,13 @@ function drawSinglePlayer()
 		drawOceanBGQuad()
 	end
 	--drawPlayfieldBorder(offsetX, offsetY)					--Draw Field Border
+	if(not hiSpeedMode) then
+		drawPlayfieldQuad(offsetX, offsetY)
+		drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
+	else
+		drawUIBox(0, offsetX, gridXCount + 1, 1, offsetY, gridYCount)
+	end
 	
-	drawPlayfieldQuad(offsetX, offsetY)
-	drawCharacterPlatform(playfieldExtrasXOffset, offsetX, CharPlatLocY, offsetY)			--Draw Character Platform
 	
 	loadUIFont()
 	drawScoreUI(playfieldExtrasXOffset, offsetX, ScoreUILocY, offsetY)						--Draw Score Box
