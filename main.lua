@@ -32,6 +32,34 @@ isPaused = false
 gameOver = false
 hiSpeedMode = true
 
+--Sound variables
+
+	--Menu
+    sound_menuSuccess = love.audio.newSource("/assets/Sound/BlipActivate.wav", "static")
+    sound_menuMove = love.audio.newSource("/assets/Sound/BlipSound1.wav", "static")
+	
+	--Block and Dropping noises
+	sound_gameTimerDrop = love.audio.newSource("/assets/Sound/TimerDrop.wav", "static")
+	sound_gameHardDrop = love.audio.newSource("/assets/Sound/BurstSound.wav", "static")
+	sound_gameBlockLock = love.audio.newSource("/assets/Sound/ThudTinySound.wav", "static")
+	sound_gameInitialClear = love.audio.newSource("/assets/Sound/ThudSound.wav", "static")
+	sound_gameBlockSpin = love.audio.newSource("/assets/Sound/BlipSound2.wav", "static")
+	sound_gameBlockReset = love.audio.newSource("/assets/Sound/MysticAppearance.wav", "static")
+	sound_gameAddJunkBlock = love.audio.newSource("/assets/Sound/BlipSound2.wav", "static")
+	
+	--Clearing noises
+	
+	sound_clearBlue = love.audio.newSource("/assets/Sound/ClearBlue.wav", "static")
+	sound_clearGreen = love.audio.newSource("/assets/Sound/ClearGreen.wav", "static")
+	sound_clearPurple = love.audio.newSource("/assets/Sound/ClearPurple.wav", "static")
+	sound_clearYellow = love.audio.newSource("/assets/Sound/ClearYellow.wav", "static")
+	sound_clearJunk = love.audio.newSource("/assets/Sound/JunkBlockLoad.wav", "static")
+	
+	--State noises
+	
+	sound_gameOver = love.audio.newSource("/assets/Sound/GameOverBurst.wav", "static")
+
+
 --Main Menu functions
 
 local function start_game()
@@ -98,6 +126,7 @@ function love.update(dt)
 
 			if timer >= timerCalcu then
 				timer = timer - timerCalcu
+				sound_gameTimerDrop:play()
 				updatePlayer(player1)
 			end
 		elseif(isPaused == true) then
@@ -616,6 +645,16 @@ function addToGemDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
 		location = 0,
 	}
 	--table.insert(player.gemDeliveryArray, gem)
+	if(gemColor == colorBlue) then
+		sound_clearBlue:play()
+	elseif(gemColor == colorGreen) then 
+		sound_clearGreen:play()
+	elseif(gemColor == colorPurple) then
+		sound_clearPurple:play()
+	elseif(gemColor == colorYellow) then
+		sound_clearYellow:play()
+	end
+	
 	player.gemDeliveryArray[#player.gemDeliveryArray+1] = gem
 end
 
@@ -671,6 +710,7 @@ function addToJunkDeliveryArray(player, gemColor, gemXLoc, gemYLoc)
 		y = gemYLoc,
 		location = 0,
 	}
+	sound_clearJunk:play()
 	--table.insert(player.junkDeliveryArray, junk)
 	player.junkDeliveryArray[#player.junkDeliveryArray+1] = junk
 end
@@ -711,7 +751,7 @@ function addJunkToInertArray(inertArray, column, player)
 	inertArray[colOpenSpot][column] = 5
 	
 	addToJunkDeliveryArray(player, 5, column, colOpenSpot)
-	
+	sound_clearJunk:play()
 end
 
 function junkSpotStep(player)
@@ -1326,6 +1366,7 @@ function gravityStepLoop(player)
 		end	
 		shouldLoop = findBlocksToClear(inert, player)
 		if(shouldLoop == true) then
+			sound_gameInitialClear:play()
 			player.playState = playStates.gridFixStep
 		else
 			resetPlayerBlock(player)
@@ -1393,6 +1434,7 @@ function playerRotate(player)
 		player.rotation = rotations.right
 		
 	end
+	sound_gameBlockSpin:play()
 end
 
 function getPlayerLeft(player)
@@ -1445,6 +1487,9 @@ function resetPlayerBlock(player)
 	
 	if(inert[player.originPoint.y + 1][player.originPoint.x] ~= 0)then
 		gameOver = true;
+		sound_gameOver:play()
+	else
+		sound_gameBlockReset:play()
 	end
 	--[[
 	player1 = {
@@ -1821,6 +1866,8 @@ function loadMainMenu()
     mainmenu:addEntry("Start Game", start_game)
     mainmenu:addEntry("Options", options)
     mainmenu:addEntry("Quit Game", quit)
+	mainmenu:setSndSuccess(sound_menuSuccess)
+	mainmenu:setSndMove(sound_menuMove)
 
 end
 
