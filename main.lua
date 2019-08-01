@@ -59,11 +59,12 @@ hiSpeedMode = true
 	
 	sound_gameOver = love.audio.newSource("/assets/Sound/GameOverBurst.wav", "static")
 
-
+--Music
+	sound_VGM = {}
 --Main Menu functions
 
 local function start_game()
-    reset()
+	reset()
 	gameState = gameStates.SinglePlayer
 	loadSinglePlayer()
 end
@@ -103,7 +104,7 @@ function reset()
 	
 function love.load(arg)
 	--profilerLoad()
-
+	loadMusic()
 	math.randomseed(os.time())
 	loadSinglePlayer()
 	loadMainMenu()
@@ -166,6 +167,24 @@ end
 
 function profilerDraw()
 	love.graphics.print(love.report or "Please wait...")
+end
+
+--Music
+function loadMusic()
+	vg0 = love.audio.newSource("/assets/Music/BlockDrop_VGM0.ogg", "stream")
+	vg0:setLooping(true)
+	vg1 = love.audio.newSource("/assets/Music/BlockDrop_VGM1.ogg", "stream")
+	vg1:setLooping(true)
+	sound_VGM = {
+		vg0,
+		vg1,
+	}
+end
+
+function resetMusic()
+	love.audio.stop()
+	number = love.math.random( #sound_VGM )
+	sound_VGM[number]:play()
 end
 
 --Single Player Specific Functions
@@ -277,6 +296,7 @@ function loadSinglePlayer()
 	loadMiscTiles()
 	loadUIFont()
 	reset()
+	resetMusic()
 end
 
 function drawBlock(block, x, y)
