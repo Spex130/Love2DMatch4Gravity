@@ -696,6 +696,15 @@ function drawGemDelivery(player, offsetX, offsetY)
 				drawBlockResize(v.color, xLoc, yLoc, 1 -v.location)
 				v.location = v.location + .05
 			else
+				if(v.color == colorBlue) then
+					sound_clearBlue:play()
+				elseif(v.color == colorGreen) then 
+					sound_clearGreen:play()
+				elseif(v.color == colorPurple) then
+					sound_clearPurple:play()
+				elseif(v.color == colorYellow) then
+					sound_clearYellow:play()
+				end
 				table.remove(player.gemDeliveryArray, i)
 			end
 		end
@@ -1082,18 +1091,28 @@ function convertIDtoBatch(ID)
 	return coords
 end
 
+basicBGScroll = 0
+timerCalcu = 0
+ 
 function drawBasicBG()
-	if(windowChanged) then
-		
-	end
-	
+
+	basicBGScroll = basicBGScroll + timerCalcu
+	myWidth = basicBG:getWidth()
 	max = math.max
 
 	local checker = max(widthChecker, heightChecker)
 
-	local bgRatio = (basicBG:getWidth() / checker)
+	local bgRatio = (myWidth / checker)
+	if(basicBGScroll > myWidth/bgRatio) then
+		basicBGScroll = myWidth
+	end
 	
-	love.graphics.draw(basicBG, 0, 0, 0, 1/bgRatio, 1/bgRatio)
+	love.graphics.draw(basicBG, 0 - basicBGScroll, 0, 0, 1/bgRatio, 1/bgRatio)
+	love.graphics.draw(basicBG, 0 - basicBGScroll + myWidth/bgRatio, 0, 0, 1/bgRatio, 1/bgRatio)
+	
+	if(basicBGScroll == myWidth/bgRatio) then
+		basicBGScroll = 0
+	end
 end
 
 function loadPauseMenu()
@@ -1339,6 +1358,20 @@ function descendPlayerBlock(player)
 	end
 end
 
+function hardDropPlayerBlocks(player)
+				local y = player.location.y
+				local x2 = player.location.x + player.rotation.x
+				local y2 = player.location.y + player.rotation.y
+				
+				while (isSpotFilled(player.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
+					y = y + 1
+					y2 = y2 + 1
+					timer = 0
+				end
+					sound_gameHardDrop:play()
+					player.location.y = y
+end
+
 function findOpenSpotInColumn(column)
 	for y = 0, gridYCount-1 do
 		if(inert[y+1][column] ~= colorBlank) then
@@ -1416,7 +1449,7 @@ function gridFixStep(player)
 	-- Iterate through the Gravity Grid and draw everything
 	for i,v in ipairs(player.gravityGrid) do
 		distanceValue = distance (v.x, v.y,v.x, v.drawY) -- figure out how far we are from where we should be.
-		print("Distance Value: "..distanceValue)
+		--print("Distance Value: "..distanceValue)
 		if(distanceValue >.5) then
 			v.drawY = v.drawY - .5
 			allClear = false
@@ -2002,17 +2035,8 @@ elseif (isArcadeBuild == true) then
 				descendPlayerBlock(player1)
 			
 		elseif key == 'lalt' then
-
-				local y = player1.location.y
-				local x2 = player1.location.x + player1.rotation.x
-				local y2 = player1.location.y + player1.rotation.y
+				hardDropPlayerBlocks(player1)
 				
-				while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
-					y = y + 1
-					y2 = y2 + 1
-					timer = 0
-				end
-					player1.location.y = y
 		elseif(key == '1') then
 			loadPauseMenu()
 			isPaused = not isPaused
