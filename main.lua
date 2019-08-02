@@ -1091,27 +1091,38 @@ function convertIDtoBatch(ID)
 	return coords
 end
 
-basicBGScroll = 0
+basicBGScrollX = 0
+basicBGScrollY = 0
 timerCalcu = 0
  
 function drawBasicBG()
 
-	basicBGScroll = basicBGScroll + timerCalcu
+	basicBGScrollX = basicBGScrollX + timerCalcu
+	basicBGScrollY = basicBGScrollY + (timerCalcu + timerCalcu)
 	myWidth = basicBG:getWidth()
+	myHeight = basicBG:getHeight()
 	max = math.max
 
 	local checker = max(widthChecker, heightChecker)
 
 	local bgRatio = (myWidth / checker)
-	if(basicBGScroll > myWidth/bgRatio) then
-		basicBGScroll = myWidth
+	if(basicBGScrollX > myWidth/bgRatio) then
+		basicBGScrollX = myWidth/bgRatio
+	end
+	if(basicBGScrollY > myHeight/bgRatio) then
+		basicBGScrollY = myHeight/bgRatio
 	end
 	
-	love.graphics.draw(basicBG, 0 - basicBGScroll, 0, 0, 1/bgRatio, 1/bgRatio)
-	love.graphics.draw(basicBG, 0 - basicBGScroll + myWidth/bgRatio, 0, 0, 1/bgRatio, 1/bgRatio)
+	love.graphics.draw(basicBG, 0 - basicBGScrollX, 0 - basicBGScrollY, 0, 1/bgRatio, 1/bgRatio) --Original/Top Left
+	love.graphics.draw(basicBG, 0 - basicBGScrollX + myWidth/bgRatio, 0 - basicBGScrollY, 0, 1/bgRatio, 1/bgRatio) -- Top Right
+	love.graphics.draw(basicBG, 0 - basicBGScrollX + myWidth/bgRatio, 0 - basicBGScrollY +  myHeight/bgRatio, 0, 1/bgRatio, 1/bgRatio) -- Bottom Right
+	love.graphics.draw(basicBG, 0 - basicBGScrollX, 0 - basicBGScrollY +  myHeight/bgRatio, 0, 1/bgRatio, 1/bgRatio) -- Bottom Left
 	
-	if(basicBGScroll == myWidth/bgRatio) then
-		basicBGScroll = 0
+	if(basicBGScrollX == myWidth/bgRatio) then
+		basicBGScrollX = 0
+	end
+	if(basicBGScrollY == myHeight/bgRatio) then
+		basicBGScrollY = 0
 	end
 end
 
