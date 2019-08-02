@@ -4,7 +4,7 @@ local animator = require 'animator'
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
 gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
-gameState = gameStates.SinglePlayer
+gameState = gameStates.MainMenu
 local mainmenu
 local pausemenu
 
@@ -67,11 +67,13 @@ local function start_game()
 	reset()
 	gameState = gameStates.SinglePlayer
 	loadSinglePlayer()
+	resetMusic()
 end
 
 --Pause Menu Functions
 
 local function quit_to_menu()
+	love.audio.stop()
 	gameState = gameStates.MainMenu
 	isPaused = false
 end
@@ -296,7 +298,7 @@ function loadSinglePlayer()
 	loadMiscTiles()
 	loadUIFont()
 	reset()
-	resetMusic()
+	
 end
 
 function drawBlock(block, x, y)
@@ -1932,11 +1934,16 @@ function loadMainMenu()
     mainmenu:addEntry("Quit Game", quit)
 	mainmenu:setSndSuccess(sound_menuSuccess)
 	mainmenu:setSndMove(sound_menuMove)
+	mainmenu:mouseDisable()
 
 end
 
 function drawMenu(dt)
-	love.graphics.draw(bg_image, bg_quad, 0, 0)
+
+	local checker = math.max(love.graphics.getWidth(), love.graphics.getHeight())
+	local bgRatio = (bg_image:getWidth() / checker)
+
+	love.graphics.draw(bg_image, 0, 0, 0, 1/bgRatio, 1/bgRatio)
 	love.graphics.draw(logo, 50, 60 + math.cos(dt*.05) * 15)
 	mainmenu:draw()
 end
@@ -1949,133 +1956,142 @@ end
 
 function love.keypressed(key)
 	
-	
-if(isArcadeBuild == false) then	
-	if(isPaused == false) then
-	if key == 'x' then
-			if(canPlayerRotate(player1)) then
-				playerRotate(player1)
-			end
-		
-	elseif key == 'left' then
-			if (
-			isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
-			and
-			isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
-			) then
-				player1.location.x = player1.location.x-1
-			end
+	if( gameState ~= gameStates.MainMenu) then
+		if(isArcadeBuild == false) then	
+			if(isPaused == false) then
+			if key == 'x' then
+					if(canPlayerRotate(player1)) then
+						playerRotate(player1)
+					end
+				
+			elseif key == 'left' then
+					if (
+					isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
+					and
+					isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
+					) then
+						player1.location.x = player1.location.x-1
+					end
 
-	elseif key == 'right' then
-			if (
-			isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
-			and
-			isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
-			) then
-				player1.location.x = player1.location.x+1
-			end
-		
-	elseif key == 'down' then
-			descendPlayerBlock(player1)
-		
-	elseif key == 'c' then
+			elseif key == 'right' then
+					if (
+					isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
+					and
+					isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
+					) then
+						player1.location.x = player1.location.x+1
+					end
+				
+			elseif key == 'down' then
+					descendPlayerBlock(player1)
+				
+			elseif key == 'c' then
 
-			local y = player1.location.y
-			local x2 = player1.location.x + player1.rotation.x
-			local y2 = player1.location.y + player1.rotation.y
+					local y = player1.location.y
+					local x2 = player1.location.x + player1.rotation.x
+					local y2 = player1.location.y + player1.rotation.y
+					
+					while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
+						y = y + 1
+						y2 = y2 + 1
+						timer = 0
+					end
+						player1.location.y = y
+			elseif(key == 'return') then
+				loadPauseMenu()
+				isPaused = not isPaused
+				
+			end
+				
+			elseif(gameOver == true) then
+				if(key == 'return' or key == 'c' or key == 'x') then
+					quit_to_menu()
+				end
+
 			
-			while (isSpotFilled(player1.location.x, y + 1, pieceRotation) == false and isSpotFilled(x2, y2 + 1, pieceRotation) == false) do
-				y = y + 1
-				y2 = y2 + 1
-				timer = 0
+			elseif(isPaused == true) then
+				if key == 'down' then
+					pausemenu:moveCursor(-1)
+				elseif key == 'up' then
+					pausemenu:moveCursor(1)		
+				elseif key == 'return' then
+					pausemenu:accept()
+					--isPaused = not isPaused
+				end
 			end
-				player1.location.y = y
-	elseif(key == 'return') then
-		loadPauseMenu()
-		isPaused = not isPaused
-		
-	end
-		
-	elseif(gameOver == true) then
-		if(key == 'return' or key == 'c' or key == 'x') then
-			quit_to_menu()
-		end
+			
+			if(key == 'escape') then
+				quit()
+			end
 
-	
-	elseif(isPaused == true) then
+		elseif (isArcadeBuild == true) then
+			if(isPaused == false) then
+				if key == 'lctrl' then
+						if(canPlayerRotate(player1)) then
+							playerRotate(player1)
+						end
+					
+				elseif key == 'left' then
+						if (
+						isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
+						and
+						isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
+						) then
+							player1.location.x = player1.location.x-1
+						end
+
+				elseif key == 'right' then
+						if (
+						isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
+						and
+						isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
+						) then
+							player1.location.x = player1.location.x+1
+						end
+					
+				elseif key == 'down' then
+						descendPlayerBlock(player1)
+					
+				elseif key == 'lalt' then
+						hardDropPlayerBlocks(player1)
+						
+				elseif(key == '1') then
+					loadPauseMenu()
+					isPaused = not isPaused
+					
+				end
+					
+				elseif(gameOver == true) then
+					if(key == '1' or key == 'lctrl' or key == 'lalt') then
+						quit_to_menu()
+					end
+
+				
+				elseif(isPaused == true) then
+					if key == 'down' then
+						pausemenu:moveCursor(-1)
+					elseif key == 'up' then
+						pausemenu:moveCursor(1)		
+					elseif key == '1' then
+						pausemenu:accept()
+						--isPaused = not isPaused
+					end
+				end
+				
+				if(key == 'escape') then
+					quit()
+				end
+			end
+	else
 		if key == 'down' then
-			pausemenu:moveCursor(-1)
+			mainmenu:moveCursor(1)
 		elseif key == 'up' then
-			pausemenu:moveCursor(1)		
-		elseif key == 'return' then
-			pausemenu:accept()
+			mainmenu:moveCursor(-1)		
+		elseif key == 'return' or key =='1' or key =='lctrl' or key == 'lalt' then
+			mainmenu:accept()
 			--isPaused = not isPaused
 		end
 	end
-	
-	if(key == 'escape') then
-		quit()
-	end
-
-elseif (isArcadeBuild == true) then
-	if(isPaused == false) then
-		if key == 'lctrl' then
-				if(canPlayerRotate(player1)) then
-					playerRotate(player1)
-				end
-			
-		elseif key == 'left' then
-				if (
-				isSpotFilled(getPlayerLeft(player1), player1.location.y, pieceRotation) == false
-				and
-				isSpotFilled(player1.location.x + player1.rotation.x -1, player1.location.y + player1.rotation.y, pieceRotation) == false
-				) then
-					player1.location.x = player1.location.x-1
-				end
-
-		elseif key == 'right' then
-				if (
-				isSpotFilled(getPlayerRight(player1), player1.location.y, pieceRotation) == false
-				and
-				isSpotFilled(player1.location.x + player1.rotation.x +1, player1.location.y + player1.rotation.y, pieceRotation) == false
-				) then
-					player1.location.x = player1.location.x+1
-				end
-			
-		elseif key == 'down' then
-				descendPlayerBlock(player1)
-			
-		elseif key == 'lalt' then
-				hardDropPlayerBlocks(player1)
-				
-		elseif(key == '1') then
-			loadPauseMenu()
-			isPaused = not isPaused
-			
-		end
-			
-		elseif(gameOver == true) then
-			if(key == '1' or key == 'lctrl' or key == 'lalt') then
-				quit_to_menu()
-			end
-
-		
-		elseif(isPaused == true) then
-			if key == 'down' then
-				pausemenu:moveCursor(-1)
-			elseif key == 'up' then
-				pausemenu:moveCursor(1)		
-			elseif key == '1' then
-				pausemenu:accept()
-				--isPaused = not isPaused
-			end
-		end
-		
-		if(key == '2') then
-			quit()
-		end
-	end
-
 end
 
 --Math functions
