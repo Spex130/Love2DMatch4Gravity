@@ -1937,7 +1937,7 @@ function loadMainMenu()
 
     mainmenu = menuengine.new(50,400)
     mainmenu:addEntry("Start Game", start_game)
-    mainmenu:addEntry("Options", view_instructions)
+    mainmenu:addEntry("Instructions", view_instructions)
     mainmenu:addEntry("Quit Game", quit)
 	mainmenu:setSndSuccess(sound_menuSuccess)
 	mainmenu:setSndMove(sound_menuMove)
@@ -1956,6 +1956,12 @@ function drawMenu(dt)
 end
 
 function drawInstructions(dt)
+	
+	drawUINongridBox(1, math.max(3, math.floor(love.graphics.getWidth()/blockDrawSize) - 1), 1, math.max(5, math.floor(love.graphics.getHeight()/blockDrawSize) - 1))
+	
+	love.graphics.print("INSTRUCTIONS", love.graphics.getWidth()/2, love.graphics.getHeight()/6, 0, 1, 1)
+	love.graphics.print("JUNK BLOCKS", love.graphics.getWidth()/2, (love.graphics.getHeight()/6)*3, 0, 1, 1)
+	love.graphics.print("DON'T FILL UP!", love.graphics.getWidth()/2, (love.graphics.getHeight()/6)*5, 0, 1, 1)
 
 end
 --Input Functions
