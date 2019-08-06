@@ -3,7 +3,7 @@ local animator = require 'animator'
 --menuengine.settings.sndMove = love.audio.newSource("pick.wav", "static")
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
-gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3}
+gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3, Instructions = 4}
 gameState = gameStates.MainMenu
 local mainmenu
 local pausemenu
@@ -68,6 +68,10 @@ local function start_game()
 	gameState = gameStates.SinglePlayer
 	loadSinglePlayer()
 	resetMusic()
+end
+
+local function view_instructions()
+	gameState = gameStates.Instructions
 end
 
 --Pause Menu Functions
@@ -146,6 +150,9 @@ function love.draw(dt)
 		menuTimer = menuTimer+1
 	elseif gameState == gameStates.SinglePlayer then
 		drawSinglePlayer()
+	elseif gameState == gameStates.Instructions then
+		drawInstructions(menuTimer)
+		menuTimer = menuTimer+1
 	end
 	
 	--profilerDraw()
@@ -1930,7 +1937,7 @@ function loadMainMenu()
 
     mainmenu = menuengine.new(50,400)
     mainmenu:addEntry("Start Game", start_game)
-    mainmenu:addEntry("Options", options)
+    mainmenu:addEntry("Options", view_instructions)
     mainmenu:addEntry("Quit Game", quit)
 	mainmenu:setSndSuccess(sound_menuSuccess)
 	mainmenu:setSndMove(sound_menuMove)
@@ -1948,6 +1955,9 @@ function drawMenu(dt)
 	mainmenu:draw()
 end
 
+function drawInstructions(dt)
+
+end
 --Input Functions
 
 function love.mousemoved(x, y, dx, dy, istouch)
