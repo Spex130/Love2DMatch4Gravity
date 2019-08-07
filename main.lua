@@ -1925,6 +1925,10 @@ function loadMainMenu()
     " abcdefghijklmnopqrstuvwxyz" ..
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
     "123456789.,!?-+/():;%&`'*#=[]\"")
+	smallfont = love.graphics.newImageFont("assets/imagefont17.png",
+    " abcdefghijklmnopqrstuvwxyz" ..
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+    "123456789.,!?-+/():;%&`'*#=[]\"")
 
 	love.graphics.setFont(font, 40, "normal")
 	bg_image = love.graphics.newImage('assets/menubackground.png')
@@ -1959,10 +1963,20 @@ function drawInstructions(dt)
 	
 	drawUINongridBox(1, math.max(3, math.floor(love.graphics.getWidth()/blockDrawSize) - 1), 1, math.max(5, math.floor(love.graphics.getHeight()/blockDrawSize) - 1))
 	
-	love.graphics.print("INSTRUCTIONS", love.graphics.getWidth()/2, love.graphics.getHeight()/6, 0, 1, 1)
-	love.graphics.print("JUNK BLOCKS", love.graphics.getWidth()/2, (love.graphics.getHeight()/6)*3, 0, 1, 1)
-	love.graphics.print("DON'T FILL UP!", love.graphics.getWidth()/2, (love.graphics.getHeight()/6)*5, 0, 1, 1)
+	love.graphics.setColor(255,255,255,255)
 
+	love.graphics.setFont(smallfont, 40, "normal")
+	love.graphics.printf("Clear Blocks by matching colors. Match 4 and they'll clear!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *2, love.graphics.getWidth()/2,"center")
+	love.graphics.printf("Blocks with nothing under them fall! Use this and make combos!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *3, love.graphics.getWidth()/2,"center")
+	
+	love.graphics.printf("Junk blocks will show up over time.", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *6, love.graphics.getWidth()/2,"center")
+	love.graphics.printf("Clear blocks next to them to clear them out!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *7, love.graphics.getWidth()/2,"center")
+	love.graphics.printf("Don't let the blocks reach the top, or GAME OVER!!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) * 10, love.graphics.getWidth()/2,"center")
+	
+	love.graphics.setFont(font, 40, "normal")
+	love.graphics.printf("INSTRUCTIONS.", 0, (love.graphics.getHeight()/12) * 1, love.graphics.getWidth(),"center")
+	love.graphics.printf("JUNK BLOCKS!?", 0, (love.graphics.getHeight()/12) *5, love.graphics.getWidth(),"center")
+	love.graphics.printf("DON'T FILL UP!", 0, (love.graphics.getHeight()/12) *9, love.graphics.getWidth(),"center")
 end
 --Input Functions
 
