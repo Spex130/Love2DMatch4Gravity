@@ -1974,14 +1974,14 @@ function drawInstructions(dt)
 	love.graphics.printf("Clear blocks next to them to clear them out!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *7, love.graphics.getWidth()/2,"center")
 	love.graphics.draw(blocksPGBY[5], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *8,0, .5, .5)
 
-	love.graphics.printf("Don't let the blocks reach the top, or GAME OVER!!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) * 10, love.graphics.getWidth()/2,"center")
+	love.graphics.printf("Move: Arrows / Spin: L-CTRL / Drop: L-ALT", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) * 10, love.graphics.getWidth()/2,"center")
 	love.graphics.draw(blocksPGBY[3], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *11,0, .5, .5)
 
 	
 	love.graphics.setFont(font, 40, "normal")
 	love.graphics.printf("INSTRUCTIONS.", 0, (love.graphics.getHeight()/12) * 1, love.graphics.getWidth(),"center")
 	love.graphics.printf("JUNK BLOCKS!?", 0, (love.graphics.getHeight()/12) *5, love.graphics.getWidth(),"center")
-	love.graphics.printf("DON'T FILL UP!", 0, (love.graphics.getHeight()/12) *9, love.graphics.getWidth(),"center")
+	love.graphics.printf("Controls!", 0, (love.graphics.getHeight()/12) *9, love.graphics.getWidth(),"center")
 end
 --Input Functions
 
@@ -1991,7 +1991,7 @@ end
 
 function love.keypressed(key)
 	
-	if( gameState ~= gameStates.MainMenu) then
+	if( gameState == gameStates.SinglePlayer) then
 		if(isArcadeBuild == false) then	
 			if(isPaused == false) then
 			if key == 'x' then
@@ -2117,7 +2117,7 @@ function love.keypressed(key)
 					quit()
 				end
 			end
-	else
+	elseif(gameState == gameStates.MainMenu) then
 		if key == 'down' then
 			mainmenu:moveCursor(1)
 		elseif key == 'up' then
@@ -2125,6 +2125,10 @@ function love.keypressed(key)
 		elseif key == 'return' or key =='1' or key =='lctrl' or key == 'lalt' then
 			mainmenu:accept()
 			--isPaused = not isPaused
+		end
+	elseif(gameState == gameStates.Instructions) then
+		if key == 'return' or key =='1' or key =='lctrl' or key =='lalt' or  key == 'x' or key == 'c' then
+			quit_to_menu()
 		end
 	end
 end
