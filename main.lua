@@ -2097,7 +2097,7 @@ function love.keypressed(key)
 				end
 					
 				elseif(gameOver == true) then
-					if(key == '1' or key == 'lctrl' or key == 'lalt') then
+					if(key == '1' or key == 'lctrl' or key == 'lalt' or key =='return') then
 						quit_to_menu()
 					end
 
