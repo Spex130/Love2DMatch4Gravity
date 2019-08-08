@@ -1968,10 +1968,15 @@ function drawInstructions(dt)
 	love.graphics.setFont(smallfont, 40, "normal")
 	love.graphics.printf("Clear Blocks by matching colors. Match 4 and they'll clear!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *2, love.graphics.getWidth()/2,"center")
 	love.graphics.printf("Blocks with nothing under them fall! Use this and make combos!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *3, love.graphics.getWidth()/2,"center")
+	love.graphics.draw(blocksPGBY[1], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *4 + blockDrawSize/4,0, .5, .5)
 	
 	love.graphics.printf("Junk blocks will show up over time.", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *6, love.graphics.getWidth()/2,"center")
 	love.graphics.printf("Clear blocks next to them to clear them out!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *7, love.graphics.getWidth()/2,"center")
+	love.graphics.draw(blocksPGBY[5], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *8,0, .5, .5)
+
 	love.graphics.printf("Don't let the blocks reach the top, or GAME OVER!!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) * 10, love.graphics.getWidth()/2,"center")
+	love.graphics.draw(blocksPGBY[3], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *11,0, .5, .5)
+
 	
 	love.graphics.setFont(font, 40, "normal")
 	love.graphics.printf("INSTRUCTIONS.", 0, (love.graphics.getHeight()/12) * 1, love.graphics.getWidth(),"center")
