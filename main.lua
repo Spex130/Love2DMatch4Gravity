@@ -68,6 +68,7 @@ local function start_game()
 	gameState = gameStates.SinglePlayer
 	loadSinglePlayer()
 	resetMusic()
+	initializeDrawBlockSize()
 end
 
 local function view_instructions()
@@ -1234,6 +1235,13 @@ function drawSinglePlayer()
 
 end
 
+function initializeDrawBlockSize()
+		blockDrawSize = math.floor(math.min(love.graphics.getWidth(), love.graphics.getHeight())/16)
+		blockDrawRatio = blockDrawSize/blockSize
+		widthChecker = love.graphics.getWidth() 
+		heightChecker = love.graphics.getHeight()
+end
+
 function updateDrawBlockSize()
 	if(widthChecker ~= love.graphics.getWidth() or heightChecker ~= love.graphics.getHeight()) then
 		blockDrawSize = math.floor(math.min(love.graphics.getWidth(), love.graphics.getHeight())/16)
@@ -1939,7 +1947,7 @@ function loadMainMenu()
 
 	logo = love.graphics.newImage('assets/Logo.png')
 
-    mainmenu = menuengine.new(50,400)
+    mainmenu = menuengine.new(love.graphics.getWidth()/2 - logo:getWidth()/2,400)
     mainmenu:addEntry("Start Game", start_game)
     mainmenu:addEntry("Instructions", view_instructions)
     mainmenu:addEntry("Quit Game", quit)
@@ -1951,11 +1959,12 @@ end
 
 function drawMenu(dt)
 
+
 	local checker = math.max(love.graphics.getWidth(), love.graphics.getHeight())
 	local bgRatio = (bg_image:getWidth() / checker)
 
 	love.graphics.draw(bg_image, 0, 0, 0, 1/bgRatio, 1/bgRatio)
-	love.graphics.draw(logo, 50, 60 + math.cos(dt*.05) * 15)
+	love.graphics.draw(logo, love.graphics.getWidth()/2 - logo:getWidth()/2, 60 + math.cos(dt*.05) * 15)
 	mainmenu:draw()
 end
 
