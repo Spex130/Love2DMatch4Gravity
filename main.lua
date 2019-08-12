@@ -1978,13 +1978,15 @@ end
 
 function drawInstructions(dt)
 	
-	drawUINongridBox(1, math.max(3, math.floor(love.graphics.getWidth()/blockDrawSize) - 1), 1, math.max(5, math.floor(love.graphics.getHeight()/blockDrawSize) - 1))
+	local getWidth = love.graphics.getWidth()
+	local getHeight = love.graphics.getHeight()
+	drawUINongridBox(1, math.max(3, math.floor(getWidth/blockDrawSize) - 1), 1, math.max(5, math.floor(getHeight/blockDrawSize) - 1))
 	
 	love.graphics.setColor(255,255,255,255)
 	
 	--Push on the new scale. We'll pop it off later.
 	
-	if(love.graphics.getWidth() > 800) then
+	if(getWidth > 800) then
 		love.graphics.setFont(medfont, 40, "normal")
 	else
 		love.graphics.setFont(smallfont, 40, "normal")
@@ -1994,32 +1996,32 @@ function drawInstructions(dt)
 	
 	
 	--Draw Subsections
-	love.graphics.printf("Clear Blocks by matching colors. Match 4 and they'll clear!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *2, love.graphics.getWidth()/2,"center")
-	love.graphics.printf("Blocks with nothing under them fall! Use this and make combos!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *3, love.graphics.getWidth()/2,"center")
-	love.graphics.draw(blocksPGBY[1], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *4 + blockDrawSize/4,0, .5, .5)
+	love.graphics.printf("Clear Blocks by matching colors. Match 4 and they'll clear!", 0 + getWidth/4, (getHeight/12) *2, getWidth/2,"center")
+	love.graphics.printf("Blocks with nothing under them fall! Use this and make combos!", 0 + getWidth/4, (getHeight/12) *3, getWidth/2,"center")
+	love.graphics.draw(blocksPGBY[1], getWidth/2 - blockDrawSize/2,(getHeight/12) *4 + blockDrawSize/4,0, .5, .5)
 	
-	love.graphics.printf("Junk blocks will show up over time.", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *6, love.graphics.getWidth()/2,"center")
-	love.graphics.printf("Clear blocks next to them to clear them out!", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) *7, love.graphics.getWidth()/2,"center")
+	love.graphics.printf("Junk blocks will show up over time.", 0 + getWidth/4, (getHeight/12) *6, getWidth/2,"center")
+	love.graphics.printf("Clear blocks next to them to clear them out!", 0 + getWidth/4, (getHeight/12) *7, getWidth/2,"center")
 	
 
-	love.graphics.printf("Move: Arrows / Spin: L-CTRL / Drop: L-ALT", 0 + love.graphics.getWidth()/4, (love.graphics.getHeight()/12) * 10, love.graphics.getWidth()/2,"center")
+	love.graphics.printf("Move: Arrows / Spin: L-CTRL / Drop: L-ALT", 0 + getWidth/4, (getHeight/12) * 10, getWidth/2,"center")
 	
 	--Pop off early to see debug results
 
-	if(love.graphics.getWidth() > 2200) then
+	if(getWidth > 2200) then
 		love.graphics.setFont(largefont, 40, "normal")
 	else
 		love.graphics.setFont(font, 40, "normal")
 	end
 	
 	--Draw Jewels
-	love.graphics.draw(blocksPGBY[5], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *8,0, .5, .5)
-	love.graphics.draw(blocksPGBY[3], love.graphics.getWidth()/2 - blockDrawSize/2,(love.graphics.getHeight()/12) *11,0, .5, .5)
+	love.graphics.draw(blocksPGBY[5], getWidth/2 - blockDrawSize/2,(getHeight/12) *8,0, .5, .5)
+	love.graphics.draw(blocksPGBY[3], getWidth/2 - blockDrawSize/2,(getHeight/12) *11,0, .5, .5)
 
 	--Draw Titles
-	love.graphics.printf("INSTRUCTIONS.", 0, (love.graphics.getHeight()/12) * 1, love.graphics.getWidth(),"center")
-	love.graphics.printf("JUNK BLOCKS!?", 0, (love.graphics.getHeight()/12) *5, love.graphics.getWidth(),"center")
-	love.graphics.printf("Controls!", 0, (love.graphics.getHeight()/12) *9, love.graphics.getWidth(),"center")
+	love.graphics.printf("INSTRUCTIONS.", 0, (getHeight/12) * 1, getWidth,"center")
+	love.graphics.printf("JUNK BLOCKS!?", 0, (getHeight/12) *5, getWidth,"center")
+	love.graphics.printf("Controls!", 0, (getHeight/12) *9, getWidth,"center")
 end
 --Input Functions
 
