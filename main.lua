@@ -18,11 +18,11 @@ font = love.graphics.newImageFont("assets/imagefont51.png",
     "123456789.,!?-+/():;%&`'*#=[]\"")
 pauseFont = love.graphics.newFont((30) * 64/30)
 
+widthChecker = love.graphics.getWidth()
+heightChecker = love.graphics.getHeight()
 blockSize = 64
 blockDrawSize = 30
 blockDrawRatio = blockSize/30
-widthChecker = love.graphics.getWidth()
-heightChecker = love.graphics.getHeight()
 
 maxSpeedScore = 3000
 minTimerSpeed = .2
@@ -222,7 +222,11 @@ function loadSinglePlayer()
 	--Block Attributes
 
 	blockSize = 64
-	blockDrawSize = 30
+	if(widthChecker > 2200) then
+		blockDrawSize = 30
+	else
+		blockDrawSize = 64
+	end
 	blockDrawRatio = blockDrawSize/blockSize
 	blocksPGBY = {}
 	colorBlank = 0
