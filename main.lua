@@ -223,9 +223,9 @@ function loadSinglePlayer()
 
 	blockSize = 64
 	if(widthChecker > 2200) then
-		blockDrawSize = 30
-	else
 		blockDrawSize = 64
+	else
+		blockDrawSize = 30
 	end
 	blockDrawRatio = blockDrawSize/blockSize
 	blocksPGBY = {}
