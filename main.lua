@@ -1,9 +1,10 @@
 local menuengine = require "menuengine"
 local animator = require 'animator'
+local sick = require 'sick'
 --menuengine.settings.sndMove = love.audio.newSource("pick.wav", "static")
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
-gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3, Instructions = 4}
+gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3, Instructions = 4, HighScore  = 5}
 gameState = gameStates.MainMenu
 local mainmenu
 local pausemenu
@@ -73,6 +74,10 @@ end
 
 local function view_instructions()
 	gameState = gameStates.Instructions
+end
+
+local function view_highscore()
+	gameState = gameStates.HighScore
 end
 
 --Pause Menu Functions
@@ -153,6 +158,9 @@ function love.draw(dt)
 		drawSinglePlayer()
 	elseif gameState == gameStates.Instructions then
 		drawInstructions(menuTimer)
+		menuTimer = menuTimer+1
+	elseif gameState == gameStates.HighScore then
+		drawHighScores(menuTimer)
 		menuTimer = menuTimer+1
 	end
 	
@@ -1959,9 +1967,10 @@ function loadMainMenu()
 
 	logo = love.graphics.newImage('assets/Logo.png')
 
-    mainmenu = menuengine.new(love.graphics.getWidth()/2 - logo:getWidth()/2,400)
+    mainmenu = menuengine.new(love.graphics.getWidth()/2 - logo:getWidth()/2,350)
     mainmenu:addEntry("Start Game", start_game)
     mainmenu:addEntry("Instructions", view_instructions)
+	mainmenu:addEntry("High Scores", view_highscore)
     mainmenu:addEntry("Quit Game", quit)
 	mainmenu:setSndSuccess(sound_menuSuccess)
 	mainmenu:setSndMove(sound_menuMove)
@@ -2027,6 +2036,55 @@ function drawInstructions(dt)
 	love.graphics.printf("JUNK BLOCKS!?", 0, (getHeight/12) *5, getWidth,"center")
 	love.graphics.printf("Controls!", 0, (getHeight/12) *9, getWidth,"center")
 end
+
+function drawHighScores(dt)
+	
+	local getWidth = love.graphics.getWidth()
+	local getHeight = love.graphics.getHeight()
+	drawUINongridBox(1, math.max(3, math.floor(getWidth/blockDrawSize) - 1), 1, math.max(5, math.floor(getHeight/blockDrawSize) - 1))
+	
+	love.graphics.setColor(255,255,255,255)
+	
+	--Push on the new scale. We'll pop it off later.
+	
+	if(getWidth > 800) then
+		love.graphics.setFont(medfont, 40, "normal")
+	else
+		love.graphics.setFont(smallfont, 40, "normal")
+	end
+	love.graphics.scale(setScale, setScale)
+	
+	
+	
+	--Draw Subsections
+	--love.graphics.printf("Clear Blocks by matching colors. Match 4 and they'll clear!", 0 + getWidth/4, (getHeight/12) *2, getWidth/2,"center")
+	--love.graphics.printf("Blocks with nothing under them fall! Use this and make combos!", 0 + getWidth/4, (getHeight/12) *3, getWidth/2,"center")
+	--love.graphics.draw(blocksPGBY[1], getWidth/2 - blockDrawSize/2,(getHeight/12) *4 + blockDrawSize/4,0, .5, .5)
+	
+	--love.graphics.printf("Junk blocks will show up over time.", 0 + getWidth/4, (getHeight/12) *6, getWidth/2,"center")
+	--love.graphics.printf("Clear blocks next to them to clear them out!", 0 + getWidth/4, (getHeight/12) *7, getWidth/2,"center")
+	
+
+	--love.graphics.printf("Move: Arrows / Spin: L-CTRL / Drop: L-ALT", 0 + getWidth/4, (getHeight/12) * 10, getWidth/2,"center")
+	
+	--Pop off early to see debug results
+
+	if(getWidth > 2200) then
+		love.graphics.setFont(largefont, 40, "normal")
+	else
+		love.graphics.setFont(font, 40, "normal")
+	end
+	
+	--Draw Jewels
+	--love.graphics.draw(blocksPGBY[5], getWidth/2 - blockDrawSize/2,(getHeight/12) *8,0, .5, .5)
+	--love.graphics.draw(blocksPGBY[3], getWidth/2 - blockDrawSize/2,(getHeight/12) *11,0, .5, .5)
+
+	--Draw Titles
+	love.graphics.printf("HIGH SCORES", 0, (getHeight/12) * 1, getWidth,"center")
+	--love.graphics.printf("JUNK BLOCKS!?", 0, (getHeight/12) *5, getWidth,"center")
+	--love.graphics.printf("Controls!", 0, (getHeight/12) *9, getWidth,"center")
+end
+
 --Input Functions
 
 function love.mousemoved(x, y, dx, dy, istouch)
@@ -2141,7 +2199,7 @@ function love.keypressed(key)
 				end
 					
 				elseif(gameOver == true) then
-					if(key == '1' or key == 'lctrl' or key == 'lalt' or key =='return') then
+					if(key == '1' or key == 'lctrl' or key == 'lalt' or key =='return' or key == 'lshift' or key == 'space' or key == 'z' or key == 'x' or key == 'v') then
 						quit_to_menu()
 					end
 
@@ -2171,6 +2229,10 @@ function love.keypressed(key)
 			--isPaused = not isPaused
 		end
 	elseif(gameState == gameStates.Instructions) then
+		if key == 'return' or key =='1' or key =='lctrl' or key =='lalt' or  key == 'x' or key == 'c' then
+			quit_to_menu()
+		end
+	elseif(gameState == gameStates.HighScore) then
 		if key == 'return' or key =='1' or key =='lctrl' or key =='lalt' or  key == 'x' or key == 'c' then
 			quit_to_menu()
 		end
