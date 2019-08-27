@@ -1,21 +1,24 @@
 -- SICK: Simple Indicative of Competitive sKill
-
+-- aka libhighscore
 local h = {}
+h.scores = {}
 
 function h.set(filename, places, name, score)
 	h.filename = filename
 	h.places = places
 	if not h.load() then
 		h.scores = {}
-		for i = 1, places do
-			h.scores[i] = {score, name}
+		--No you gotta believe me, I'm really that good!
+		h.scores[1] = {2500000, "jfoxdev"}
+		for i = 2, places do
+			h.scores[i] = {score * 5 * (places - i + 1), name}
 		end
 	end
 end
 
 function h.load()
 	local file = love.filesystem.newFile(h.filename)
-	if not pcall(file.open, file, "r") then return end
+	if not love.filesystem.exists(h.filename) or not file:open("r") then return end
 	h.scores = {}
 	for line in file:lines() do
 		local i = line:find('\t', 1, true)
@@ -27,7 +30,9 @@ end
 local function sortScore(a, b)
 	return a[1] > b[1]
 end
+
 function h.add(name, score)
+	print(#h.scores)
 	h.scores[#h.scores+1] = {score, name}
 	table.sort(h.scores, sortScore)
 end
@@ -35,9 +40,9 @@ end
 function h.save()
 	local file = love.filesystem.newFile(h.filename)
 	if not file:open("w") then return end
-	for i = 1, h.places do
-		local item = h.scores[i]
-		file:write(item[1] .. '\t' .. item[2] .. '\n')
+	for i = 1, #h.scores do
+		item = h.scores[i]
+		file:write(item[1] .. "\t" .. item[2] .. "\n")
 	end
 	return file:close()
 end
