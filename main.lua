@@ -131,7 +131,7 @@ function reset()
 	
 function love.load(arg)
 	--profilerLoad()
-	highscore.set("/scores.txt", 10, "Empty", 0)
+	highscore.set("/scores", 10, "Empty", 0)
 	highscore.load()
 	loadMusic()
 	math.randomseed(os.time())
