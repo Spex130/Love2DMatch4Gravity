@@ -5,7 +5,7 @@ local sick = require 'sick'
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
 gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3, Instructions = 4, HighScore  = 5, ScoreEntry = 6}
-gameState = gameStates.ScoreEntry
+gameState = gameStates.MainMenu
 local mainmenu
 local pausemenu
 
@@ -32,6 +32,14 @@ windowChanged = true
 isPaused = false
 gameOver = false
 hiSpeedMode = true
+
+--Name Entry Variables
+alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', ' '}
+nameChar1 = 1
+nameChar2 = 27
+nameChar3 = 27
+scoreEntryID = 1 --Which NameChar we are currently editing.
+scoreCursor = love.graphics.newImage('assets/cursorWhite.png')
 
 --Sound variables
 
@@ -77,7 +85,10 @@ local function view_instructions()
 end
 
 local function enter_score()
-	gameState = gameStates.ScoreEntry()
+	nameChar1 = 1
+	nameChar2 = 27
+	nameChar3 = 27
+	gameState = gameStates.ScoreEntry
 end
 
 local function view_highscore()
@@ -120,7 +131,8 @@ function reset()
 	
 function love.load(arg)
 	--profilerLoad()
-	highscore.set("scores", 10, "Empty", 0)
+	highscore.set("/scores.txt", 10, "Empty", 0)
+	highscore.load()
 	loadMusic()
 	math.randomseed(os.time())
 	loadSinglePlayer()
@@ -2085,10 +2097,6 @@ function drawHighScores(dt)
 	else
 		love.graphics.setFont(font, 40, "normal")
 	end
-	
-	--Draw Jewels
-	--love.graphics.draw(blocksPGBY[5], getWidth/2 - blockDrawSize/2,(getHeight/12) *8,0, .5, .5)
-	--love.graphics.draw(blocksPGBY[3], getWidth/2 - blockDrawSize/2,(getHeight/12) *11,0, .5, .5)
 
 	--Draw Titles
 	love.graphics.printf("HIGH SCORES", 0, (getHeight/12) * 1, getWidth,"center")
@@ -2113,8 +2121,6 @@ function drawScoreEntry(dt)
 	end
 	love.graphics.scale(setScale, setScale)
 	
-	
-	
 	--Draw Subsections
 	love.graphics.printf("Up and down to choose letter. Select 3!", 0 + getWidth/4, (getHeight/12) *2, getWidth/2,"center")
 	
@@ -2138,12 +2144,24 @@ function drawScoreEntry(dt)
 	
 	--Draw Jewels
 	--love.graphics.draw(blocksPGBY[5], getWidth/2 - blockDrawSize/2,(getHeight/12) *8,0, .5, .5)
-	--love.graphics.draw(blocksPGBY[3], getWidth/2 - blockDrawSize/2,(getHeight/12) *11,0, .5, .5)
+	
+
 
 	--Draw Titles
 	love.graphics.printf("Enter Name!", 0, (getHeight/12) * 1, getWidth,"center")
-	--love.graphics.printf("JUNK BLOCKS!?", 0, (getHeight/12) *5, getWidth,"center")
-	--love.graphics.printf("Controls!", 0, (getHeight/12) *9, getWidth,"center")
+	
+	love.graphics.printf(alphabet[nameChar1], 0 + getWidth/4, (getHeight/12) *5, getWidth/2 - getWidth/8,"center")
+	love.graphics.printf(alphabet[nameChar2], 0 + getWidth/4, (getHeight/12) *5, getWidth/2,"center")
+	love.graphics.printf(alphabet[nameChar3], 0 + getWidth/4, (getHeight/12) *5, getWidth/2 + getWidth/8,"center")
+
+	--Draw Cursor
+	if(scoreEntryID <= 1) then
+		love.graphics.printf("[ ]", 0 + getWidth/4, (getHeight/12) *5, getWidth/2 - getWidth/8,"center")
+	elseif(scoreEntryID == 2) then
+		love.graphics.printf("[ ]", 0 + getWidth/4, (getHeight/12) *5, getWidth/2,"center")
+	elseif(scoreEntryID == 3) then
+		love.graphics.printf("[ ]", 0 + getWidth/4, (getHeight/12) *5, getWidth/2 + getWidth/8,"center")
+	end
 end
 
 
@@ -2203,8 +2221,8 @@ function love.keypressed(key)
 			end
 				
 			elseif(gameOver == true) then
-				if(key == 'return' or key == 'c' or key == 'x') then
-					quit_to_menu()
+				if(key == '1' or key == 'lctrl' or key == 'lalt' or key =='return' or key == 'lshift' or key == 'space' or key == 'z' or key == 'x' or key == 'v' or key == 'c') then
+					enter_score()
 				end
 
 			
@@ -2262,7 +2280,7 @@ function love.keypressed(key)
 					
 				elseif(gameOver == true) then
 					if(key == '1' or key == 'lctrl' or key == 'lalt' or key =='return' or key == 'lshift' or key == 'space' or key == 'z' or key == 'x' or key == 'v') then
-						quit_to_menu()
+						enter_score()
 					end
 
 				
@@ -2297,6 +2315,56 @@ function love.keypressed(key)
 	elseif(gameState == gameStates.HighScore) then
 		if key == 'return' or key =='1' or key =='lctrl' or key =='lalt' or  key == 'x' or key == 'c' then
 			quit_to_menu()
+		end
+	
+	elseif(gameState == gameStates.ScoreEntry) then
+		if(scoreEntryID > 3) then
+			highscore.add(alphabet[nameChar1]..alphabet[nameChar2]..alphabet[nameChar3], player1.score)
+			highscore.save()
+			view_highscore()
+		end
+		if (key == 'return' or key =='1' or key =='lctrl' or key =='lalt' or  key == 'x' or key == 'c') then
+			scoreEntryID = scoreEntryID + 1
+		end
+		if (key == 'up') then
+			if(scoreEntryID == 1) then
+				nameChar1 = nameChar1 + 1
+				if(nameChar1 > 27) then
+					nameChar1 = 1;
+				end
+				
+			elseif(scoreEntryID == 2) then
+				nameChar2 = nameChar2 + 1
+				if(nameChar2 > 27) then
+					nameChar2 = 1;
+				end
+				
+			elseif(scoreEntryID == 3) then
+				nameChar3 = nameChar3 + 1
+				if(nameChar3 > 27) then
+					nameChar3 = 1;
+				end
+				
+			end
+		elseif(key == 'down') then
+			if(scoreEntryID == 1) then
+				nameChar1 = nameChar1 - 1
+				if(nameChar1 < 1) then
+					nameChar1 = 27;
+				end
+				
+			elseif(scoreEntryID == 2) then
+				nameChar2 = nameChar2 - 1
+				
+				if(nameChar2 < 1) then
+					nameChar2 = 27;
+				end
+			elseif(scoreEntryID == 3) then
+				nameChar3 = nameChar3 - 1
+				if(nameChar3 < 1) then
+					nameChar3 = 27;
+				end
+			end
 		end
 	end
 end
