@@ -8,9 +8,7 @@ function h.set(filename, places, name, score)
 	h.places = places
 	if not h.load() then
 		h.scores = {}
-		--No you gotta believe me, I'm really that good!
-		h.scores[1] = {2500000, "jfoxdev"}
-		for i = 2, places do
+		for i = 1, places do
 			h.scores[i] = {score * 5 * (places - i + 1), name}
 		end
 	end
@@ -18,7 +16,7 @@ end
 
 function h.load()
 	local file = love.filesystem.newFile(h.filename)
-	if not love.filesystem.exists(h.filename) or not file:open("r") then return end
+	if not love.filesystem.getInfo(h.filename) ~= nil or not file:open("r") then return end
 	h.scores = {}
 	for line in file:lines() do
 		local i = line:find('\t', 1, true)

@@ -4,8 +4,8 @@ local sick = require 'sick'
 --menuengine.settings.sndMove = love.audio.newSource("pick.wav", "static")
 --menuengine.settings.sndSuccess = love.audio.newSource("accept.wav", "static")
 
-gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3, Instructions = 4, HighScore  = 5}
-gameState = gameStates.MainMenu
+gameStates = {MainMenu = 1, SinglePlayer = 2, GameOver = 3, Instructions = 4, HighScore  = 5, ScoreEntry = 6}
+gameState = gameStates.ScoreEntry
 local mainmenu
 local pausemenu
 
@@ -76,6 +76,10 @@ local function view_instructions()
 	gameState = gameStates.Instructions
 end
 
+local function enter_score()
+	gameState = gameStates.ScoreEntry()
+end
+
 local function view_highscore()
 	gameState = gameStates.HighScore
 end
@@ -116,6 +120,7 @@ function reset()
 	
 function love.load(arg)
 	--profilerLoad()
+	highscore.set("scores", 10, "Empty", 0)
 	loadMusic()
 	math.randomseed(os.time())
 	loadSinglePlayer()
@@ -161,6 +166,9 @@ function love.draw(dt)
 		menuTimer = menuTimer+1
 	elseif gameState == gameStates.HighScore then
 		drawHighScores(menuTimer)
+		menuTimer = menuTimer+1
+	elseif gameState == gameStates.ScoreEntry then
+		drawScoreEntry(menuTimer)
 		menuTimer = menuTimer+1
 	end
 	
@@ -2054,7 +2062,10 @@ function drawHighScores(dt)
 	end
 	love.graphics.scale(setScale, setScale)
 	
-	
+	for i, score, name in highscore() do
+		love.graphics.printf(name, 0 + getWidth/4, (getHeight/12) *( 2+ i), getWidth/3,"center")
+		love.graphics.printf(score, 0 + getWidth/4, (getHeight/12) *( 2+ i), getWidth/1,"center")
+	end
 	
 	--Draw Subsections
 	--love.graphics.printf("Clear Blocks by matching colors. Match 4 and they'll clear!", 0 + getWidth/4, (getHeight/12) *2, getWidth/2,"center")
@@ -2084,6 +2095,57 @@ function drawHighScores(dt)
 	--love.graphics.printf("JUNK BLOCKS!?", 0, (getHeight/12) *5, getWidth,"center")
 	--love.graphics.printf("Controls!", 0, (getHeight/12) *9, getWidth,"center")
 end
+
+function drawScoreEntry(dt)
+	
+	local getWidth = love.graphics.getWidth()
+	local getHeight = love.graphics.getHeight()
+	drawUINongridBox(1, math.max(3, math.floor(getWidth/blockDrawSize) - 1), 1, math.max(5, math.floor(getHeight/blockDrawSize) - 1))
+	
+	love.graphics.setColor(255,255,255,255)
+	
+	--Push on the new scale. We'll pop it off later.
+	
+	if(getWidth > 800) then
+		love.graphics.setFont(medfont, 40, "normal")
+	else
+		love.graphics.setFont(smallfont, 40, "normal")
+	end
+	love.graphics.scale(setScale, setScale)
+	
+	
+	
+	--Draw Subsections
+	love.graphics.printf("Up and down to choose letter. Select 3!", 0 + getWidth/4, (getHeight/12) *2, getWidth/2,"center")
+	
+
+	--love.graphics.printf("Blocks with nothing under them fall! Use this and make combos!", 0 + getWidth/4, (getHeight/12) *3, getWidth/2,"center")
+	--love.graphics.draw(blocksPGBY[1], getWidth/2 - blockDrawSize/2,(getHeight/12) *4 + blockDrawSize/4,0, .5, .5)
+	
+	--love.graphics.printf("Junk blocks will show up over time.", 0 + getWidth/4, (getHeight/12) *6, getWidth/2,"center")
+	--love.graphics.printf("Clear blocks next to them to clear them out!", 0 + getWidth/4, (getHeight/12) *7, getWidth/2,"center")
+	
+
+	--love.graphics.printf("Move: Arrows / Spin: L-CTRL / Drop: L-ALT", 0 + getWidth/4, (getHeight/12) * 10, getWidth/2,"center")
+	
+	--Pop off early to see debug results
+
+	if(getWidth > 2200) then
+		love.graphics.setFont(largefont, 40, "normal")
+	else
+		love.graphics.setFont(font, 40, "normal")
+	end
+	
+	--Draw Jewels
+	--love.graphics.draw(blocksPGBY[5], getWidth/2 - blockDrawSize/2,(getHeight/12) *8,0, .5, .5)
+	--love.graphics.draw(blocksPGBY[3], getWidth/2 - blockDrawSize/2,(getHeight/12) *11,0, .5, .5)
+
+	--Draw Titles
+	love.graphics.printf("Enter Name!", 0, (getHeight/12) * 1, getWidth,"center")
+	--love.graphics.printf("JUNK BLOCKS!?", 0, (getHeight/12) *5, getWidth,"center")
+	--love.graphics.printf("Controls!", 0, (getHeight/12) *9, getWidth,"center")
+end
+
 
 --Input Functions
 
